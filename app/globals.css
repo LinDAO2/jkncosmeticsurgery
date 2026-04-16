@@ -158,6 +158,12 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: var(--na
 .contact-detail-label { font-family: var(--sans); font-weight: 200; font-size: 8.5px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--mid); }
 .contact-detail-value { font-family: var(--sans); font-weight: 300; font-size: 14px; color: var(--navy); letter-spacing: 0.04em; }
 
+/* Contact social links */
+.contact-social { display: flex; flex-direction: column; gap: 14px; margin-top: 36px; }
+.contact-social-link { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--navy); font-family: var(--sans); font-weight: 300; font-size: 13px; letter-spacing: 0.04em; transition: opacity 0.2s; }
+.contact-social-link:hover { opacity: 0.6; }
+.contact-social-icon { width: 18px; height: 18px; flex-shrink: 0; color: var(--navy); }
+
 /* FORM */
 .contact-form { display: flex; flex-direction: column; gap: 20px; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
