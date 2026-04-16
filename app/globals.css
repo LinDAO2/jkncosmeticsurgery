@@ -189,6 +189,64 @@ footer { background: var(--navy); padding: 60px var(--grid); display: flex; just
 .footer-link:hover { color: rgba(255,255,255,0.8); }
 .footer-copy { font-family: var(--sans); font-weight: 200; font-size: 8px; letter-spacing: 0.14em; color: rgba(255,255,255,0.2); margin-top: 6px; text-align: right; }
 
+/* ─── ADMIN ─── */
+.admin-login-page { min-height: 100vh; background: var(--ivory); display: flex; align-items: center; justify-content: center; padding: 24px; }
+.admin-login-box { background: var(--white); border: 0.5px solid var(--thin); padding: 56px 48px; width: 100%; max-width: 400px; }
+.admin-login-brand { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-bottom: 48px; }
+.admin-login-logo { font-family: var(--display); font-weight: 300; font-size: 42px; letter-spacing: -0.06em; color: var(--navy); line-height: 1; }
+.admin-login-sub { font-family: var(--sans); font-weight: 200; font-size: 8px; letter-spacing: 0.44em; text-transform: uppercase; color: var(--mid); }
+.admin-login-form { display: flex; flex-direction: column; gap: 20px; }
+.admin-login-field { display: flex; flex-direction: column; gap: 8px; }
+.admin-login-label { font-family: var(--sans); font-weight: 200; font-size: 8.5px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--mid); }
+.admin-login-input { font-family: var(--sans); font-weight: 300; font-size: 14px; color: var(--black); background: var(--white); border: 0.5px solid rgba(0,0,0,0.18); padding: 14px 16px; outline: none; width: 100%; transition: border-color 0.2s; }
+.admin-login-input:focus { border-color: var(--navy); }
+.admin-login-error { font-family: var(--sans); font-size: 12px; color: #c0392b; }
+.admin-login-btn { font-family: var(--sans); font-weight: 300; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--white); background: var(--navy); border: none; padding: 16px; cursor: pointer; transition: background 0.2s; margin-top: 8px; }
+.admin-login-btn:hover { background: var(--navy-lt); }
+.admin-login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.admin-layout { display: flex; min-height: 100vh; background: var(--ivory); }
+.admin-sidebar { width: 220px; flex-shrink: 0; background: var(--navy); display: flex; flex-direction: column; padding: 40px 28px; position: fixed; top: 0; left: 0; bottom: 0; }
+.admin-sidebar-brand { display: flex; flex-direction: column; gap: 5px; margin-bottom: 48px; }
+.admin-sidebar-logo { font-family: var(--display); font-weight: 300; font-size: 28px; letter-spacing: -0.06em; color: var(--white); line-height: 1; }
+.admin-sidebar-sub { font-family: var(--sans); font-weight: 200; font-size: 7px; letter-spacing: 0.4em; text-transform: uppercase; color: rgba(255,255,255,0.3); }
+.admin-nav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.admin-nav-item { font-family: var(--sans); font-weight: 200; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.45); padding: 10px 12px; cursor: pointer; transition: color 0.2s; border-radius: 2px; }
+.admin-nav-item.active { color: var(--white); background: rgba(255,255,255,0.08); }
+.admin-logout-btn { font-family: var(--sans); font-weight: 200; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.25); background: none; border: none; cursor: pointer; text-align: left; padding: 10px 12px; transition: color 0.2s; }
+.admin-logout-btn:hover { color: rgba(255,255,255,0.6); }
+
+.admin-main { margin-left: 220px; flex: 1; padding: 48px 48px; }
+.admin-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; border-bottom: 0.5px solid var(--thin); padding-bottom: 24px; }
+.admin-header-label { font-family: var(--sans); font-weight: 200; font-size: 9px; letter-spacing: 0.34em; text-transform: uppercase; color: var(--mid); display: block; margin-bottom: 6px; }
+.admin-header-title { font-family: var(--display); font-weight: 300; font-size: 36px; letter-spacing: 0.02em; color: var(--navy); line-height: 1; }
+.admin-header-count { font-family: var(--sans); font-weight: 200; font-size: 11px; letter-spacing: 0.1em; color: var(--mid); }
+.admin-empty { font-family: var(--sans); font-weight: 200; font-size: 14px; color: var(--mid); padding: 60px 0; text-align: center; }
+
+.admin-table-wrap { background: var(--white); border: 0.5px solid var(--thin); overflow-x: auto; }
+.admin-table { width: 100%; border-collapse: collapse; }
+.admin-table th { font-family: var(--sans); font-weight: 200; font-size: 8.5px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--mid); padding: 14px 20px; text-align: left; border-bottom: 0.5px solid var(--thin); background: var(--ivory); }
+.admin-table td { font-family: var(--sans); font-weight: 300; font-size: 13px; color: #333; padding: 16px 20px; border-bottom: 0.5px solid var(--thin); vertical-align: middle; }
+.admin-table td a { color: var(--navy); text-decoration: none; }
+.admin-table td a:hover { text-decoration: underline; }
+.admin-table tr:last-child td { border-bottom: none; }
+.admin-table tr.selected td { background: rgba(27,42,74,0.04); }
+.admin-view-btn { font-family: var(--sans); font-weight: 200; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--navy); background: none; border: 0.5px solid rgba(27,42,74,0.25); padding: 6px 14px; cursor: pointer; transition: all 0.2s; }
+.admin-view-btn:hover { background: var(--navy); color: var(--white); }
+
+.admin-detail { background: var(--white); border: 0.5px solid var(--thin); padding: 36px; margin-top: 2px; }
+.admin-detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+.admin-detail-name { font-family: var(--display); font-weight: 300; font-size: 28px; letter-spacing: 0.02em; color: var(--navy); }
+.admin-detail-close { background: none; border: none; font-size: 16px; color: var(--mid); cursor: pointer; padding: 4px 8px; }
+.admin-detail-grid { display: flex; flex-direction: column; gap: 0; }
+.admin-detail-row { display: flex; gap: 24px; padding: 12px 0; border-bottom: 0.5px solid var(--thin); }
+.admin-detail-row:last-child { border-bottom: none; }
+.admin-detail-label { font-family: var(--sans); font-weight: 200; font-size: 8.5px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--mid); width: 90px; flex-shrink: 0; padding-top: 2px; }
+.admin-detail-value { font-family: var(--sans); font-weight: 300; font-size: 14px; color: var(--navy); text-decoration: none; }
+.admin-detail-message { font-family: var(--sans); font-weight: 300; font-size: 14px; line-height: 1.75; color: #444; }
+.admin-reply-btn { display: inline-block; margin-top: 28px; font-family: var(--sans); font-weight: 300; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--white); background: var(--navy); padding: 14px 32px; text-decoration: none; transition: background 0.2s; }
+.admin-reply-btn:hover { background: var(--navy-lt); }
+
 /* ─── ANIMATIONS ─── */
 @keyframes fadeUp { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes fadeIn { 0%, 55% { opacity: 0; } 100% { opacity: 1; } }
