@@ -36,9 +36,9 @@ export default function AdminDashboard({ inquiries }: { inquiries: Inquiry[] }) 
           <span className="admin-sidebar-logo">JKN</span>
           <span className="admin-sidebar-sub">Practice Portal</span>
         </div>
-        <nav className="admin-nav">
+        <div className="admin-nav">
           <span className="admin-nav-item active">Inquiries</span>
-        </nav>
+        </div>
         <button className="admin-logout-btn" onClick={handleLogout}>Sign Out</button>
       </aside>
 
