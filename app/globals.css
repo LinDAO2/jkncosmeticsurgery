@@ -219,7 +219,7 @@ footer { background: var(--navy); padding: 60px var(--grid); display: flex; just
 .admin-main { margin-left: 220px; flex: 1; padding: 48px 48px; }
 .admin-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; border-bottom: 0.5px solid var(--thin); padding-bottom: 24px; }
 .admin-header-label { font-family: var(--sans); font-weight: 200; font-size: 9px; letter-spacing: 0.34em; text-transform: uppercase; color: var(--mid); display: block; margin-bottom: 6px; }
-.admin-header-title { font-family: var(--display); font-weight: 300; font-size: 36px; letter-spacing: 0.02em; color: var(--navy); line-height: 1; }
+.admin-header-title { font-family: var(--display); font-weight: 300; font-size: 36px; letter-spacing: 0.02em; color: var(--navy); line-height: 1.2; }
 .admin-header-count { font-family: var(--sans); font-weight: 200; font-size: 11px; letter-spacing: 0.1em; color: var(--mid); }
 .admin-empty { font-family: var(--sans); font-weight: 200; font-size: 14px; color: var(--mid); padding: 60px 0; text-align: center; }
 
