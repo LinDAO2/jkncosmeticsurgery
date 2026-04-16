@@ -216,7 +216,7 @@ footer { background: var(--navy); padding: 60px var(--grid); display: flex; just
 .admin-logout-btn { font-family: var(--sans); font-weight: 200; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.25); background: none; border: none; cursor: pointer; text-align: left; padding: 10px 12px; transition: color 0.2s; }
 .admin-logout-btn:hover { color: rgba(255,255,255,0.6); }
 
-.admin-main { margin-left: 220px; flex: 1; padding: 48px 48px; }
+.admin-main { margin-left: 220px; flex: 1; padding: 64px 48px 48px; }
 .admin-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; border-bottom: 0.5px solid var(--thin); padding-bottom: 24px; }
 .admin-header-label { font-family: var(--sans); font-weight: 200; font-size: 9px; letter-spacing: 0.34em; text-transform: uppercase; color: var(--mid); display: block; margin-bottom: 6px; }
 .admin-header-title { font-family: var(--display); font-weight: 300; font-size: 36px; letter-spacing: 0.02em; color: var(--navy); line-height: 1.2; }
