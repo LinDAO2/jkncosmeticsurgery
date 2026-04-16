@@ -1,19 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Image from 'next/image'
-
-const links = [
-  { label: 'Philosophy', href: '#philosophy' },
-  { label: 'Services', href: '#services' },
-  { label: 'Results', href: '#results' },
-  { label: 'About', href: '#about' },
-  { label: 'Contact', href: '#contact' },
-]
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 40)
@@ -22,31 +12,19 @@ export default function Nav() {
   }, [])
 
   return (
-    <nav className={`nav${scrolled ? ' nav--scrolled' : ''}`}>
-      <a href="#hero" className="nav__logo">
-        <span className="nav__logo-text">JKN</span>
+    <nav className={scrolled ? 'scrolled' : ''}>
+      <div className="nav-left">
+        <a href="#services-section">Services</a>
+        <a href="#ba-section">Before &amp; After</a>
+      </div>
+      <a className="nav-center" href="#hero">
+        <span className="nav-logo">JKN</span>
+        <span className="nav-sub">Cosmetic Surgery</span>
       </a>
-
-      <ul className={`nav__links${menuOpen ? ' nav__links--open' : ''}`}>
-        {links.map((l) => (
-          <li key={l.href}>
-            <a href={l.href} onClick={() => setMenuOpen(false)}>
-              {l.label}
-            </a>
-          </li>
-        ))}
-      </ul>
-
-      <button
-        className="nav__hamburger"
-        aria-label="Toggle menu"
-        aria-expanded={menuOpen}
-        onClick={() => setMenuOpen((o) => !o)}
-      >
-        <span />
-        <span />
-        <span />
-      </button>
+      <div className="nav-right">
+        <a href="#about-section">About</a>
+        <a className="nav-cta" href="#contact-section">Begin Your Journey</a>
+      </div>
     </nav>
   )
 }

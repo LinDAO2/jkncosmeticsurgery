@@ -1,111 +1,88 @@
 'use client'
 
-import { useState, useCallback, useRef } from 'react'
+import { useState } from 'react'
 import Image from 'next/image'
 import type { BeforeAfterCase } from '@/lib/types'
 import { urlFor } from '@/sanity/lib/image'
 
+const PLACEHOLDERS = [
+  { title: "Annie's Journey", type: 'Face & Neck Lift' },
+  { title: "Tara's Journey", type: 'Mid Facelift' },
+  { title: 'Patient Gallery', type: 'Eyelid Rejuvenation' },
+]
+
 export default function BeforeAfter({ cases }: { cases: BeforeAfterCase[] }) {
   const [active, setActive] = useState<BeforeAfterCase | null>(null)
-  const [sliderPos, setSliderPos] = useState(50)
-  const dragging = useRef(false)
-  const trackRef = useRef<HTMLDivElement>(null)
 
-  const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    if (!dragging.current || !trackRef.current) return
-    const rect = trackRef.current.getBoundingClientRect()
-    const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width))
-    setSliderPos((x / rect.width) * 100)
-  }, [])
-
-  const open = (c: BeforeAfterCase) => {
-    setActive(c)
-    setSliderPos(50)
-  }
-
-  const close = () => setActive(null)
+  const hasCases = cases?.length > 0
 
   return (
-    <section className="ba-section" id="results">
-      <div className="ba-section__inner">
-        <p className="section-label">Results</p>
-        <h2 className="ba-section__heading">Before &amp; After</h2>
-        <div className="ba-grid">
-          {cases.map((c) => (
-            <button
-              key={c._id}
-              className="ba-thumb"
-              onClick={() => open(c)}
-              aria-label={`View ${c.title} before and after`}
-            >
-              <Image
-                src={urlFor(c.afterImage).width(480).height(600).url()}
-                alt={c.title}
-                fill
-                sizes="(max-width: 768px) 50vw, 25vw"
-                style={{ objectFit: 'cover' }}
-              />
-              <div className="ba-thumb__overlay">
-                <span>{c.procedureType}</span>
+    <section className="ba-section" id="ba-section">
+      <div className="ba-header">
+        <span className="section-label">Results</span>
+        <h2 className="ba-heading">Before &amp; After</h2>
+      </div>
+
+      <div className="ba-grid">
+        {hasCases ? cases.map((c) => (
+          <div key={c._id}>
+            <div className="ba-card" onClick={() => setActive(c)}>
+              <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                <Image
+                  src={urlFor(c.afterImage).width(480).height(640).url()}
+                  alt={c.title}
+                  fill
+                  style={{ objectFit: 'cover' }}
+                />
               </div>
-            </button>
-          ))}
-        </div>
+              <div className="ba-overlay">
+                <span className="ba-overlay-title">{c.title}</span>
+                <span className="ba-overlay-link">View Case →</span>
+              </div>
+            </div>
+            <div className="ba-info">
+              <span className="ba-title">{c.procedureType}</span>
+              <span className="ba-type">{c.title}</span>
+            </div>
+          </div>
+        )) : PLACEHOLDERS.map((p) => (
+          <div key={p.title}>
+            <div className="ba-card">
+              <div className="ba-placeholder">
+                <span className="ba-placeholder-label">Image coming soon</span>
+              </div>
+              <div className="ba-overlay">
+                <span className="ba-overlay-title">{p.title}</span>
+                <span className="ba-overlay-link">View Case →</span>
+              </div>
+            </div>
+            <div className="ba-info">
+              <span className="ba-title">{p.type}</span>
+              <span className="ba-type">{p.title}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="ba-cta">
+        <a className="btn-navy" href="#contact-section">Begin Your Journey</a>
       </div>
 
       {active && (
-        <div
-          className="ba-modal"
-          role="dialog"
-          aria-modal="true"
-          aria-label={active.title}
-          onClick={(e) => e.target === e.currentTarget && close()}
-        >
-          <div className="ba-modal__box">
-            <button className="ba-modal__close" onClick={close} aria-label="Close">
-              ✕
-            </button>
-            <p className="ba-modal__label">{active.procedureType}</p>
-            <h3 className="ba-modal__title">{active.title}</h3>
-
-            <div
-              className="ba-compare"
-              ref={trackRef}
-              onPointerMove={handlePointerMove}
-              onPointerDown={(e) => {
-                dragging.current = true
-                trackRef.current?.setPointerCapture(e.pointerId)
-              }}
-              onPointerUp={() => { dragging.current = false }}
-            >
-              {/* Before */}
-              <div className="ba-compare__img ba-compare__img--before">
-                <Image
-                  src={urlFor(active.beforeImage).width(800).height(1000).url()}
-                  alt="Before"
-                  fill
-                  style={{ objectFit: 'cover' }}
-                />
-                <span className="ba-compare__tag ba-compare__tag--before">Before</span>
-              </div>
-              {/* After — clipped to sliderPos */}
-              <div
-                className="ba-compare__img ba-compare__img--after"
-                style={{ clipPath: `inset(0 ${100 - sliderPos}% 0 0)` }}
-              >
-                <Image
-                  src={urlFor(active.afterImage).width(800).height(1000).url()}
-                  alt="After"
-                  fill
-                  style={{ objectFit: 'cover' }}
-                />
-                <span className="ba-compare__tag ba-compare__tag--after">After</span>
-              </div>
-              {/* Divider handle */}
-              <div
-                className="ba-compare__handle"
-                style={{ left: `${sliderPos}%` }}
-              />
+        <div className="ba-modal-backdrop" onClick={(e) => e.target === e.currentTarget && setActive(null)}>
+          <div className="ba-modal">
+            <button className="ba-modal-close" onClick={() => setActive(null)}>✕</button>
+            <div className="ba-modal-img-wrap">
+              <Image src={urlFor(active.beforeImage).width(480).height(640).url()} alt="Before" fill style={{ objectFit: 'cover' }} />
+              <span className="ba-modal-label">Before</span>
+            </div>
+            <div className="ba-modal-img-wrap">
+              <Image src={urlFor(active.afterImage).width(480).height(640).url()} alt="After" fill style={{ objectFit: 'cover' }} />
+              <span className="ba-modal-label">After</span>
+            </div>
+            <div className="ba-modal-info">
+              <span style={{ fontFamily: 'var(--display)', fontSize: '20px', color: 'var(--navy)' }}>{active.title}</span>
+              <span style={{ fontFamily: 'var(--sans)', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--mid)' }}>{active.procedureType}</span>
             </div>
           </div>
         </div>

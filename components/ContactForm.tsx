@@ -46,47 +46,60 @@ export default function ContactForm() {
   if (status === 'success') {
     return (
       <div className="form-success">
-        <p className="form-success__icon">✦</p>
-        <h3>Thank you for reaching out.</h3>
-        <p>Dr. Nia's office will contact you within one business day.</p>
+        <p>Submitted — we will be in touch.</p>
+        <p style={{ fontSize: '14px', fontFamily: 'var(--sans)', color: 'var(--mid)' }}>
+          All submissions are reviewed personally and responded to within 48 hours.
+        </p>
       </div>
     )
   }
 
   return (
     <form ref={formRef} className="contact-form" onSubmit={handleSubmit} noValidate>
-      <div className="contact-form__row">
-        <div className="contact-form__field">
-          <label htmlFor="first_name">First Name *</label>
-          <input id="first_name" name="first_name" type="text" required />
+      <div className="form-row">
+        <div className="form-group">
+          <label className="form-label">First Name</label>
+          <input className="form-input" name="first_name" type="text" placeholder="First name" required />
         </div>
-        <div className="contact-form__field">
-          <label htmlFor="last_name">Last Name *</label>
-          <input id="last_name" name="last_name" type="text" required />
+        <div className="form-group">
+          <label className="form-label">Last Name</label>
+          <input className="form-input" name="last_name" type="text" placeholder="Last name" required />
         </div>
       </div>
-      <div className="contact-form__field">
-        <label htmlFor="email">Email Address *</label>
-        <input id="email" name="email" type="email" required />
+      <div className="form-group">
+        <label className="form-label">Email Address</label>
+        <input className="form-input" name="email" type="email" placeholder="your@email.com" required />
       </div>
-      <div className="contact-form__field">
-        <label htmlFor="phone">Phone (optional)</label>
-        <input id="phone" name="phone" type="tel" />
+      <div className="form-group">
+        <label className="form-label">Phone Number</label>
+        <input className="form-input" name="phone" type="tel" placeholder="+1 (000) 000-0000" />
       </div>
-      <div className="contact-form__field">
-        <label htmlFor="procedure_interest">Procedure of Interest</label>
-        <input id="procedure_interest" name="procedure_interest" type="text" placeholder="e.g. Rhinoplasty" />
+      <div className="form-group">
+        <label className="form-label">Area of Interest</label>
+        <select className="form-select form-input" name="procedure_interest">
+          <option value="" disabled>Select a procedure</option>
+          <option>Face &amp; Neck Lift</option>
+          <option>Invisible Access Mid Facelift</option>
+          <option>Eyelid &amp; Brow Rejuvenation</option>
+          <option>Lip Lifting</option>
+          <option>Facial Contouring</option>
+          <option>Scar Revision</option>
+          <option>Hair Restoration</option>
+          <option>Skin Cancer Reconstruction</option>
+          <option>Not sure — general enquiry</option>
+        </select>
       </div>
-      <div className="contact-form__field">
-        <label htmlFor="message">Message (optional)</label>
-        <textarea id="message" name="message" rows={4} />
+      <div className="form-group">
+        <label className="form-label">Tell us about your goals</label>
+        <textarea className="form-textarea" name="message" placeholder="Share any context about what you're hoping to achieve, any previous procedures, or questions you have for Dr. Nia." />
       </div>
       {status === 'error' && (
-        <p className="contact-form__error">{errorMsg}</p>
+        <p style={{ color: '#c0392b', fontFamily: 'var(--sans)', fontSize: '13px' }}>{errorMsg}</p>
       )}
-      <button type="submit" className="btn" disabled={status === 'submitting'}>
-        {status === 'submitting' ? 'Sending…' : 'Request Consultation'}
+      <button type="submit" className="form-submit" disabled={status === 'submitting'}>
+        {status === 'submitting' ? 'Sending…' : 'Submit Enquiry →'}
       </button>
+      <p className="form-note">All submissions are reviewed personally and responded to within 48 hours. Your information is kept strictly confidential.</p>
     </form>
   )
 }

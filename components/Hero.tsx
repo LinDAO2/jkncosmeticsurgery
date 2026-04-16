@@ -1,26 +1,17 @@
 export default function Hero() {
   return (
     <section className="hero" id="hero">
-      <video
-        className="hero__video"
-        autoPlay
-        muted
-        loop
-        playsInline
-        aria-hidden="true"
-      >
+      <video className="hero-video" autoPlay muted loop playsInline>
         <source src="/hero.mp4" type="video/mp4" />
       </video>
-      <div className="hero__overlay" />
-      <div className="hero__content">
-        <p className="hero__eyebrow">Dr. John K. Nia</p>
-        <h1 className="hero__headline">
-          The Art of<br />
-          <em>Refined Beauty</em>
-        </h1>
-        <a href="#contact" className="btn">
-          Request a Consultation
-        </a>
+      <div className="hero-overlay" />
+      <div className="hero-content">
+        <span className="hero-wordmark">JKN</span>
+        <span className="hero-tagline">Cosmetic Surgery</span>
+      </div>
+      <div className="hero-scroll">
+        <div className="scroll-line" />
+        <span className="scroll-label">Explore</span>
       </div>
     </section>
   )
