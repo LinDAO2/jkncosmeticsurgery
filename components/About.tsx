@@ -49,9 +49,12 @@ export default function About({ doctor }: { doctor: Doctor | null }) {
                 style={{ objectFit: 'cover', objectPosition: 'center top' }}
               />
             ) : (
-              <div className="about-photo-placeholder">
-                <span className="about-photo-label">Portrait coming soon</span>
-              </div>
+              <Image
+                src="/dr-nia.png"
+                alt={name}
+                fill
+                style={{ objectFit: 'cover', objectPosition: 'center top' }}
+              />
             )}
           </div>
         </div>
