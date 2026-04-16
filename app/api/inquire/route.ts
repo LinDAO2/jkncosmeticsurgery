@@ -29,7 +29,7 @@ export async function POST(req: Request) {
   }
 
   await resend.emails.send({
-    from: 'JKN Cosmetic Surgery <noreply@jkncosmeticsurgery.com>',
+    from: 'JKN Cosmetic Surgery <onboarding@resend.dev>',
     to: RESEND_TO_EMAIL,
     subject: `New inquiry from ${first_name} ${last_name}`,
     text: [
