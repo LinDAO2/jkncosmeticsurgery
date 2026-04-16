@@ -104,6 +104,13 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: var(--na
 .ba-filter-btn:hover { color: var(--navy); border-color: var(--navy); }
 .ba-filter-btn.active { color: var(--white); background: var(--navy); border-color: var(--navy); }
 
+/* BA Sensitive overlay */
+.ba-sensitive-overlay { position: absolute; inset: 0; background: rgba(10,10,10,0.72); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 24px; text-align: center; cursor: pointer; }
+.ba-sensitive-icon { width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.5); display: flex; align-items: center; justify-content: center; font-family: var(--sans); font-weight: 300; font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 4px; }
+.ba-sensitive-title { font-family: var(--sans); font-weight: 300; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: rgba(255,255,255,0.9); }
+.ba-sensitive-body { font-family: var(--sans); font-weight: 200; font-size: 11px; line-height: 1.6; color: rgba(255,255,255,0.45); letter-spacing: 0.02em; max-width: 200px; }
+.ba-sensitive-cta { font-family: var(--sans); font-weight: 200; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-top: 4px; border-bottom: 0.5px solid rgba(255,255,255,0.2); padding-bottom: 2px; }
+
 /* BA Lightbox */
 .ba-lightbox { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 720px; }
 
