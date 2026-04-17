@@ -58,11 +58,11 @@ const STATIC_CASES: StaticCase[] = [
 ]
 
 const FILTERS = [
-  { label: 'All',                        value: 'all' },
-  { label: 'Ponytail Lift',              value: 'ponytail' },
-  { label: 'Comprehensive Rejuvenation (Face, Neck & Eyes)', value: 'comprehensive' },
-  { label: 'Eyelid & Brow',             value: 'bleph' },
-  { label: 'Skin Cancer Reconstruction', value: 'skincancer' },
+  { label: 'All',                        sub: '', value: 'all' },
+  { label: 'Ponytail Lift',              sub: '', value: 'ponytail' },
+  { label: 'Comprehensive Rejuvenation', sub: 'Face, Neck & Eyes', value: 'comprehensive' },
+  { label: 'Eyelid & Brow',             sub: '', value: 'bleph' },
+  { label: 'Skin Cancer Reconstruction', sub: '', value: 'skincancer' },
 ]
 
 type Lightbox = { images: string[]; index: number }
@@ -109,6 +109,7 @@ export default function BeforeAfter({ cases }: { cases: BeforeAfterCase[] }) {
               onClick={() => setFilter(f.value)}
             >
               {f.label}
+              {f.sub && <span className="ba-filter-sub">{f.sub}</span>}
             </button>
           ))}
         </div>
