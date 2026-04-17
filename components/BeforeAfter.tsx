@@ -8,6 +8,7 @@ type StaticCase = {
   thumbnail: string
   images: string[]
   procedure: string
+  sub?: string
   category: string
 }
 
@@ -36,15 +37,15 @@ const PONYTAIL_CASES: StaticCase[] = [
 
 // Comprehensive Rejuvenation (Face, Neck & Eyes) — 9 patient cases
 const COMPREHENSIVE_CASES: StaticCase[] = [
-  { thumbnail: '/ba/comprehensive/case-01/01.jpeg', images: ['/ba/comprehensive/case-01/01.jpeg','/ba/comprehensive/case-01/02.jpeg','/ba/comprehensive/case-01/03.jpeg','/ba/comprehensive/case-01/04.jpeg','/ba/comprehensive/case-01/05.jpeg','/ba/comprehensive/case-01/06.jpeg','/ba/comprehensive/case-01/07.jpeg','/ba/comprehensive/case-01/08.jpeg'], procedure: 'Comprehensive Rejuvenation', category: 'comprehensive' },
-  { thumbnail: '/ba/comprehensive/case-02/01.jpeg', images: ['/ba/comprehensive/case-02/01.jpeg','/ba/comprehensive/case-02/02.jpeg','/ba/comprehensive/case-02/03.jpeg','/ba/comprehensive/case-02/04.jpeg','/ba/comprehensive/case-02/05.jpeg','/ba/comprehensive/case-02/06.jpeg','/ba/comprehensive/case-02/07.jpeg','/ba/comprehensive/case-02/08.jpeg','/ba/comprehensive/case-02/09.jpeg','/ba/comprehensive/case-02/10.jpeg'], procedure: 'Comprehensive Rejuvenation', category: 'comprehensive' },
-  { thumbnail: '/ba/comprehensive/case-03/01.jpeg', images: ['/ba/comprehensive/case-03/01.jpeg','/ba/comprehensive/case-03/02.jpeg','/ba/comprehensive/case-03/03.jpeg','/ba/comprehensive/case-03/04.jpeg'], procedure: 'Comprehensive Rejuvenation', category: 'comprehensive' },
-  { thumbnail: '/ba/comprehensive/case-04/01.jpeg', images: ['/ba/comprehensive/case-04/01.jpeg','/ba/comprehensive/case-04/02.jpeg','/ba/comprehensive/case-04/03.jpeg','/ba/comprehensive/case-04/04.jpeg','/ba/comprehensive/case-04/05.jpeg','/ba/comprehensive/case-04/06.jpeg','/ba/comprehensive/case-04/07.jpeg'], procedure: 'Comprehensive Rejuvenation', category: 'comprehensive' },
-  { thumbnail: '/ba/comprehensive/case-05/01.jpeg', images: ['/ba/comprehensive/case-05/01.jpeg','/ba/comprehensive/case-05/02.jpeg','/ba/comprehensive/case-05/03.jpeg','/ba/comprehensive/case-05/04.jpeg','/ba/comprehensive/case-05/05.jpeg','/ba/comprehensive/case-05/06.jpeg','/ba/comprehensive/case-05/07.jpeg','/ba/comprehensive/case-05/08.jpeg','/ba/comprehensive/case-05/09.jpeg','/ba/comprehensive/case-05/10.jpeg','/ba/comprehensive/case-05/11.jpeg','/ba/comprehensive/case-05/12.jpeg'], procedure: 'Comprehensive Rejuvenation', category: 'comprehensive' },
-  { thumbnail: '/ba/comprehensive/case-06/01.jpeg', images: ['/ba/comprehensive/case-06/01.jpeg','/ba/comprehensive/case-06/02.jpeg'], procedure: 'Comprehensive Rejuvenation', category: 'comprehensive' },
-  { thumbnail: '/ba/comprehensive/case-07/01.jpeg', images: ['/ba/comprehensive/case-07/01.jpeg','/ba/comprehensive/case-07/02.jpeg','/ba/comprehensive/case-07/03.jpeg','/ba/comprehensive/case-07/04.jpeg','/ba/comprehensive/case-07/05.jpeg','/ba/comprehensive/case-07/06.jpeg','/ba/comprehensive/case-07/07.jpeg'], procedure: 'Comprehensive Rejuvenation', category: 'comprehensive' },
-  { thumbnail: '/ba/comprehensive/case-08/01.jpeg', images: ['/ba/comprehensive/case-08/01.jpeg','/ba/comprehensive/case-08/02.jpeg','/ba/comprehensive/case-08/03.jpeg','/ba/comprehensive/case-08/04.jpeg','/ba/comprehensive/case-08/05.jpeg','/ba/comprehensive/case-08/06.jpeg'], procedure: 'Comprehensive Rejuvenation', category: 'comprehensive' },
-  { thumbnail: '/ba/comprehensive/case-09/01.jpeg', images: ['/ba/comprehensive/case-09/01.jpeg','/ba/comprehensive/case-09/02.jpeg','/ba/comprehensive/case-09/03.jpeg','/ba/comprehensive/case-09/04.jpeg','/ba/comprehensive/case-09/05.jpeg','/ba/comprehensive/case-09/06.jpeg','/ba/comprehensive/case-09/07.jpeg','/ba/comprehensive/case-09/08.jpeg'], procedure: 'Comprehensive Rejuvenation', category: 'comprehensive' },
+  { thumbnail: '/ba/comprehensive/case-01/01.jpeg', images: ['/ba/comprehensive/case-01/01.jpeg','/ba/comprehensive/case-01/02.jpeg','/ba/comprehensive/case-01/03.jpeg','/ba/comprehensive/case-01/04.jpeg','/ba/comprehensive/case-01/05.jpeg','/ba/comprehensive/case-01/06.jpeg','/ba/comprehensive/case-01/07.jpeg','/ba/comprehensive/case-01/08.jpeg'], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck & Eyes', category: 'comprehensive' },
+  { thumbnail: '/ba/comprehensive/case-02/01.jpeg', images: ['/ba/comprehensive/case-02/01.jpeg','/ba/comprehensive/case-02/02.jpeg','/ba/comprehensive/case-02/03.jpeg','/ba/comprehensive/case-02/04.jpeg','/ba/comprehensive/case-02/05.jpeg','/ba/comprehensive/case-02/06.jpeg','/ba/comprehensive/case-02/07.jpeg','/ba/comprehensive/case-02/08.jpeg','/ba/comprehensive/case-02/09.jpeg','/ba/comprehensive/case-02/10.jpeg'], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck & Eyes', category: 'comprehensive' },
+  { thumbnail: '/ba/comprehensive/case-03/01.jpeg', images: ['/ba/comprehensive/case-03/01.jpeg','/ba/comprehensive/case-03/02.jpeg','/ba/comprehensive/case-03/03.jpeg','/ba/comprehensive/case-03/04.jpeg'], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck & Eyes', category: 'comprehensive' },
+  { thumbnail: '/ba/comprehensive/case-04/01.jpeg', images: ['/ba/comprehensive/case-04/01.jpeg','/ba/comprehensive/case-04/02.jpeg','/ba/comprehensive/case-04/03.jpeg','/ba/comprehensive/case-04/04.jpeg','/ba/comprehensive/case-04/05.jpeg','/ba/comprehensive/case-04/06.jpeg','/ba/comprehensive/case-04/07.jpeg'], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck & Eyes', category: 'comprehensive' },
+  { thumbnail: '/ba/comprehensive/case-05/01.jpeg', images: ['/ba/comprehensive/case-05/01.jpeg','/ba/comprehensive/case-05/02.jpeg','/ba/comprehensive/case-05/03.jpeg','/ba/comprehensive/case-05/04.jpeg','/ba/comprehensive/case-05/05.jpeg','/ba/comprehensive/case-05/06.jpeg','/ba/comprehensive/case-05/07.jpeg','/ba/comprehensive/case-05/08.jpeg','/ba/comprehensive/case-05/09.jpeg','/ba/comprehensive/case-05/10.jpeg','/ba/comprehensive/case-05/11.jpeg','/ba/comprehensive/case-05/12.jpeg'], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck & Eyes', category: 'comprehensive' },
+  { thumbnail: '/ba/comprehensive/case-06/01.jpeg', images: ['/ba/comprehensive/case-06/01.jpeg','/ba/comprehensive/case-06/02.jpeg'], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck & Eyes', category: 'comprehensive' },
+  { thumbnail: '/ba/comprehensive/case-07/01.jpeg', images: ['/ba/comprehensive/case-07/01.jpeg','/ba/comprehensive/case-07/02.jpeg','/ba/comprehensive/case-07/03.jpeg','/ba/comprehensive/case-07/04.jpeg','/ba/comprehensive/case-07/05.jpeg','/ba/comprehensive/case-07/06.jpeg','/ba/comprehensive/case-07/07.jpeg'], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck & Eyes', category: 'comprehensive' },
+  { thumbnail: '/ba/comprehensive/case-08/01.jpeg', images: ['/ba/comprehensive/case-08/01.jpeg','/ba/comprehensive/case-08/02.jpeg','/ba/comprehensive/case-08/03.jpeg','/ba/comprehensive/case-08/04.jpeg','/ba/comprehensive/case-08/05.jpeg','/ba/comprehensive/case-08/06.jpeg'], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck & Eyes', category: 'comprehensive' },
+  { thumbnail: '/ba/comprehensive/case-09/01.jpeg', images: ['/ba/comprehensive/case-09/01.jpeg','/ba/comprehensive/case-09/02.jpeg','/ba/comprehensive/case-09/03.jpeg','/ba/comprehensive/case-09/04.jpeg','/ba/comprehensive/case-09/05.jpeg','/ba/comprehensive/case-09/06.jpeg','/ba/comprehensive/case-09/07.jpeg','/ba/comprehensive/case-09/08.jpeg'], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck & Eyes', category: 'comprehensive' },
 ]
 
 // Skin Cancer Reconstruction — all images in one slideshow
@@ -58,11 +59,11 @@ const STATIC_CASES: StaticCase[] = [
 ]
 
 const FILTERS = [
-  { label: 'All',                        sub: '', value: 'all' },
-  { label: 'Ponytail Lift',              sub: '', value: 'ponytail' },
-  { label: 'Comprehensive Rejuvenation', sub: 'Face, Neck & Eyes', value: 'comprehensive' },
-  { label: 'Eyelid & Brow',             sub: '', value: 'bleph' },
-  { label: 'Skin Cancer Reconstruction', sub: '', value: 'skincancer' },
+  { label: 'All',                        value: 'all' },
+  { label: 'Ponytail Lift',              value: 'ponytail' },
+  { label: 'Comprehensive Rejuvenation', value: 'comprehensive' },
+  { label: 'Eyelid & Brow',             value: 'bleph' },
+  { label: 'Skin Cancer Reconstruction', value: 'skincancer' },
 ]
 
 type Lightbox = { images: string[]; index: number }
@@ -109,7 +110,6 @@ export default function BeforeAfter({ cases }: { cases: BeforeAfterCase[] }) {
               onClick={() => setFilter(f.value)}
             >
               {f.label}
-              {f.sub && <span className="ba-filter-sub">{f.sub}</span>}
             </button>
           ))}
         </div>
@@ -160,6 +160,7 @@ export default function BeforeAfter({ cases }: { cases: BeforeAfterCase[] }) {
                   ) : (
                     <div className="ba-overlay">
                       <span className="ba-overlay-title">{c.procedure}</span>
+                      {c.sub && <span className="ba-overlay-sub">{c.sub}</span>}
                       {hasMultiple && <span className="ba-overlay-count">{c.images.length} photos</span>}
                       <span className="ba-overlay-link">View →</span>
                     </div>
