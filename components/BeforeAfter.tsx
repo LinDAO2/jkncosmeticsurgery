@@ -160,7 +160,6 @@ export default function BeforeAfter({ cases }: { cases: BeforeAfterCase[] }) {
                   ) : (
                     <div className="ba-overlay">
                       <span className="ba-overlay-title">{c.procedure}</span>
-                      {c.sub && <span className="ba-overlay-sub">{c.sub}</span>}
                       {hasMultiple && <span className="ba-overlay-count">{c.images.length} photos</span>}
                       <span className="ba-overlay-link">View →</span>
                     </div>
