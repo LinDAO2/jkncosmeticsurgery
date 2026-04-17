@@ -11,23 +11,30 @@ type StaticCase = {
   category: string
 }
 
-const EYELID_CASES: StaticCase[] = [
-  { thumbnail: '/ba/eyelid/case-01/01.jpeg', images: ['/ba/eyelid/case-01/01.jpeg','/ba/eyelid/case-01/02.jpeg','/ba/eyelid/case-01/03.jpeg','/ba/eyelid/case-01/04.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'eyelid' },
-  { thumbnail: '/ba/eyelid/case-02/01.jpeg', images: ['/ba/eyelid/case-02/01.jpeg','/ba/eyelid/case-02/02.jpeg','/ba/eyelid/case-02/03.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'eyelid' },
-  { thumbnail: '/ba/eyelid/case-03/01.jpeg', images: ['/ba/eyelid/case-03/01.jpeg','/ba/eyelid/case-03/02.jpeg','/ba/eyelid/case-03/03.jpeg','/ba/eyelid/case-03/04.jpeg','/ba/eyelid/case-03/05.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'eyelid' },
-  { thumbnail: '/ba/eyelid/case-04/01.jpeg', images: ['/ba/eyelid/case-04/01.jpeg','/ba/eyelid/case-04/02.jpeg','/ba/eyelid/case-04/03.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'eyelid' },
-  { thumbnail: '/ba/eyelid/case-05/01.jpeg', images: ['/ba/eyelid/case-05/01.jpeg','/ba/eyelid/case-05/02.jpeg','/ba/eyelid/case-05/03.jpeg','/ba/eyelid/case-05/04.jpeg','/ba/eyelid/case-05/05.jpeg','/ba/eyelid/case-05/06.jpeg','/ba/eyelid/case-05/07.jpeg','/ba/eyelid/case-05/08.jpeg','/ba/eyelid/case-05/09.jpeg','/ba/eyelid/case-05/10.jpeg','/ba/eyelid/case-05/11.jpeg','/ba/eyelid/case-05/12.jpeg','/ba/eyelid/case-05/13.jpeg','/ba/eyelid/case-05/14.jpeg','/ba/eyelid/case-05/15.jpeg','/ba/eyelid/case-05/16.jpeg','/ba/eyelid/case-05/17.jpeg','/ba/eyelid/case-05/18.jpeg','/ba/eyelid/case-05/19.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'eyelid' },
-  { thumbnail: '/ba/eyelid/case-06/01.jpg', images: ['/ba/eyelid/case-06/01.jpg','/ba/eyelid/case-06/02.jpg','/ba/eyelid/case-06/03.jpg'], procedure: 'Upper & Lower Blepharoplasty', category: 'eyelid' },
-  { thumbnail: '/ba/eyelid/case-07/01.jpeg', images: ['/ba/eyelid/case-07/01.jpeg','/ba/eyelid/case-07/02.jpeg','/ba/eyelid/case-07/03.jpeg','/ba/eyelid/case-07/04.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'eyelid' },
-  { thumbnail: '/ba/eyelid/case-08/01.jpeg', images: ['/ba/eyelid/case-08/01.jpeg','/ba/eyelid/case-08/02.jpeg','/ba/eyelid/case-08/03.jpeg','/ba/eyelid/case-08/04.jpeg','/ba/eyelid/case-08/05.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'eyelid' },
-  { thumbnail: '/ba/eyelid/case-09/01.jpeg', images: ['/ba/eyelid/case-09/01.jpeg','/ba/eyelid/case-09/02.jpeg','/ba/eyelid/case-09/03.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'eyelid' },
-  { thumbnail: '/ba/eyelid/case-10/01.jpeg', images: ['/ba/eyelid/case-10/01.jpeg','/ba/eyelid/case-10/02.jpeg','/ba/eyelid/case-10/03.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'eyelid' },
-  { thumbnail: '/ba/eyelid/case-11/01.jpeg', images: ['/ba/eyelid/case-11/01.jpeg','/ba/eyelid/case-11/02.jpeg','/ba/eyelid/case-11/03.jpeg','/ba/eyelid/case-11/04.jpeg','/ba/eyelid/case-11/05.jpeg','/ba/eyelid/case-11/06.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'eyelid' },
-  { thumbnail: '/ba/eyelid/case-12/01.jpeg', images: ['/ba/eyelid/case-12/01.jpeg','/ba/eyelid/case-12/02.jpeg','/ba/eyelid/case-12/03.jpeg','/ba/eyelid/case-12/04.jpeg','/ba/eyelid/case-12/05.jpeg','/ba/eyelid/case-12/06.jpeg','/ba/eyelid/case-12/07.jpeg','/ba/eyelid/case-12/08.jpeg'], procedure: 'Brow Lift', category: 'eyelid' },
-  { thumbnail: '/ba/eyelid/case-13/01.jpeg', images: ['/ba/eyelid/case-13/01.jpeg','/ba/eyelid/case-13/02.jpeg','/ba/eyelid/case-13/03.jpeg','/ba/eyelid/case-13/04.jpeg','/ba/eyelid/case-13/05.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'eyelid' },
-  { thumbnail: '/ba/eyelid/case-14/01.jpeg', images: ['/ba/eyelid/case-14/01.jpeg','/ba/eyelid/case-14/02.jpeg','/ba/eyelid/case-14/03.jpeg','/ba/eyelid/case-14/04.jpeg','/ba/eyelid/case-14/05.jpeg','/ba/eyelid/case-14/06.jpeg','/ba/eyelid/case-14/07.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'eyelid' },
+// Upper & Lower Blepharoplasty — 14 patient cases
+const BLEPH_CASES: StaticCase[] = [
+  { thumbnail: '/ba/eyelid/case-01/01.jpeg', images: ['/ba/eyelid/case-01/01.jpeg','/ba/eyelid/case-01/02.jpeg','/ba/eyelid/case-01/03.jpeg','/ba/eyelid/case-01/04.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-02/01.jpeg', images: ['/ba/eyelid/case-02/01.jpeg','/ba/eyelid/case-02/02.jpeg','/ba/eyelid/case-02/03.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-03/01.jpeg', images: ['/ba/eyelid/case-03/01.jpeg','/ba/eyelid/case-03/02.jpeg','/ba/eyelid/case-03/03.jpeg','/ba/eyelid/case-03/04.jpeg','/ba/eyelid/case-03/05.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-04/01.jpeg', images: ['/ba/eyelid/case-04/01.jpeg','/ba/eyelid/case-04/02.jpeg','/ba/eyelid/case-04/03.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-05/01.jpeg', images: ['/ba/eyelid/case-05/01.jpeg','/ba/eyelid/case-05/02.jpeg','/ba/eyelid/case-05/03.jpeg','/ba/eyelid/case-05/04.jpeg','/ba/eyelid/case-05/05.jpeg','/ba/eyelid/case-05/06.jpeg','/ba/eyelid/case-05/07.jpeg','/ba/eyelid/case-05/08.jpeg','/ba/eyelid/case-05/09.jpeg','/ba/eyelid/case-05/10.jpeg','/ba/eyelid/case-05/11.jpeg','/ba/eyelid/case-05/12.jpeg','/ba/eyelid/case-05/13.jpeg','/ba/eyelid/case-05/14.jpeg','/ba/eyelid/case-05/15.jpeg','/ba/eyelid/case-05/16.jpeg','/ba/eyelid/case-05/17.jpeg','/ba/eyelid/case-05/18.jpeg','/ba/eyelid/case-05/19.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-06/01.jpg',  images: ['/ba/eyelid/case-06/01.jpg','/ba/eyelid/case-06/02.jpg','/ba/eyelid/case-06/03.jpg'], procedure: 'Upper & Lower Blepharoplasty', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-07/01.jpeg', images: ['/ba/eyelid/case-07/01.jpeg','/ba/eyelid/case-07/02.jpeg','/ba/eyelid/case-07/03.jpeg','/ba/eyelid/case-07/04.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-08/01.jpeg', images: ['/ba/eyelid/case-08/01.jpeg','/ba/eyelid/case-08/02.jpeg','/ba/eyelid/case-08/03.jpeg','/ba/eyelid/case-08/04.jpeg','/ba/eyelid/case-08/05.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-09/01.jpeg', images: ['/ba/eyelid/case-09/01.jpeg','/ba/eyelid/case-09/02.jpeg','/ba/eyelid/case-09/03.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-10/01.jpeg', images: ['/ba/eyelid/case-10/01.jpeg','/ba/eyelid/case-10/02.jpeg','/ba/eyelid/case-10/03.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-11/01.jpeg', images: ['/ba/eyelid/case-11/01.jpeg','/ba/eyelid/case-11/02.jpeg','/ba/eyelid/case-11/03.jpeg','/ba/eyelid/case-11/04.jpeg','/ba/eyelid/case-11/05.jpeg','/ba/eyelid/case-11/06.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-12/01.jpeg', images: ['/ba/eyelid/case-12/01.jpeg','/ba/eyelid/case-12/02.jpeg','/ba/eyelid/case-12/03.jpeg','/ba/eyelid/case-12/04.jpeg','/ba/eyelid/case-12/05.jpeg','/ba/eyelid/case-12/06.jpeg','/ba/eyelid/case-12/07.jpeg','/ba/eyelid/case-12/08.jpeg'], procedure: 'Brow Lift', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-13/01.jpeg', images: ['/ba/eyelid/case-13/01.jpeg','/ba/eyelid/case-13/02.jpeg','/ba/eyelid/case-13/03.jpeg','/ba/eyelid/case-13/04.jpeg','/ba/eyelid/case-13/05.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-14/01.jpeg', images: ['/ba/eyelid/case-14/01.jpeg','/ba/eyelid/case-14/02.jpeg','/ba/eyelid/case-14/03.jpeg','/ba/eyelid/case-14/04.jpeg','/ba/eyelid/case-14/05.jpeg','/ba/eyelid/case-14/06.jpeg','/ba/eyelid/case-14/07.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'bleph' },
 ]
 
+// Ponytail Lift — 1 patient case (Petersen, Tara)
+const PONYTAIL_CASES: StaticCase[] = [
+  { thumbnail: '/ba/midfacelift/case-01/01.jpeg', images: ['/ba/midfacelift/case-01/01.jpeg','/ba/midfacelift/case-01/02.jpeg','/ba/midfacelift/case-01/03.jpeg','/ba/midfacelift/case-01/04.jpeg','/ba/midfacelift/case-01/05.jpeg','/ba/midfacelift/case-01/06.jpeg','/ba/midfacelift/case-01/07.jpeg','/ba/midfacelift/case-01/08.jpeg','/ba/midfacelift/case-01/09.jpeg','/ba/midfacelift/case-01/10.jpeg'], procedure: 'Ponytail Lift', category: 'ponytail' },
+]
+
+// Comprehensive Rejuvenation (Face, Neck & Eyes) — 9 patient cases
 const COMPREHENSIVE_CASES: StaticCase[] = [
   { thumbnail: '/ba/comprehensive/case-01/01.jpeg', images: ['/ba/comprehensive/case-01/01.jpeg','/ba/comprehensive/case-01/02.jpeg','/ba/comprehensive/case-01/03.jpeg','/ba/comprehensive/case-01/04.jpeg','/ba/comprehensive/case-01/05.jpeg','/ba/comprehensive/case-01/06.jpeg','/ba/comprehensive/case-01/07.jpeg','/ba/comprehensive/case-01/08.jpeg'], procedure: 'Comprehensive Rejuvenation', category: 'comprehensive' },
   { thumbnail: '/ba/comprehensive/case-02/01.jpeg', images: ['/ba/comprehensive/case-02/01.jpeg','/ba/comprehensive/case-02/02.jpeg','/ba/comprehensive/case-02/03.jpeg','/ba/comprehensive/case-02/04.jpeg','/ba/comprehensive/case-02/05.jpeg','/ba/comprehensive/case-02/06.jpeg','/ba/comprehensive/case-02/07.jpeg','/ba/comprehensive/case-02/08.jpeg','/ba/comprehensive/case-02/09.jpeg','/ba/comprehensive/case-02/10.jpeg'], procedure: 'Comprehensive Rejuvenation', category: 'comprehensive' },
@@ -40,24 +47,21 @@ const COMPREHENSIVE_CASES: StaticCase[] = [
   { thumbnail: '/ba/comprehensive/case-09/01.jpeg', images: ['/ba/comprehensive/case-09/01.jpeg','/ba/comprehensive/case-09/02.jpeg','/ba/comprehensive/case-09/03.jpeg','/ba/comprehensive/case-09/04.jpeg','/ba/comprehensive/case-09/05.jpeg','/ba/comprehensive/case-09/06.jpeg','/ba/comprehensive/case-09/07.jpeg','/ba/comprehensive/case-09/08.jpeg'], procedure: 'Comprehensive Rejuvenation', category: 'comprehensive' },
 ]
 
+// Skin Cancer Reconstruction — all images in one slideshow
 const SKINCANCER_IMAGES = Array.from({ length: 76 }, (_, i) => `/ba/skincancer/${String(i + 1).padStart(2, '0')}.jpeg`)
 
 const STATIC_CASES: StaticCase[] = [
-  { thumbnail: '/ba/facelift-1.jpg',    images: ['/ba/facelift-1.jpg'],    procedure: 'Face & Neck Lift',              category: 'facelift' },
-  { thumbnail: '/ba/facelift-2.jpg',    images: ['/ba/facelift-2.jpg'],    procedure: 'Face & Neck Lift',              category: 'facelift' },
-  { thumbnail: '/ba/facelift-3.jpg',    images: ['/ba/facelift-3.jpg'],    procedure: 'Face & Neck Lift',              category: 'facelift' },
-  { thumbnail: '/ba/midfacelift-1.jpg', images: ['/ba/midfacelift-1.jpg','/ba/midfacelift-2.jpg','/ba/midfacelift-3.jpg','/ba/midfacelift/01.jpeg','/ba/midfacelift/02.jpeg','/ba/midfacelift/03.jpeg','/ba/midfacelift/04.jpeg','/ba/midfacelift/05.jpeg','/ba/midfacelift/06.jpeg','/ba/midfacelift/07.jpeg','/ba/midfacelift/08.jpeg','/ba/midfacelift/09.jpeg','/ba/midfacelift/10.jpeg'], procedure: 'Ponytail Lift', category: 'midfacelift' },
+  ...PONYTAIL_CASES,
   ...COMPREHENSIVE_CASES,
-  ...EYELID_CASES,
+  ...BLEPH_CASES,
   { thumbnail: '/ba/skincancer/01.jpeg', images: SKINCANCER_IMAGES, procedure: 'Skin Cancer Reconstruction', category: 'skincancer' },
 ]
 
 const FILTERS = [
   { label: 'All',                        value: 'all' },
-  { label: 'Face & Neck Lift',           value: 'facelift' },
-  { label: 'Ponytail Lift',              value: 'midfacelift' },
+  { label: 'Ponytail Lift',              value: 'ponytail' },
   { label: 'Comprehensive Rejuvenation', value: 'comprehensive' },
-  { label: 'Eyelid & Brow',             value: 'eyelid' },
+  { label: 'Eyelid & Brow',             value: 'bleph' },
   { label: 'Skin Cancer Reconstruction', value: 'skincancer' },
 ]
 
