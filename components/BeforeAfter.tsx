@@ -60,7 +60,7 @@ const STATIC_CASES: StaticCase[] = [
 const FILTERS = [
   { label: 'All',                        value: 'all' },
   { label: 'Ponytail Lift',              value: 'ponytail' },
-  { label: 'Comprehensive Rejuvenation', value: 'comprehensive' },
+  { label: 'Comprehensive Rejuvenation (Face, Neck & Eyes)', value: 'comprehensive' },
   { label: 'Eyelid & Brow',             value: 'bleph' },
   { label: 'Skin Cancer Reconstruction', value: 'skincancer' },
 ]
