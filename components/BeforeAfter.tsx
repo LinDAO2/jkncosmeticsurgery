@@ -32,7 +32,7 @@ const STATIC_CASES: StaticCase[] = [
   { thumbnail: '/ba/facelift-1.jpg',    images: ['/ba/facelift-1.jpg'],    procedure: 'Face & Neck Lift',              category: 'facelift' },
   { thumbnail: '/ba/facelift-2.jpg',    images: ['/ba/facelift-2.jpg'],    procedure: 'Face & Neck Lift',              category: 'facelift' },
   { thumbnail: '/ba/facelift-3.jpg',    images: ['/ba/facelift-3.jpg'],    procedure: 'Face & Neck Lift',              category: 'facelift' },
-  { thumbnail: '/ba/midfacelift-1.jpg', images: ['/ba/midfacelift-1.jpg','/ba/midfacelift-2.jpg','/ba/midfacelift-3.jpg'], procedure: 'Ponytail Lift', category: 'midfacelift' },
+  { thumbnail: '/ba/midfacelift-1.jpg', images: ['/ba/midfacelift-1.jpg','/ba/midfacelift-2.jpg','/ba/midfacelift-3.jpg','/ba/midfacelift/01.jpeg','/ba/midfacelift/02.jpeg','/ba/midfacelift/03.jpeg','/ba/midfacelift/04.jpeg','/ba/midfacelift/05.jpeg','/ba/midfacelift/06.jpeg','/ba/midfacelift/07.jpeg','/ba/midfacelift/08.jpeg','/ba/midfacelift/09.jpeg','/ba/midfacelift/10.jpeg'], procedure: 'Ponytail Lift', category: 'midfacelift' },
   ...EYELID_CASES,
   { thumbnail: '/ba/skincancer-1.jpg',  images: ['/ba/skincancer-1.jpg'],  procedure: 'Skin Cancer Reconstruction',    category: 'skincancer' },
   { thumbnail: '/ba/skincancer-2.jpg',  images: ['/ba/skincancer-2.jpg'],  procedure: 'Skin Cancer Reconstruction',    category: 'skincancer' },
