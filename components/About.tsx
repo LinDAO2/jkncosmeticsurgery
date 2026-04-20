@@ -28,6 +28,14 @@ const DEFAULT_CERTS = [
 
 const DEFAULT_TAGS = ['Face & Neck Lift', 'Eyelid Surgery', 'Mohs Surgery', 'Scar Revision', 'Skin Reconstruction', 'Hair Restoration', 'Facial Contouring', 'Lip Lifting']
 
+const DEFAULT_RECOGNITION = [
+  { text: 'Featured in New York Magazine — Best Doctors',            href: 'https://nymag.com/bestdoctors/' },
+  { text: 'Castle Connolly Top Doctor, New York',                    href: 'https://www.castleconnolly.com/doctors/' },
+  { text: 'Author of 20+ peer-reviewed publications and textbook chapters', href: 'https://pubmed.ncbi.nlm.nih.gov/?term=John+K+Nia' },
+  { text: 'Faculty, American Academy of Dermatology',                href: 'https://www.aad.org/' },
+  { text: 'Board Certified in two surgical specialties',             href: 'https://www.certificationmatters.org/' },
+]
+
 export default function About({ doctor }: { doctor: Doctor | null }) {
   const bio = doctor?.bio?.length ? doctor.bio : DEFAULT_BIO
   const credentials = doctor?.credentials?.length ? doctor.credentials : DEFAULT_CREDENTIALS
@@ -50,10 +58,10 @@ export default function About({ doctor }: { doctor: Doctor | null }) {
               />
             ) : (
               <Image
-                src="/dr-nia.png"
+                src="/dr-nia-portrait.png"
                 alt={name}
                 fill
-                style={{ objectFit: 'cover', objectPosition: 'center top' }}
+                style={{ objectFit: 'cover', objectPosition: 'center 15%' }}
               />
             )}
           </div>
@@ -68,7 +76,7 @@ export default function About({ doctor }: { doctor: Doctor | null }) {
           ))}
 
           <div className="about-rule" />
-          <span className="about-block-label">Education &amp; Training</span>
+          <span className="about-block-label">Education & Training</span>
           <ul className="about-list">
             {credentials.map((c, i) => (
               <li key={i}>
@@ -90,6 +98,17 @@ export default function About({ doctor }: { doctor: Doctor | null }) {
           </ul>
 
           <div className="about-rule" />
+          <span className="about-block-label">Recognition</span>
+          <div className="about-recognition">
+            {DEFAULT_RECOGNITION.map((item, i) => (
+              <div key={i} className="recognition-item">
+                <div className="recognition-dash" />
+                <a href={item.href} className="recognition-text recognition-link" target="_blank" rel="noopener noreferrer">{item.text}</a>
+              </div>
+            ))}
+          </div>
+
+          <div className="about-rule" />
           <span className="about-block-label">Areas of Expertise</span>
           <div className="about-expertise">
             {tags.map((tag) => (
@@ -98,7 +117,7 @@ export default function About({ doctor }: { doctor: Doctor | null }) {
           </div>
 
           <div style={{ marginTop: '40px' }}>
-            <a className="btn-navy" href="#contact-section">Request a Consultation</a>
+            <a className="btn-navy" href="/begin">Request a Consultation</a>
           </div>
         </div>
       </div>

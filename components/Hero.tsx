@@ -1,3 +1,5 @@
+import LogoMark from './LogoMark'
+
 export default function Hero() {
   return (
     <section className="hero" id="hero">
@@ -6,8 +8,7 @@ export default function Hero() {
       </video>
       <div className="hero-overlay" />
       <div className="hero-content">
-        <span className="hero-wordmark">JKN</span>
-        <span className="hero-tagline">Cosmetic Surgery</span>
+        <LogoMark circleSize={180} color="#ffffff" showName={true} />
       </div>
       <div className="hero-scroll">
         <div className="scroll-line" />

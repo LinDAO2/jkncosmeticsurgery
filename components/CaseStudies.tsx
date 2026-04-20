@@ -1,0 +1,114 @@
+'use client'
+
+import Image from 'next/image'
+import { useEffect, useRef } from 'react'
+import type { BeforeAfterCase } from '@/lib/types'
+
+const FALLBACK_CASES = [
+  { id: 'f1', category: '', filter: 'comprehensive', title: 'Comprehensive Facial Rejuvenation', tags: ['Brow Lift', 'Ptosis Repair', 'Upper Blepharoplasty', 'Lower Blepharoplasty', 'Deep Plane Face & Neck Lift', 'Lip Lift', 'Fat Transfer', 'Laser Resurfacing'], img: '/ba/comprehensive/case-05/01.jpeg' },
+  { id: 'f2', category: '', filter: 'bleph',          title: 'Eyelid Rejuvenation',             tags: ['Brow Lift', 'Upper Blepharoplasty', 'Lower Blepharoplasty'], img: '/ba/eyelid/case-05/01.jpeg' },
+  { id: 'f3', category: '', filter: 'ponytail',       title: 'Invisible Access Mid Facelift',   tags: ['Invisible Access Mid Facelift', 'Lip Lift', 'Upper Blepharoplasty', 'Lower Blepharoplasty'], img: '/ba/midfacelift/home-card.png' },
+]
+
+const DELAYS = [0, 150, 300]
+
+export default function CaseStudies({ cases }: { cases: BeforeAfterCase[] }) {
+  const hasCases = cases && cases.length > 0
+  const sectionRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const cards = sectionRef.current?.querySelectorAll<HTMLElement>('.case-card')
+      cards?.forEach((card) => card.classList.add('wipe-revealed'))
+      return
+    }
+
+    const cards = sectionRef.current?.querySelectorAll<HTMLElement>('.case-card')
+    if (!cards) return
+
+    const observers: IntersectionObserver[] = []
+
+    cards.forEach((card, i) => {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              setTimeout(() => {
+                card.classList.add('wipe-revealed')
+              }, DELAYS[i] ?? 0)
+              observer.disconnect()
+            }
+          })
+        },
+        { threshold: 0.15 }
+      )
+      observer.observe(card)
+      observers.push(observer)
+    })
+
+    return () => observers.forEach((o) => o.disconnect())
+  }, [])
+
+  return (
+    <section className="cases-section" ref={sectionRef}>
+      <span className="section-label">Selected Cases</span>
+      <div className="cases-grid">
+        {hasCases
+          ? cases.map((c) => (
+              <a key={c._id} className="case-card" href="/before-after">
+                <div className="case-img">
+                  <div className="case-img-wipe" />
+                  {c.afterImage?.asset?.url ? (
+                    <Image
+                      src={c.afterImage.asset.url}
+                      alt={c.title}
+                      fill
+                      style={{ objectFit: 'cover', objectPosition: 'center top' }}
+                      sizes="(max-width: 640px) 100vw, (max-width: 960px) 50vw, 33vw"
+                    />
+                  ) : (
+                    <div className="case-img-placeholder" />
+                  )}
+                </div>
+                <div className="case-meta">
+                  <span className="case-category">{c.procedureType}</span>
+                  <span className="case-title">{c.title}</span>
+                  <div className="case-tags">
+                    <span className="case-tag">{c.procedureType}</span>
+                  </div>
+                  <span className="case-link">View Case &nbsp;→</span>
+                </div>
+              </a>
+            ))
+          : FALLBACK_CASES.map((c) => (
+              <a key={c.id} className="case-card" href={`/before-after?category=${c.filter}`}>
+                <div className="case-img">
+                  <div className="case-img-wipe" />
+                  <Image
+                    src={c.img}
+                    alt={c.title}
+                    fill
+                    style={{ objectFit: 'cover', objectPosition: 'center 15%', transition: 'transform 0.5s ease' }}
+                    sizes="(max-width: 640px) 100vw, (max-width: 960px) 50vw, 33vw"
+                    className="case-img-inner"
+                  />
+                </div>
+                <div className="case-meta">
+                  {c.category && <span className="case-category">{c.category}</span>}
+                  <span className="case-title">{c.title}</span>
+                  <div className="case-tags">
+                    {c.tags.map((t) => (
+                      <span key={t} className="case-tag">{t}</span>
+                    ))}
+                  </div>
+                  <span className="case-link">View Case &nbsp;→</span>
+                </div>
+              </a>
+            ))}
+      </div>
+      <div className="cases-footer">
+        <a className="case-view-more" href="/before-after">View All Cases &nbsp;→</a>
+      </div>
+    </section>
+  )
+}

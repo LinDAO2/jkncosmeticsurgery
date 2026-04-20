@@ -1,3 +1,6 @@
+'use client'
+
+import { useEffect, useRef } from 'react'
 import type { Service } from '@/lib/types'
 
 const DEFAULTS: Service[] = [
@@ -25,7 +28,7 @@ const DEFAULTS: Service[] = [
   {
     _id: '4',
     name: 'Lip Lifting',
-    description: 'Over time the lip elongates with age, often covering the front teeth when the mouth is at rest. Dr. Nia employs the CUPID lift — a technique created by Dr. Ben Talei — to restore youthful lip proportion and its natural relationship to the teeth.',
+    description: 'Over time the lip elongates with age, often covering the front teeth when the mouth is at rest. Dr. Nia employs a Brow Lift to restore youthful lip proportion and its natural relationship to the teeth.',
     price: '$7,000 – $15,000',
     order: 4,
   },
@@ -61,8 +64,41 @@ const DEFAULTS: Service[] = [
 
 export default function Services({ services }: { services: Service[] }) {
   const items = services?.length ? services : DEFAULTS
+  const sectionRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const rows = sectionRef.current?.querySelectorAll<HTMLElement>('.service-row')
+    if (!rows) return
+
+    if (reduced) {
+      rows.forEach((row) => row.classList.add('row-revealed'))
+      return
+    }
+
+    const observers: IntersectionObserver[] = []
+
+    rows.forEach((row) => {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              row.classList.add('row-revealed')
+              observer.disconnect()
+            }
+          })
+        },
+        { threshold: 0.1 }
+      )
+      observer.observe(row)
+      observers.push(observer)
+    })
+
+    return () => observers.forEach((o) => o.disconnect())
+  }, [])
+
   return (
-    <section className="services-section" id="services-section">
+    <section className="services-section" id="services-section" ref={sectionRef}>
       <div className="services-header">
         <div>
           <span className="section-label section-label-light">Procedures</span>
@@ -70,20 +106,21 @@ export default function Services({ services }: { services: Service[] }) {
         </div>
         <p className="services-sub">Each procedure is selected in consultation with Dr. Nia, tailored to your anatomy, goals, and timeline.</p>
       </div>
-      <div className="services-grid">
+      <div className="services-rows">
         {items.map((s) => (
-          <div key={s._id} className="service-card">
-            <div className="service-icon" />
-            <span className="service-name">{s.name}</span>
-            <p className="service-desc">{s.description}</p>
-            {s.price && <span className="service-price">{s.price}</span>}
+          <div key={s._id} className="service-row">
+            <div className="service-row-left">
+              <span className="service-row-name">{s.name}</span>
+              {s.price && <span className="service-row-price">{s.price}</span>}
+            </div>
+            <div className="service-row-right">
+              <p className="service-row-desc">{s.description}</p>
+            </div>
           </div>
         ))}
-        <div className="service-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start', background: 'rgba(255,255,255,0.07)' }}>
-          <span className="service-name" style={{ fontSize: '16px', opacity: 0.5 }}>Not sure where to begin?</span>
-          <p className="service-desc" style={{ marginBottom: '28px' }}>Dr. Nia offers private consultations to determine the most appropriate approach for your anatomy and goals.</p>
-          <a className="btn-outline" style={{ color: 'rgba(255,255,255,0.7)', borderColor: 'rgba(255,255,255,0.25)' }} href="#contact-section">Begin Your Journey</a>
-        </div>
+      </div>
+      <div style={{ marginTop: '56px', textAlign: 'center' }}>
+        <a className="btn-navy" href="/begin">Begin Your Journey</a>
       </div>
     </section>
   )

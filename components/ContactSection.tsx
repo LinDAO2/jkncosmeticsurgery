@@ -33,13 +33,13 @@ export default function ContactSection({ settings }: { settings: SiteSettings | 
             </a>
             <a
               className="contact-social-link"
-              href={`mailto:${settings?.contactEmail ?? 'hello@jkncosmeticsurgery.com'}`}
+              href={`mailto:${settings?.contactEmail ?? 'info@jkncosmeticsurgery.com'}`}
             >
               <svg className="contact-social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="4" width="20" height="16" rx="2"/>
                 <polyline points="2,4 12,13 22,4"/>
               </svg>
-              <span>{settings?.contactEmail ?? 'hello@jkncosmeticsurgery.com'}</span>
+              <span>{settings?.contactEmail ?? 'info@jkncosmeticsurgery.com'}</span>
             </a>
           </div>
         </div>

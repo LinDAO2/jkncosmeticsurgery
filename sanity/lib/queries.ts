@@ -14,6 +14,13 @@ export const beforeAftersQuery = groq`
   }
 `
 
+export const casesPreviewQuery = groq`
+  *[_type == "beforeAfter"][0...6] {
+    _id, title, procedureType,
+    afterImage { asset->{ url }, hotspot, crop }
+  }
+`
+
 export const philosophyQuery = groq`
   *[_type == "philosophy"] | order(number asc) {
     _id, number, title, body

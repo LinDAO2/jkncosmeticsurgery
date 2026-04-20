@@ -1,14 +1,18 @@
 import type { SiteSettings } from '@/lib/types'
 
 export default function QuoteSection({ settings }: { settings: SiteSettings | null }) {
-  const quote = settings?.quote ?? 'At the core of Dr. Nia\'s practice is one principle: true aesthetic excellence lies not in transformation, but in restoration.'
-  const attr = settings?.quoteAttribution ?? '— Dr. John K. Nia, MD'
+  const quote = settings?.quote ?? 'The goal is never to look different — it is to look entirely, unmistakably yourself.'
+  const attr  = settings?.quoteAttribution ?? '— Dr. John K. Nia, MD'
 
   return (
     <section className="quote-section">
-      <span className="quote-mark">&ldquo;</span>
-      <p className="quote-text">{quote}</p>
+      <p className="quote-text">
+        &ldquo;{quote}&rdquo;
+      </p>
       <span className="quote-attr">{attr}</span>
+      <div className="quote-cta">
+        <a className="btn-charcoal" href="/begin">Begin Your Journey</a>
+      </div>
     </section>
   )
 }
