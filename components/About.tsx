@@ -60,7 +60,11 @@ export default function About({ doctor }: { doctor: Doctor | null }) {
         </div>
         <div className="about-content">
           <span className="section-label">About</span>
-          <h2 className="about-name">{name}</h2>
+          <h2 className="about-name">
+            {name.startsWith('Dr.') ? (
+              <><span style={{ color: 'red' }}>Dr.</span>{name.slice(3)}</>
+            ) : name}
+          </h2>
           <span className="about-title">{title}</span>
 
           {bio.map((para, i) => (
