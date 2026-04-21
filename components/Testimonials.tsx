@@ -20,7 +20,7 @@ export default function Testimonials() {
   return (
     <section className="testimonials-section">
       <span className="testimonials-label">Patient Experiences</span>
-      <h2 className="testimonials-heading" style={{ color: 'red' }}>In Their Words</h2>
+      <h2 className="testimonials-heading">In Their Words</h2>
 
       <div className="testimonials-grid">
         {TESTIMONIALS.map((t) => (
