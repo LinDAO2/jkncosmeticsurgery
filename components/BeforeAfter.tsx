@@ -31,6 +31,20 @@ const BLEPH_CASES: StaticCase[] = [
   { thumbnail: '/ba/eyelid/case-12/01.jpeg', images: ['/ba/eyelid/case-12/01.jpeg','/ba/eyelid/case-12/02.jpeg','/ba/eyelid/case-12/03.jpeg','/ba/eyelid/case-12/04.jpeg','/ba/eyelid/case-12/05.jpeg','/ba/eyelid/case-12/06.jpeg','/ba/eyelid/case-12/07.jpeg','/ba/eyelid/case-12/08.jpeg'], procedure: 'Brow Lift', category: 'bleph' },
   { thumbnail: '/ba/eyelid/case-13/01.jpeg', images: ['/ba/eyelid/case-13/01.jpeg','/ba/eyelid/case-13/02.jpeg','/ba/eyelid/case-13/03.jpeg','/ba/eyelid/case-13/04.jpeg','/ba/eyelid/case-13/05.jpeg'], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph' },
   { thumbnail: '/ba/eyelid/case-14/01.jpeg', images: ['/ba/eyelid/case-14/01.jpeg','/ba/eyelid/case-14/02.jpeg','/ba/eyelid/case-14/03.jpeg','/ba/eyelid/case-14/04.jpeg','/ba/eyelid/case-14/05.jpeg','/ba/eyelid/case-14/06.jpeg','/ba/eyelid/case-14/07.jpeg'], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-15/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-15' },
+  { thumbnail: '/ba/eyelid/case-16/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-16' },
+  { thumbnail: '/ba/eyelid/case-17/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-17' },
+  { thumbnail: '/ba/eyelid/case-18/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-18' },
+  { thumbnail: '/ba/eyelid/case-19/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-19' },
+  { thumbnail: '/ba/eyelid/case-20/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-20' },
+  { thumbnail: '/ba/eyelid/case-21/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-21' },
+  { thumbnail: '/ba/eyelid/case-22/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-22' },
+  { thumbnail: '/ba/eyelid/case-23/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-23' },
+  { thumbnail: '/ba/eyelid/case-24/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-24' },
+  { thumbnail: '/ba/eyelid/case-25/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-25' },
+  { thumbnail: '/ba/eyelid/case-26/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-26' },
+  { thumbnail: '/ba/eyelid/case-27/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-27' },
+  { thumbnail: '/ba/eyelid/case-28/01.jpeg', images: [], procedure: 'Upper Brow Lift', category: 'bleph', href: '/before-after/eyelid/case-28' },
 ]
 
 // Invisible Access Mid Facelift — 2 patient cases
