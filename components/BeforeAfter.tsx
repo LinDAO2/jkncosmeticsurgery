@@ -33,9 +33,10 @@ const BLEPH_CASES: StaticCase[] = [
   { thumbnail: '/ba/eyelid/case-14/01.jpeg', images: ['/ba/eyelid/case-14/01.jpeg','/ba/eyelid/case-14/02.jpeg','/ba/eyelid/case-14/03.jpeg','/ba/eyelid/case-14/04.jpeg','/ba/eyelid/case-14/05.jpeg','/ba/eyelid/case-14/06.jpeg','/ba/eyelid/case-14/07.jpeg'], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph' },
 ]
 
-// Invisible Access Mid Facelift — 1 patient case (Petersen, Tara)
+// Invisible Access Mid Facelift — 2 patient cases
 const PONYTAIL_CASES: StaticCase[] = [
-  { thumbnail: '/ba/midfacelift/home-card.png', images: ['/ba/midfacelift/home-card.png','/ba/midfacelift/case-01/01.jpeg','/ba/midfacelift/case-01/02.jpeg','/ba/midfacelift/case-01/03.jpeg','/ba/midfacelift/case-01/04.jpeg','/ba/midfacelift/case-01/05.jpeg','/ba/midfacelift/case-01/06.jpeg','/ba/midfacelift/case-01/07.jpeg','/ba/midfacelift/case-01/08.jpeg','/ba/midfacelift/case-01/09.jpeg','/ba/midfacelift/case-01/10.jpeg'], procedure: 'Invisible Access Mid Facelift', category: 'ponytail' },
+  { thumbnail: '/ba/midfacelift/case-01/01.jpeg', images: [], procedure: 'Invisible Access Mid Facelift', category: 'ponytail', href: '/before-after/midfacelift/case-01' },
+  { thumbnail: '/ba/midfacelift/case-02/01.jpeg', images: [], procedure: 'Invisible Access Mid Facelift', category: 'ponytail', href: '/before-after/midfacelift/case-02' },
 ]
 
 // Comprehensive Rejuvenation (Face, Neck and Eyes) — 9 patient cases
