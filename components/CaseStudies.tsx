@@ -3,9 +3,10 @@
 import Image from 'next/image'
 import { useEffect, useRef } from 'react'
 import type { BeforeAfterCase } from '@/lib/types'
+import ImageWatermark from '@/components/ImageWatermark'
 
 const FALLBACK_CASES = [
-  { id: 'f1', category: '', filter: 'comprehensive', title: 'Comprehensive Facial Rejuvenation', tags: ['Brow Lift', 'Ptosis Repair', 'Upper Blepharoplasty', 'Lower Blepharoplasty', 'Deep Plane Face & Neck Lift', 'Lip Lift', 'Fat Transfer', 'Laser Resurfacing'], img: '/ba/comprehensive/case-05/01.jpeg' },
+  { id: 'f1', category: '', filter: 'comprehensive', href: '/before-after/hc', title: 'Comprehensive Rejuvenation', tags: ['Deep Plane Face and Neck Lift', 'Buccal Fat Contouring', 'Fat Transfer', 'Laser Resurfacing'], img: '/ba/hc/01.jpg' },
   { id: 'f2', category: '', filter: 'bleph',          title: 'Eyelid Rejuvenation',             tags: ['Brow Lift', 'Upper Blepharoplasty', 'Lower Blepharoplasty'], img: '/ba/eyelid/case-05/01.jpeg' },
   { id: 'f3', category: '', filter: 'ponytail',       title: 'Invisible Access Mid Facelift',   tags: ['Invisible Access Mid Facelift', 'Lip Lift', 'Upper Blepharoplasty', 'Lower Blepharoplasty'], img: '/ba/midfacelift/home-card.png' },
 ]
@@ -81,7 +82,7 @@ export default function CaseStudies({ cases }: { cases: BeforeAfterCase[] }) {
               </a>
             ))
           : FALLBACK_CASES.map((c) => (
-              <a key={c.id} className="case-card" href={`/before-after?category=${c.filter}`}>
+              <a key={c.id} className="case-card" href={c.href ?? `/before-after?category=${c.filter}`}>
                 <div className="case-img">
                   <div className="case-img-wipe" />
                   <Image
@@ -92,6 +93,7 @@ export default function CaseStudies({ cases }: { cases: BeforeAfterCase[] }) {
                     sizes="(max-width: 640px) 100vw, (max-width: 960px) 50vw, 33vw"
                     className="case-img-inner"
                   />
+                  <ImageWatermark />
                 </div>
                 <div className="case-meta">
                   {c.category && <span className="case-category">{c.category}</span>}

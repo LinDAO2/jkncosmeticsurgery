@@ -2,7 +2,7 @@ import { defineField, defineType } from 'sanity'
 
 export const beforeAfterSchema = defineType({
   name: 'beforeAfter',
-  title: 'Before & After',
+  title: 'Before and After',
   type: 'document',
   fields: [
     defineField({ name: 'title', title: 'Title', type: 'string', validation: Rule => Rule.required() }),

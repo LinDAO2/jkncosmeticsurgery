@@ -3,7 +3,21 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'JKN Cosmetic Surgery',
-  description: 'Board-certified cosmetic surgery. Artistry. Precision. Confidence.',
+  description: 'Cosmetic surgery. Artistry. Precision. Confidence.',
+  openGraph: {
+    title: 'JKN Cosmetic Surgery',
+    description: 'Cosmetic surgery. Artistry. Precision. Confidence.',
+    url: 'https://jkncosmeticsurgery.com',
+    siteName: 'JKN Cosmetic Surgery',
+    images: [{ url: 'https://jkncosmeticsurgery.com/og-image.png', width: 1200, height: 630 }],
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'JKN Cosmetic Surgery',
+    description: 'Cosmetic surgery. Artistry. Precision. Confidence.',
+    images: ['https://jkncosmeticsurgery.com/og-image.png'],
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

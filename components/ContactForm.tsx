@@ -78,9 +78,9 @@ export default function ContactForm() {
         <label className="form-label">Area of Interest</label>
         <select className="form-select form-input" name="procedure_interest">
           <option value="" disabled>Select a procedure</option>
-          <option>Face & Neck Lift</option>
+          <option>Face and Neck Lift</option>
           <option>Invisible Access Mid Facelift</option>
-          <option>Eyelid & Brow Rejuvenation</option>
+          <option>Eyelid and Brow Rejuvenation</option>
           <option>Lip Lifting</option>
           <option>Facial Contouring</option>
           <option>Scar Revision</option>

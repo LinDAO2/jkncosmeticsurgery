@@ -1,0 +1,5 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='630' viewBox='0 0 1200 630'>
+  <rect width='1200' height='630' fill='#ffffff'/>
+  <circle cx='600' cy='315' r='220' fill='#ffffff' stroke='#0a0a0a' stroke-width='3'/>
+  <text x='600' y='345' text-anchor='middle' font-family='Georgia, serif' font-weight='500' font-size='128' fill='#0a0a0a' letter-spacing='4'>JKN</text>
+</svg>

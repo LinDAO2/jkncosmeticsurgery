@@ -17,7 +17,7 @@ export const doctorSchema = defineType({
     defineField({ name: 'photo', title: 'Portrait Photo', type: 'image', options: { hotspot: true } }),
     defineField({
       name: 'credentials',
-      title: 'Education & Training',
+      title: 'Education and Training',
       type: 'array',
       of: [{
         type: 'object',

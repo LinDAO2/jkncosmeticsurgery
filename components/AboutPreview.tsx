@@ -9,7 +9,7 @@ const DEFAULT_FIRST_PARA = "Dr. John Nia is a fellowship-trained cosmetic and re
 
 export default function AboutPreview({ doctor }: { doctor: Doctor | null }) {
   const name  = doctor?.name  ?? 'Dr. John K. Nia'
-  const title = doctor?.title ?? 'Fellowship-Trained Cosmetic & Reconstructive Surgeon'
+  const title = doctor?.title ?? 'Fellowship-Trained Cosmetic and Reconstructive Surgeon'
   const para  = doctor?.bio?.[0] ?? DEFAULT_FIRST_PARA
 
   const sectionRef  = useRef<HTMLElement>(null)

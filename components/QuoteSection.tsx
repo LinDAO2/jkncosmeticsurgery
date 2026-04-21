@@ -10,9 +10,6 @@ export default function QuoteSection({ settings }: { settings: SiteSettings | nu
         &ldquo;{quote}&rdquo;
       </p>
       <span className="quote-attr">{attr}</span>
-      <div className="quote-cta">
-        <a className="btn-charcoal" href="/begin">Begin Your Journey</a>
-      </div>
     </section>
   )
 }

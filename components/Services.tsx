@@ -6,7 +6,7 @@ import type { Service } from '@/lib/types'
 const DEFAULTS: Service[] = [
   {
     _id: '1',
-    name: 'Face & Neck Lift',
+    name: 'Face and Neck Lift',
     description: 'A face and neck lift addresses the deep sinking and deflated tissues of the face that have aged with gravity over time. Dr. Nia employs a preservation-style, extended deep plane face and neck lift to address jowling, a heavy midface, and heavy necks — his firm belief that this is the best approach to an aging face.',
     price: '$25,000 – $50,000',
     order: 1,
@@ -20,7 +20,7 @@ const DEFAULTS: Service[] = [
   },
   {
     _id: '3',
-    name: 'Eyelid & Brow Rejuvenation',
+    name: 'Eyelid and Brow Rejuvenation',
     description: 'Treats drooping eyelids, under-eye bags, and sagging brows. Dr. Nia focuses on volume preservation in his approach, producing brighter, more open eyes and a well-rested appearance. Procedures include brow lift, upper and lower blepharoplasty, and ptosis repair.',
     price: 'Brow lift $10,000–$20,000 · Upper bleph $7,000–$15,000 · Lower bleph $8,000–$20,000 · Ptosis repair $5,000–$10,000',
     order: 3,

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import type { BeforeAfterCase } from '@/lib/types'
+import ImageWatermark from '@/components/ImageWatermark'
 
 type StaticCase = {
   thumbnail: string
@@ -11,24 +12,25 @@ type StaticCase = {
   procedure: string
   sub?: string
   category: string
+  href?: string
 }
 
-// Upper & Lower Blepharoplasty — 14 patient cases
+// Upper and Lower Blepharoplasty — 14 patient cases
 const BLEPH_CASES: StaticCase[] = [
-  { thumbnail: '/ba/eyelid/case-01/01.jpeg', images: ['/ba/eyelid/case-01/01.jpeg','/ba/eyelid/case-01/02.jpeg','/ba/eyelid/case-01/03.jpeg','/ba/eyelid/case-01/04.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'bleph' },
-  { thumbnail: '/ba/eyelid/case-02/01.jpeg', images: ['/ba/eyelid/case-02/01.jpeg','/ba/eyelid/case-02/02.jpeg','/ba/eyelid/case-02/03.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'bleph' },
-  { thumbnail: '/ba/eyelid/case-03/01.jpeg', images: ['/ba/eyelid/case-03/01.jpeg','/ba/eyelid/case-03/02.jpeg','/ba/eyelid/case-03/03.jpeg','/ba/eyelid/case-03/04.jpeg','/ba/eyelid/case-03/05.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'bleph' },
-  { thumbnail: '/ba/eyelid/case-04/01.jpeg', images: ['/ba/eyelid/case-04/01.jpeg','/ba/eyelid/case-04/02.jpeg','/ba/eyelid/case-04/03.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'bleph' },
-  { thumbnail: '/ba/eyelid/case-05/01.jpeg', images: ['/ba/eyelid/case-05/01.jpeg','/ba/eyelid/case-05/02.jpeg','/ba/eyelid/case-05/03.jpeg','/ba/eyelid/case-05/04.jpeg','/ba/eyelid/case-05/05.jpeg','/ba/eyelid/case-05/06.jpeg','/ba/eyelid/case-05/07.jpeg','/ba/eyelid/case-05/08.jpeg','/ba/eyelid/case-05/09.jpeg','/ba/eyelid/case-05/10.jpeg','/ba/eyelid/case-05/11.jpeg','/ba/eyelid/case-05/12.jpeg','/ba/eyelid/case-05/13.jpeg','/ba/eyelid/case-05/14.jpeg','/ba/eyelid/case-05/15.jpeg','/ba/eyelid/case-05/16.jpeg','/ba/eyelid/case-05/17.jpeg','/ba/eyelid/case-05/18.jpeg','/ba/eyelid/case-05/19.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'bleph' },
-  { thumbnail: '/ba/eyelid/case-06/01.jpg',  images: ['/ba/eyelid/case-06/01.jpg','/ba/eyelid/case-06/02.jpg','/ba/eyelid/case-06/03.jpg'], procedure: 'Upper & Lower Blepharoplasty', category: 'bleph' },
-  { thumbnail: '/ba/eyelid/case-07/01.jpeg', images: ['/ba/eyelid/case-07/01.jpeg','/ba/eyelid/case-07/02.jpeg','/ba/eyelid/case-07/03.jpeg','/ba/eyelid/case-07/04.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'bleph' },
-  { thumbnail: '/ba/eyelid/case-08/01.jpeg', images: ['/ba/eyelid/case-08/01.jpeg','/ba/eyelid/case-08/02.jpeg','/ba/eyelid/case-08/03.jpeg','/ba/eyelid/case-08/04.jpeg','/ba/eyelid/case-08/05.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'bleph' },
-  { thumbnail: '/ba/eyelid/case-09/01.jpeg', images: ['/ba/eyelid/case-09/01.jpeg','/ba/eyelid/case-09/02.jpeg','/ba/eyelid/case-09/03.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'bleph' },
-  { thumbnail: '/ba/eyelid/case-10/01.jpeg', images: ['/ba/eyelid/case-10/01.jpeg','/ba/eyelid/case-10/02.jpeg','/ba/eyelid/case-10/03.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'bleph' },
-  { thumbnail: '/ba/eyelid/case-11/01.jpeg', images: ['/ba/eyelid/case-11/01.jpeg','/ba/eyelid/case-11/02.jpeg','/ba/eyelid/case-11/03.jpeg','/ba/eyelid/case-11/04.jpeg','/ba/eyelid/case-11/05.jpeg','/ba/eyelid/case-11/06.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-01/01.jpeg', images: ['/ba/eyelid/case-01/01.jpeg','/ba/eyelid/case-01/02.jpeg','/ba/eyelid/case-01/03.jpeg','/ba/eyelid/case-01/04.jpeg'], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-02/01.jpeg', images: ['/ba/eyelid/case-02/01.jpeg','/ba/eyelid/case-02/02.jpeg','/ba/eyelid/case-02/03.jpeg'], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-03/01.jpeg', images: ['/ba/eyelid/case-03/01.jpeg','/ba/eyelid/case-03/02.jpeg','/ba/eyelid/case-03/03.jpeg','/ba/eyelid/case-03/04.jpeg','/ba/eyelid/case-03/05.jpeg'], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-04/01.jpeg', images: ['/ba/eyelid/case-04/01.jpeg','/ba/eyelid/case-04/02.jpeg','/ba/eyelid/case-04/03.jpeg'], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-05/01.jpeg', images: ['/ba/eyelid/case-05/01.jpeg','/ba/eyelid/case-05/02.jpeg','/ba/eyelid/case-05/03.jpeg','/ba/eyelid/case-05/04.jpeg','/ba/eyelid/case-05/05.jpeg','/ba/eyelid/case-05/06.jpeg','/ba/eyelid/case-05/07.jpeg','/ba/eyelid/case-05/08.jpeg','/ba/eyelid/case-05/09.jpeg','/ba/eyelid/case-05/10.jpeg','/ba/eyelid/case-05/11.jpeg','/ba/eyelid/case-05/12.jpeg','/ba/eyelid/case-05/13.jpeg','/ba/eyelid/case-05/14.jpeg','/ba/eyelid/case-05/15.jpeg','/ba/eyelid/case-05/16.jpeg','/ba/eyelid/case-05/17.jpeg','/ba/eyelid/case-05/18.jpeg','/ba/eyelid/case-05/19.jpeg'], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-06/01.jpg',  images: ['/ba/eyelid/case-06/01.jpg','/ba/eyelid/case-06/02.jpg','/ba/eyelid/case-06/03.jpg'], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-07/01.jpeg', images: ['/ba/eyelid/case-07/01.jpeg','/ba/eyelid/case-07/02.jpeg','/ba/eyelid/case-07/03.jpeg','/ba/eyelid/case-07/04.jpeg'], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-08/01.jpeg', images: ['/ba/eyelid/case-08/01.jpeg','/ba/eyelid/case-08/02.jpeg','/ba/eyelid/case-08/03.jpeg','/ba/eyelid/case-08/04.jpeg','/ba/eyelid/case-08/05.jpeg'], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-09/01.jpeg', images: ['/ba/eyelid/case-09/01.jpeg','/ba/eyelid/case-09/02.jpeg','/ba/eyelid/case-09/03.jpeg'], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-10/01.jpeg', images: ['/ba/eyelid/case-10/01.jpeg','/ba/eyelid/case-10/02.jpeg','/ba/eyelid/case-10/03.jpeg'], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-11/01.jpeg', images: ['/ba/eyelid/case-11/01.jpeg','/ba/eyelid/case-11/02.jpeg','/ba/eyelid/case-11/03.jpeg','/ba/eyelid/case-11/04.jpeg','/ba/eyelid/case-11/05.jpeg','/ba/eyelid/case-11/06.jpeg'], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph' },
   { thumbnail: '/ba/eyelid/case-12/01.jpeg', images: ['/ba/eyelid/case-12/01.jpeg','/ba/eyelid/case-12/02.jpeg','/ba/eyelid/case-12/03.jpeg','/ba/eyelid/case-12/04.jpeg','/ba/eyelid/case-12/05.jpeg','/ba/eyelid/case-12/06.jpeg','/ba/eyelid/case-12/07.jpeg','/ba/eyelid/case-12/08.jpeg'], procedure: 'Brow Lift', category: 'bleph' },
-  { thumbnail: '/ba/eyelid/case-13/01.jpeg', images: ['/ba/eyelid/case-13/01.jpeg','/ba/eyelid/case-13/02.jpeg','/ba/eyelid/case-13/03.jpeg','/ba/eyelid/case-13/04.jpeg','/ba/eyelid/case-13/05.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'bleph' },
-  { thumbnail: '/ba/eyelid/case-14/01.jpeg', images: ['/ba/eyelid/case-14/01.jpeg','/ba/eyelid/case-14/02.jpeg','/ba/eyelid/case-14/03.jpeg','/ba/eyelid/case-14/04.jpeg','/ba/eyelid/case-14/05.jpeg','/ba/eyelid/case-14/06.jpeg','/ba/eyelid/case-14/07.jpeg'], procedure: 'Upper & Lower Blepharoplasty', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-13/01.jpeg', images: ['/ba/eyelid/case-13/01.jpeg','/ba/eyelid/case-13/02.jpeg','/ba/eyelid/case-13/03.jpeg','/ba/eyelid/case-13/04.jpeg','/ba/eyelid/case-13/05.jpeg'], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph' },
+  { thumbnail: '/ba/eyelid/case-14/01.jpeg', images: ['/ba/eyelid/case-14/01.jpeg','/ba/eyelid/case-14/02.jpeg','/ba/eyelid/case-14/03.jpeg','/ba/eyelid/case-14/04.jpeg','/ba/eyelid/case-14/05.jpeg','/ba/eyelid/case-14/06.jpeg','/ba/eyelid/case-14/07.jpeg'], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph' },
 ]
 
 // Invisible Access Mid Facelift — 1 patient case (Petersen, Tara)
@@ -36,17 +38,17 @@ const PONYTAIL_CASES: StaticCase[] = [
   { thumbnail: '/ba/midfacelift/home-card.png', images: ['/ba/midfacelift/home-card.png','/ba/midfacelift/case-01/01.jpeg','/ba/midfacelift/case-01/02.jpeg','/ba/midfacelift/case-01/03.jpeg','/ba/midfacelift/case-01/04.jpeg','/ba/midfacelift/case-01/05.jpeg','/ba/midfacelift/case-01/06.jpeg','/ba/midfacelift/case-01/07.jpeg','/ba/midfacelift/case-01/08.jpeg','/ba/midfacelift/case-01/09.jpeg','/ba/midfacelift/case-01/10.jpeg'], procedure: 'Invisible Access Mid Facelift', category: 'ponytail' },
 ]
 
-// Comprehensive Rejuvenation (Face, Neck & Eyes) — 9 patient cases
+// Comprehensive Rejuvenation (Face, Neck and Eyes) — 9 patient cases
 const COMPREHENSIVE_CASES: StaticCase[] = [
-  { thumbnail: '/ba/comprehensive/case-04/01.jpeg', images: ['/ba/comprehensive/case-04/01.jpeg','/ba/comprehensive/case-04/02.jpeg','/ba/comprehensive/case-04/03.jpeg','/ba/comprehensive/case-04/04.jpeg','/ba/comprehensive/case-04/05.jpeg','/ba/comprehensive/case-04/06.jpeg','/ba/comprehensive/case-04/07.jpeg'], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck & Eyes', category: 'comprehensive' },
-  { thumbnail: '/ba/comprehensive/case-05/01.jpeg', images: ['/ba/comprehensive/case-05/01.jpeg','/ba/comprehensive/case-05/02.jpeg','/ba/comprehensive/case-05/03.jpeg','/ba/comprehensive/case-05/04.jpeg','/ba/comprehensive/case-05/05.jpeg','/ba/comprehensive/case-05/06.jpeg','/ba/comprehensive/case-05/07.jpeg','/ba/comprehensive/case-05/08.jpeg','/ba/comprehensive/case-05/09.jpeg','/ba/comprehensive/case-05/10.jpeg','/ba/comprehensive/case-05/11.jpeg','/ba/comprehensive/case-05/12.jpeg'], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck & Eyes', category: 'comprehensive' },
-  { thumbnail: '/ba/comprehensive/case-09/05.jpeg', images: ['/ba/comprehensive/case-09/01.jpeg','/ba/comprehensive/case-09/02.jpeg','/ba/comprehensive/case-09/03.jpeg','/ba/comprehensive/case-09/04.jpeg','/ba/comprehensive/case-09/05.jpeg','/ba/comprehensive/case-09/06.jpeg','/ba/comprehensive/case-09/07.jpeg','/ba/comprehensive/case-09/08.jpeg'], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck & Eyes', category: 'comprehensive' },
-  { thumbnail: '/ba/comprehensive/case-01/01.jpeg', images: ['/ba/comprehensive/case-01/01.jpeg','/ba/comprehensive/case-01/02.jpeg','/ba/comprehensive/case-01/03.jpeg','/ba/comprehensive/case-01/04.jpeg','/ba/comprehensive/case-01/05.jpeg','/ba/comprehensive/case-01/06.jpeg','/ba/comprehensive/case-01/07.jpeg','/ba/comprehensive/case-01/08.jpeg'], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck & Eyes', category: 'comprehensive' },
-  { thumbnail: '/ba/comprehensive/case-02/01.jpeg', images: ['/ba/comprehensive/case-02/01.jpeg','/ba/comprehensive/case-02/02.jpeg','/ba/comprehensive/case-02/03.jpeg','/ba/comprehensive/case-02/04.jpeg','/ba/comprehensive/case-02/05.jpeg','/ba/comprehensive/case-02/06.jpeg','/ba/comprehensive/case-02/07.jpeg','/ba/comprehensive/case-02/08.jpeg','/ba/comprehensive/case-02/09.jpeg','/ba/comprehensive/case-02/10.jpeg'], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck & Eyes', category: 'comprehensive' },
-  { thumbnail: '/ba/comprehensive/case-03/01.jpeg', images: ['/ba/comprehensive/case-03/01.jpeg','/ba/comprehensive/case-03/02.jpeg','/ba/comprehensive/case-03/03.jpeg','/ba/comprehensive/case-03/04.jpeg'], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck & Eyes', category: 'comprehensive' },
-  { thumbnail: '/ba/comprehensive/case-06/01.jpeg', images: ['/ba/comprehensive/case-06/01.jpeg','/ba/comprehensive/case-06/02.jpeg'], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck & Eyes', category: 'comprehensive' },
-  { thumbnail: '/ba/comprehensive/case-07/01.jpeg', images: ['/ba/comprehensive/case-07/01.jpeg','/ba/comprehensive/case-07/02.jpeg','/ba/comprehensive/case-07/03.jpeg','/ba/comprehensive/case-07/04.jpeg','/ba/comprehensive/case-07/05.jpeg','/ba/comprehensive/case-07/06.jpeg','/ba/comprehensive/case-07/07.jpeg'], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck & Eyes', category: 'comprehensive' },
-  { thumbnail: '/ba/comprehensive/case-08/01.jpeg', images: ['/ba/comprehensive/case-08/01.jpeg','/ba/comprehensive/case-08/02.jpeg','/ba/comprehensive/case-08/03.jpeg','/ba/comprehensive/case-08/04.jpeg','/ba/comprehensive/case-08/05.jpeg','/ba/comprehensive/case-08/06.jpeg'], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck & Eyes', category: 'comprehensive' },
+  { thumbnail: '/ba/hc/01.jpg', images: ['/ba/hc/01.jpg','/ba/hc/02.jpg','/ba/hc/03.jpg','/ba/hc/04.jpg','/ba/hc/05.jpg'], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck and Eyes', category: 'comprehensive', href: '/before-after/hc' },
+  { thumbnail: '/ba/comprehensive/case-04/01.jpeg', images: [], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck and Eyes', category: 'comprehensive', href: '/before-after/comprehensive/case-04' },
+  { thumbnail: '/ba/comprehensive/case-05/01.jpeg', images: [], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck and Eyes', category: 'comprehensive', href: '/before-after/comprehensive/case-05' },
+  { thumbnail: '/ba/comprehensive/case-09/05.jpeg', images: [], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck and Eyes', category: 'comprehensive', href: '/before-after/comprehensive/case-09' },
+  { thumbnail: '/ba/comprehensive/case-01/01.jpeg', images: [], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck and Eyes', category: 'comprehensive', href: '/before-after/comprehensive/case-01' },
+  { thumbnail: '/ba/comprehensive/case-03/01.jpeg', images: [], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck and Eyes', category: 'comprehensive', href: '/before-after/comprehensive/case-03' },
+  { thumbnail: '/ba/comprehensive/case-06/01.jpeg', images: [], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck and Eyes', category: 'comprehensive', href: '/before-after/comprehensive/case-06' },
+  { thumbnail: '/ba/comprehensive/case-07/01.jpeg', images: [], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck and Eyes', category: 'comprehensive', href: '/before-after/comprehensive/case-07' },
+  { thumbnail: '/ba/comprehensive/case-08/01.jpeg', images: [], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck and Eyes', category: 'comprehensive', href: '/before-after/comprehensive/case-08' },
 ]
 
 // Skin Cancer Reconstruction — 76 individual cards, each with sensitive content overlay
@@ -66,27 +68,60 @@ const FILTERS = [
   { label: 'All',                        value: 'all' },
   { label: 'Invisible Access Mid Facelift', value: 'ponytail' },
   { label: 'Comprehensive Rejuvenation', value: 'comprehensive' },
-  { label: 'Eyelid & Brow',             value: 'bleph' },
+  { label: 'Eyelid and Brow',             value: 'bleph' },
   { label: 'Skin Cancer Reconstruction', value: 'skincancer' },
 ]
+
+const CASES_PER_PAGE = 6
 
 type Lightbox = { images: string[]; index: number }
 
 export default function BeforeAfter({ cases }: { cases: BeforeAfterCase[] }) {
   const searchParams = useSearchParams()
   const [filter, setFilter] = useState(() => searchParams.get('category') ?? 'all')
+  const [scVisible, setScVisible] = useState(CASES_PER_PAGE)
+  const [loadBatchStart, setLoadBatchStart] = useState<number | null>(null)
 
   useEffect(() => {
     const cat = searchParams.get('category')
     if (cat) setFilter(cat)
   }, [searchParams])
+
+  useEffect(() => {
+    if (filter !== 'skincancer') {
+      setScVisible(CASES_PER_PAGE)
+      setLoadBatchStart(null)
+    }
+  }, [filter])
+
+  useEffect(() => {
+    if (loadBatchStart === null) return
+    const t = setTimeout(() => setLoadBatchStart(null), 1000)
+    return () => clearTimeout(t)
+  }, [loadBatchStart])
+
   const [lightbox, setLightbox] = useState<Lightbox | null>(null)
   const [revealed, setRevealed] = useState<Set<string>>(new Set())
 
   const hasSanityCases = cases?.length > 0
+
+  const ALL_NON_SC: StaticCase[] = [...PONYTAIL_CASES, ...COMPREHENSIVE_CASES, ...BLEPH_CASES, SKINCANCER_CASES[0]]
+
   const visible = hasSanityCases
     ? cases
-    : STATIC_CASES.filter((c) => filter === 'all' || c.category === filter)
+    : filter === 'skincancer'
+      ? SKINCANCER_CASES.slice(0, scVisible)
+      : filter === 'all'
+        ? ALL_NON_SC
+        : STATIC_CASES.filter((c) => c.category === filter)
+
+  const totalSkinCancer = SKINCANCER_CASES.length
+
+  function loadMore() {
+    const prev = scVisible
+    setLoadBatchStart(prev)
+    setScVisible((n) => Math.min(n + CASES_PER_PAGE, totalSkinCancer))
+  }
 
   function handleCardClick(c: StaticCase) {
     if (c.category === 'skincancer' && !revealed.has(c.thumbnail)) {
@@ -108,7 +143,7 @@ export default function BeforeAfter({ cases }: { cases: BeforeAfterCase[] }) {
     <section className="ba-section" id="ba-section">
       <div className="ba-header">
         <span className="section-label">Results</span>
-        <h2 className="ba-heading">Before & After</h2>
+        <h2 className="ba-heading">Before and After</h2>
       </div>
 
       {!hasSanityCases && (
@@ -117,7 +152,7 @@ export default function BeforeAfter({ cases }: { cases: BeforeAfterCase[] }) {
             <button
               key={f.value}
               className={`ba-filter-btn${filter === f.value ? ' active' : ''}`}
-              onClick={() => setFilter(f.value)}
+              onClick={() => { setFilter(f.value); if (f.value !== 'skincancer') { setScVisible(CASES_PER_PAGE); setLoadBatchStart(null) } }}
             >
               {f.label}
             </button>
@@ -140,10 +175,13 @@ export default function BeforeAfter({ cases }: { cases: BeforeAfterCase[] }) {
             ))
           : (visible as StaticCase[]).map((c, i) => {
               const isSensitive = c.category === 'skincancer'
+              const isTeaser = isSensitive && filter === 'all'
               const isRevealed = revealed.has(c.thumbnail)
               const hasMultiple = c.images.length > 1
-              return (
-                <div key={c.thumbnail} className="ba-card" onClick={() => handleCardClick(c)}>
+              const batchIdx = (isSensitive && loadBatchStart !== null && i >= loadBatchStart) ? i - loadBatchStart : null
+              const animStyle = batchIdx !== null ? { animation: `scFadeIn 0.5s ease-out both`, animationDelay: `${batchIdx * 0.08}s` } : {}
+              const cardInner = (
+                <>
                   <div style={{ position: 'relative', width: '100%', height: '100%' }}>
                     <Image
                       src={c.thumbnail}
@@ -159,8 +197,16 @@ export default function BeforeAfter({ cases }: { cases: BeforeAfterCase[] }) {
                       }}
                       priority={i < 3}
                     />
+                    {!isSensitive && <ImageWatermark />}
                   </div>
-                  {isSensitive && !isRevealed ? (
+                  {isTeaser ? (
+                    <div className="ba-sensitive-overlay">
+                      <span className="ba-sensitive-icon">!</span>
+                      <span className="ba-sensitive-title">Skin Cancer Reconstruction</span>
+                      <span className="ba-sensitive-body">Contains medical imagery. Click to view all cases.</span>
+                      <span className="ba-sensitive-cta">View all cases →</span>
+                    </div>
+                  ) : isSensitive && !isRevealed ? (
                     <div className="ba-sensitive-overlay">
                       <span className="ba-sensitive-icon">!</span>
                       <span className="ba-sensitive-title">Sensitive Content</span>
@@ -175,10 +221,38 @@ export default function BeforeAfter({ cases }: { cases: BeforeAfterCase[] }) {
                       <span className="ba-overlay-link">View →</span>
                     </div>
                   )}
+                </>
+              )
+              return isTeaser ? (
+                <div key={c.thumbnail} className="ba-card" style={{ cursor: 'pointer', ...animStyle }} onClick={() => { setFilter('skincancer'); document.querySelector('.ba-filters')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}>
+                  {cardInner}
+                </div>
+              ) : c.href ? (
+                <a key={c.thumbnail} className="ba-card" href={c.href} style={{ textDecoration: 'none', display: 'block', ...animStyle }}>
+                  {cardInner}
+                </a>
+              ) : (
+                <div key={c.thumbnail} className="ba-card" style={animStyle} onClick={() => handleCardClick(c)}>
+                  {cardInner}
                 </div>
               )
             })}
       </div>
+
+      {!hasSanityCases && filter === 'skincancer' && (
+        <div className="ba-pagination">
+          {scVisible < totalSkinCancer && (
+            <button id="load-more-btn" className="ba-load-more" onClick={loadMore}>
+              Load More Cases →
+            </button>
+          )}
+          <span id="case-count" className="ba-case-count">
+            {scVisible >= totalSkinCancer
+              ? `Showing all ${totalSkinCancer} cases`
+              : `Showing ${scVisible} of ${totalSkinCancer} cases`}
+          </span>
+        </div>
+      )}
 
       <div className="ba-cta">
         <a className="btn-navy" href="#contact-section">Begin Your Journey</a>
@@ -195,7 +269,7 @@ export default function BeforeAfter({ cases }: { cases: BeforeAfterCase[] }) {
               <Image
                 key={lightbox.images[lightbox.index]}
                 src={lightbox.images[lightbox.index]}
-                alt="Before & After"
+                alt="Before and After"
                 fill
                 style={{ objectFit: 'contain' }}
               />
