@@ -7,6 +7,7 @@ export default function AdminLogin() {
   const [view, setView] = useState<'signin' | 'signup'>('signin')
 
   // Sign in state
+  const [loginEmail, setLoginEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loginError, setLoginError] = useState('')
   const [loginLoading, setLoginLoading] = useState(false)
@@ -30,7 +31,7 @@ export default function AdminLogin() {
     const res = await fetch('/api/admin/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password }),
+      body: JSON.stringify({ email: loginEmail, password }),
     })
 
     if (res.ok) {
@@ -94,6 +95,18 @@ export default function AdminLogin() {
         {view === 'signin' ? (
           <form onSubmit={handleSignIn} className="admin-login-form">
             <div className="admin-login-field">
+              <label className="admin-login-label">Email</label>
+              <input
+                className="admin-login-input"
+                type="email"
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                placeholder="your@email.com"
+                autoFocus
+                required
+              />
+            </div>
+            <div className="admin-login-field">
               <label className="admin-login-label">Password</label>
               <input
                 className="admin-login-input"
@@ -101,7 +114,6 @@ export default function AdminLogin() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter password"
-                autoFocus
                 required
               />
             </div>

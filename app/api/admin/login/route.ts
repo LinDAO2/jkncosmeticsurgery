@@ -10,23 +10,24 @@ async function hashPassword(password: string): Promise<string> {
 }
 
 export async function POST(req: Request) {
-  const { password } = await req.json()
+  const { email, password } = await req.json()
 
-  // Check Supabase for a custom password first
-  const { data } = await supabase.from('admin_credentials').select('password_hash').limit(1)
-  const storedHash = data?.[0]?.password_hash
+  // Check Supabase for a custom account first
+  const { data } = await supabase.from('admin_credentials').select('email, password_hash').limit(1)
+  const stored = data?.[0]
 
   let valid = false
-  if (storedHash) {
+  if (stored?.password_hash) {
     const hash = await hashPassword(password)
-    valid = hash === storedHash
+    const emailMatch = stored.email ? stored.email === email : true
+    valid = emailMatch && hash === stored.password_hash
   } else {
-    // Fall back to env var if no custom password set yet
+    // Fall back to env var if no account set up yet
     valid = password === process.env.ADMIN_PASSWORD
   }
 
   if (!valid) {
-    return NextResponse.json({ error: 'Incorrect password' }, { status: 401 })
+    return NextResponse.json({ error: 'Incorrect email or password' }, { status: 401 })
   }
 
   const cookieStore = await cookies()
