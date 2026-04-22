@@ -30,7 +30,8 @@ export default async function Testimonials() {
           <div key={t.id} className="testimonial-card">
             <div>
               <span className="testimonial-mark">&ldquo;</span>
-              <p className="testimonial-quote">{t.quote}&rdquo;</p>
+              <p className="testimonial-quote">{t.quote}</p>
+              <span className="testimonial-mark testimonial-mark-close">&rdquo;</span>
             </div>
             <div className="testimonial-attribution">{t.attribution}</div>
           </div>
