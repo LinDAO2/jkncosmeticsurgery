@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 
 function ChangePasswordModal({ onClose }: { onClose: () => void }) {
@@ -174,6 +174,18 @@ function ReviewsView() {
   const [procedure, setProcedure] = useState('')
   const [otherProcedure, setOtherProcedure] = useState('')
   const [saving, setSaving] = useState(false)
+  const [misspelled, setMisspelled] = useState<{ word: string; suggestions: string[] }[]>([])
+  const spellTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const checkSpelling = useCallback((text: string) => {
+    if (spellTimer.current) clearTimeout(spellTimer.current)
+    if (!text.trim()) { setMisspelled([]); return }
+    spellTimer.current = setTimeout(async () => {
+      const res = await fetch('/api/admin/spellcheck', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) })
+      const data = await res.json()
+      setMisspelled(data.misspelled ?? [])
+    }, 600)
+  }, [])
 
   const PROCEDURES = [
     'Deep Plane Face and Neck Lift',
@@ -211,7 +223,7 @@ function ReviewsView() {
     setShowAdd(false)
     setError('')
   }
-  function cancel() { setShowAdd(false); setEditing(null); setError('') }
+  function cancel() { setShowAdd(false); setEditing(null); setError(''); setMisspelled([]) }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -257,7 +269,17 @@ function ReviewsView() {
             <p style={{ ...s, fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888', margin: 0 }}>{editing ? 'Edit Review' : 'New Review'}</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Review</label>
-              <textarea value={quote} onChange={e => setQuote(e.target.value)} required rows={4} spellCheck={true} style={{ border: `0.5px solid ${quote.length > 272 ? '#c00' : '#ddd'}`, padding: '10px 12px', ...s, fontSize: 13, resize: 'vertical' }} />
+              <textarea value={quote} onChange={e => { setQuote(e.target.value); checkSpelling(e.target.value) }} required rows={4} spellCheck={false} style={{ border: `0.5px solid ${quote.length > 272 ? '#c00' : '#ddd'}`, padding: '10px 12px', ...s, fontSize: 13, resize: 'vertical' }} />
+              {misspelled.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 4 }}>
+                  {misspelled.map(({ word, suggestions }) => (
+                    <div key={word} style={{ ...s, fontSize: 11, color: '#c00' }}>
+                      <span style={{ textDecoration: 'underline wavy #c00' }}>{word}</span>
+                      {suggestions.length > 0 && <span style={{ color: '#888' }}> → {suggestions.join(', ')}</span>}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Procedure</label>
