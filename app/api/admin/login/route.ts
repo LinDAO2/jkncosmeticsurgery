@@ -12,13 +12,15 @@ async function hashPassword(password: string): Promise<string> {
 export async function POST(req: Request) {
   const { email, password } = await req.json()
 
-  // Check Supabase for a custom account first
-  const { data } = await supabase.from('admin_credentials').select('email, password_hash').limit(1)
+  // Run DB lookup and password hash in parallel
+  const [{ data }, hash] = await Promise.all([
+    supabase.from('admin_credentials').select('email, password_hash').limit(1),
+    hashPassword(password),
+  ])
   const stored = data?.[0]
 
   let valid = false
   if (stored?.password_hash) {
-    const hash = await hashPassword(password)
     const emailMatch = stored.email ? stored.email === email : true
     valid = emailMatch && hash === stored.password_hash
   } else {
