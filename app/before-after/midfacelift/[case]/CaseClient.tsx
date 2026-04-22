@@ -81,6 +81,10 @@ export default function CaseClient({ data }: { data: MidfaceliftCase }) {
           </div>
         </div>
 
+        <div className="case-detail-more">
+          <a className="case-detail-more-link" href="/before-after?category=ponytail">View More Cases →</a>
+        </div>
+
         <div className="case-detail-cta">
           <a className="btn-navy" href="/begin">Begin Your Journey</a>
         </div>
