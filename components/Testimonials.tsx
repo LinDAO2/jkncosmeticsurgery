@@ -19,6 +19,11 @@ const TESTIMONIALS = [
     quote: 'I\'m incredibly grateful I chose him. Fifteen months later, the results look completely natural and feel like me. Most friends and family don\'t know I had anything done. They just say I look great. I usually smile and credit a little weight loss and growing my hair longer.',
     attribution: 'Patient — Deep Plane Face and Neck Lift',
   },
+  {
+    id: '5',
+    quote: 'Choosing Dr. Nia was one of the best decisions of my life. After a botched procedure and bad filler work, I\'m so grateful I waited to find the right surgeon. Fifteen months later, I still catch myself in the mirror in disbelief.',
+    attribution: 'Patient — Deep Plane Face and Neck Lift',
+  },
 ]
 
 export default function Testimonials() {
