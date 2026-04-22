@@ -334,6 +334,274 @@ function ReviewsView() {
   )
 }
 
+function CasesView() {
+  const s = { fontFamily: 'Montserrat, sans-serif' }
+  const [gallery, setGallery] = useState<'comprehensive' | 'eyelid' | 'midfacelift'>('comprehensive')
+  const [dbCases, setDbCases] = useState<DbCase[]>([])
+  const [hidden, setHidden] = useState<HiddenCase[]>([])
+  const [fetching, setFetching] = useState(true)
+  const [showAdd, setShowAdd] = useState(false)
+  const [procedures, setProcedures] = useState<string[]>([''])
+  const [displayOrder, setDisplayOrder] = useState(0)
+  const [pendingFiles, setPendingFiles] = useState<File[]>([])
+  const [previewUrls, setPreviewUrls] = useState<string[]>([])
+  const [coverPreview, setCoverPreview] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  async function load() {
+    setFetching(true)
+    const [casesRes, hiddenRes] = await Promise.all([
+      fetch('/api/admin/cases'),
+      fetch('/api/admin/hidden-cases'),
+    ])
+    const casesData = await casesRes.json()
+    const hiddenData = await hiddenRes.json()
+    setDbCases(casesData.cases ?? [])
+    setHidden(hiddenData.hidden ?? [])
+    setFetching(false)
+  }
+
+  useEffect(() => { load() }, [])
+
+  function resetForm() {
+    setShowAdd(false)
+    setProcedures([''])
+    setDisplayOrder(0)
+    setPendingFiles([])
+    setPreviewUrls([])
+    setCoverPreview(null)
+    setError('')
+  }
+
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? [])
+    if (!files.length) return
+    setPendingFiles(prev => [...prev, ...files])
+    const previews = files.map(f => URL.createObjectURL(f))
+    setPreviewUrls(prev => [...prev, ...previews])
+    e.target.value = ''
+  }
+
+  async function handleCreate() {
+    const filteredProcs = procedures.map(p => p.trim()).filter(Boolean)
+    if (!filteredProcs.length) { setError('Add at least one procedure.'); return }
+    setSaving(true)
+    setError('')
+
+    const res = await fetch('/api/admin/cases', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ gallery, procedures: filteredProcs, display_order: displayOrder }),
+    })
+    if (!res.ok) { setError('Failed to create case.'); setSaving(false); return }
+    const { case: newCase } = await res.json()
+
+    const uploadedUrls: string[] = []
+    for (const file of pendingFiles) {
+      const fd = new FormData()
+      fd.append('file', file)
+      const upRes = await fetch(`/api/admin/cases/${newCase.id}/images`, { method: 'POST', body: fd })
+      if (upRes.ok) {
+        const { url } = await upRes.json()
+        uploadedUrls.push(url)
+      }
+    }
+
+    const coverIdx = coverPreview ? previewUrls.indexOf(coverPreview) : 0
+    const finalCover = uploadedUrls[coverIdx] ?? uploadedUrls[0] ?? null
+    if (finalCover) {
+      await fetch(`/api/admin/cases/${newCase.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cover_image: finalCover }),
+      })
+    }
+
+    setSaving(false)
+    resetForm()
+    await load()
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm('Delete this case and all its photos?')) return
+    await fetch(`/api/admin/cases/${id}`, { method: 'DELETE' })
+    await load()
+  }
+
+  async function toggleHide(slug: string, gal: string) {
+    const isHidden = hidden.some(h => h.slug === slug && h.gallery === gal)
+    await fetch('/api/admin/hidden-cases', {
+      method: isHidden ? 'DELETE' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug, gallery: gal }),
+    })
+    await load()
+  }
+
+  const filteredDbCases = dbCases.filter(c => c.gallery === gallery)
+  const staticSlugs = STATIC_CASES_BY_GALLERY[gallery] ?? []
+
+  return (
+    <div>
+      <div className="admin-header">
+        <div>
+          <span className="admin-header-label">Content</span>
+          <h1 className="admin-header-title">Cases</h1>
+        </div>
+        <button
+          onClick={() => { resetForm(); setShowAdd(true) }}
+          style={{ ...s, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', background: '#1c1917', color: '#fff', border: 'none', padding: '10px 20px', cursor: 'pointer' }}
+        >
+          + Add Case
+        </button>
+      </div>
+
+      <div style={{ maxWidth: 720, padding: '0 40px' }}>
+        <div style={{ display: 'flex', gap: 2, marginBottom: 32 }}>
+          {(['comprehensive', 'eyelid', 'midfacelift'] as const).map(g => (
+            <button
+              key={g}
+              onClick={() => setGallery(g)}
+              style={{ ...s, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', padding: '8px 16px', border: '0.5px solid #ddd', background: gallery === g ? '#1c1917' : '#fff', color: gallery === g ? '#fff' : '#888', cursor: 'pointer' }}
+            >
+              {g}
+            </button>
+          ))}
+        </div>
+
+        {showAdd && (
+          <div style={{ border: '0.5px solid #e5e5e5', padding: 24, marginBottom: 32, display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <p style={{ ...s, fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888', margin: 0 }}>New Case — {gallery}</p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={{ ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Procedures</label>
+              {procedures.map((p, i) => (
+                <div key={i} style={{ display: 'flex', gap: 8 }}>
+                  <input
+                    value={p}
+                    onChange={e => { const next = [...procedures]; next[i] = e.target.value; setProcedures(next) }}
+                    placeholder="e.g. Deep Plane Face and Neck Lift"
+                    style={{ border: '0.5px solid #ddd', padding: '8px 12px', ...s, fontSize: 13, flex: 1, outline: 'none' }}
+                  />
+                  {procedures.length > 1 && (
+                    <button type="button" onClick={() => setProcedures(procedures.filter((_, j) => j !== i))}
+                      style={{ border: '0.5px solid #ddd', background: 'none', padding: '8px 12px', cursor: 'pointer', ...s, fontSize: 13, color: '#888' }}>✕</button>
+                  )}
+                </div>
+              ))}
+              <button type="button" onClick={() => setProcedures([...procedures, ''])}
+                style={{ ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '8px 16px', cursor: 'pointer', color: '#888', alignSelf: 'flex-start' }}>
+                + Add Procedure
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={{ ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Display Order (lower = shown first)</label>
+              <input
+                type="number"
+                value={displayOrder}
+                onChange={e => setDisplayOrder(Number(e.target.value))}
+                style={{ border: '0.5px solid #ddd', padding: '8px 12px', ...s, fontSize: 13, width: 80, outline: 'none' }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <label style={{ ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Photos</label>
+              <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleFileSelect} style={{ display: 'none' }} />
+              <button type="button" onClick={() => fileInputRef.current?.click()}
+                style={{ ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', background: 'none', border: '0.5px dashed #ddd', padding: 16, cursor: 'pointer', color: '#888' }}>
+                {pendingFiles.length > 0
+                  ? `${pendingFiles.length} photo${pendingFiles.length > 1 ? 's' : ''} selected — click to add more`
+                  : 'Click to select photos'}
+              </button>
+              {previewUrls.length > 0 && (
+                <div>
+                  <p style={{ ...s, fontSize: 10, color: '#888', marginBottom: 8 }}>Click a photo to set it as the cover image</p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    {previewUrls.map((url, i) => (
+                      <div key={url} onClick={() => setCoverPreview(url)}
+                        style={{ position: 'relative', width: 80, height: 80, cursor: 'pointer', outline: coverPreview === url ? '2px solid #1c1917' : '2px solid transparent' }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={url} alt={`Photo ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        {coverPreview === url && (
+                          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(28,25,23,0.75)', ...s, fontSize: 8, letterSpacing: '0.1em', color: '#fff', textAlign: 'center', padding: 3 }}>COVER</div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {error && <p style={{ ...s, fontSize: 12, color: '#c00', margin: 0 }}>{error}</p>}
+
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={handleCreate} disabled={saving}
+                style={{ ...s, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', background: saving ? '#ccc' : '#1c1917', color: '#fff', border: 'none', padding: '10px 20px', cursor: saving ? 'not-allowed' : 'pointer' }}>
+                {saving ? 'Saving…' : 'Save Case'}
+              </button>
+              <button onClick={resetForm}
+                style={{ ...s, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '10px 20px', cursor: 'pointer', color: '#888' }}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {fetching ? (
+          <p style={{ ...s, fontSize: 12, color: '#aaa' }}>Loading…</p>
+        ) : (
+          <>
+            {filteredDbCases.length > 0 && (
+              <div style={{ marginBottom: 40 }}>
+                <p style={{ ...s, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#aaa', marginBottom: 16 }}>Uploaded Cases</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {filteredDbCases.map(c => (
+                    <div key={c.id} style={{ border: '0.5px solid #e5e5e5', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16 }}>
+                      {c.cover_image && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={c.cover_image} alt="Cover" style={{ width: 56, height: 56, objectFit: 'cover', flexShrink: 0 }} />
+                      )}
+                      <div style={{ flex: 1 }}>
+                        <p style={{ ...s, fontSize: 12, color: '#3d3530', margin: '0 0 4px' }}>{c.procedures.join(', ') || '—'}</p>
+                        <p style={{ ...s, fontSize: 10, color: '#aaa', margin: 0 }}>{c.images.length} photo{c.images.length !== 1 ? 's' : ''} · order {c.display_order}</p>
+                      </div>
+                      <button onClick={() => handleDelete(c.id)}
+                        style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '6px 12px', cursor: 'pointer', color: '#c00' }}>
+                        Delete
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div>
+              <p style={{ ...s, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#aaa', marginBottom: 16 }}>Existing Cases</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {staticSlugs.map(slug => {
+                  const isHidden = hidden.some(h => h.slug === slug && h.gallery === gallery)
+                  return (
+                    <div key={slug} style={{ display: 'flex', alignItems: 'center', padding: '12px 16px', border: '0.5px solid #e5e5e5', gap: 16, opacity: isHidden ? 0.4 : 1 }}>
+                      <span style={{ ...s, fontSize: 12, color: '#3d3530', flex: 1 }}>{slug}</span>
+                      <button onClick={() => toggleHide(slug, gallery)}
+                        style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '6px 12px', cursor: 'pointer', color: isHidden ? '#2d7a2d' : '#888' }}>
+                        {isHidden ? 'Show' : 'Hide'}
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
 type Inquiry = {
   id: number
   created_at: string
@@ -345,7 +613,25 @@ type Inquiry = {
   message?: string
 }
 
-type View = 'inquiries' | 'reviews' | 'email-routing'
+type View = 'inquiries' | 'reviews' | 'email-routing' | 'cases'
+
+type DbCase = {
+  id: string
+  gallery: 'comprehensive' | 'eyelid' | 'midfacelift'
+  procedures: string[]
+  images: string[]
+  cover_image: string | null
+  display_order: number
+  instagram_videos: { url: string; label: string }[]
+}
+
+type HiddenCase = { slug: string; gallery: string }
+
+const STATIC_CASES_BY_GALLERY: Record<string, string[]> = {
+  comprehensive: ['case-01','case-02','case-03','case-04','case-05','case-06','case-07','case-08','case-09'],
+  eyelid: ['case-01','case-02','case-03','case-04','case-05','case-06','case-07','case-08','case-09','case-10','case-11','case-12','case-13','case-14','case-15'],
+  midfacelift: ['case-01','case-02'],
+}
 
 export default function AdminDashboard({ inquiries }: { inquiries: Inquiry[] }) {
   const [view, setView] = useState<View>('inquiries')
@@ -375,6 +661,7 @@ export default function AdminDashboard({ inquiries }: { inquiries: Inquiry[] }) 
           <span className={`admin-nav-item${view === 'inquiries' ? ' active' : ''}`} onClick={() => setView('inquiries')}>Inquiries</span>
           <span className={`admin-nav-item${view === 'reviews' ? ' active' : ''}`} onClick={() => setView('reviews')}>Reviews</span>
           <span className={`admin-nav-item${view === 'email-routing' ? ' active' : ''}`} onClick={() => setView('email-routing')}>Email Routing</span>
+          <span className={`admin-nav-item${view === 'cases' ? ' active' : ''}`} onClick={() => setView('cases')}>Cases</span>
         </div>
         <button className="admin-change-password-btn" onClick={() => setShowChangePassword(true)}>Change Password</button>
         <button className="admin-logout-btn" onClick={handleLogout}>Sign Out</button>
@@ -387,6 +674,8 @@ export default function AdminDashboard({ inquiries }: { inquiries: Inquiry[] }) 
           <EmailRoutingView />
         ) : view === 'reviews' ? (
           <ReviewsView />
+        ) : view === 'cases' ? (
+          <CasesView />
         ) : (
 <>
             <div className="admin-header">
