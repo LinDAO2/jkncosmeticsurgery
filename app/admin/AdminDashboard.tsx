@@ -1101,7 +1101,7 @@ function HomepageView() {
             {/* Featured slots */}
             {featuredCases.map(c => {
               const img = c.cover_image ?? c.images[0] ?? null
-              const title = c.procedures[0] ?? GALLERY_LABELS[c.gallery] ?? 'Case Study'
+              const title = GALLERY_LABELS[c.gallery] ?? c.procedures[0] ?? 'Case Study'
               return (
                 <div
                   key={c.id}

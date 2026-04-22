@@ -71,7 +71,7 @@ export default function CaseStudies({ dbCases }: { dbCases?: DbFeaturedCase[] })
         {hasCases
           ? dbCases.map((c) => {
               const img = c.cover_image ?? c.images[0] ?? null
-              const title = c.procedures[0] ?? GALLERY_LABELS[c.gallery] ?? 'Case Study'
+              const title = GALLERY_LABELS[c.gallery] ?? c.procedures[0] ?? 'Case Study'
               const tags = c.procedures.slice(0, 4)
               const href = `/before-after/${c.gallery}`
               return (
