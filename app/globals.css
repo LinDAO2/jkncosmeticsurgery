@@ -284,7 +284,7 @@ nav.nav-home.scrolled .nav-cta:hover { background: var(--jkn-black) !important; 
 .testimonials-heading { font-family: var(--font-display); font-weight: 400; font-size: clamp(32px, 4vw, 48px); letter-spacing: 0.01em; color: #0a0a0a; margin-bottom: 64px; }
 .testimonials-scroll { display: flex; overflow-x: auto; gap: 2px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; margin: 0 -40px; padding: 0 40px; }
 .testimonials-scroll::-webkit-scrollbar { display: none; }
-.testimonial-card { flex: 0 0 380px; padding: 48px 40px; border: 0.5px solid #e8e8e8; background: #ffffff; display: flex; flex-direction: column; justify-content: space-between; min-height: 300px; scroll-snap-align: start; }
+.testimonial-card { flex: 0 0 380px; padding: 48px 40px; border: 0.5px solid #e8e8e8; background: #ffffff; display: flex; flex-direction: column; justify-content: space-between; min-height: 280px; scroll-snap-align: start; }
 .testimonial-mark { font-family: var(--font-display); font-size: 64px; font-weight: 400; color: #e8e8e8; line-height: 0.5; margin-bottom: 24px; display: block; }
 .testimonial-mark-close { margin-bottom: 0; margin-top: 24px; text-align: right; }
 .testimonial-quote { font-family: var(--font-display); font-size: clamp(16px, 1.8vw, 20px); font-weight: 400; line-height: 1.65; color: #0a0a0a; letter-spacing: 0.01em; flex: 1; }
