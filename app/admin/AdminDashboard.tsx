@@ -1021,6 +1021,8 @@ function HomepageView() {
   const [editingSection, setEditingSection] = useState<'philosophy' | 'quote' | 'contact' | null>(null)
   const [draft, setDraft] = useState<Record<string, string>>({})
   const [sectionSaving, setSectionSaving] = useState(false)
+  const [draggedFeaturedId, setDraggedFeaturedId] = useState<string | null>(null)
+  const [dragOverFeaturedId, setDragOverFeaturedId] = useState<string | null>(null)
 
   useEffect(() => {
     Promise.all([
@@ -1046,6 +1048,26 @@ function HomepageView() {
     await fetch(`/api/admin/cases/${c.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ featured: !c.featured }) })
     const d = await fetch('/api/admin/cases').then(r => r.json())
     setAllCases(d.cases ?? [])
+  }
+
+  async function handleFeaturedDrop(targetId: string) {
+    if (!draggedFeaturedId || draggedFeaturedId === targetId) { setDraggedFeaturedId(null); setDragOverFeaturedId(null); return }
+    const list = [...featuredCases]
+    const fromIdx = list.findIndex(c => c.id === draggedFeaturedId)
+    const toIdx = list.findIndex(c => c.id === targetId)
+    if (fromIdx === -1 || toIdx === -1) return
+    const [moved] = list.splice(fromIdx, 1)
+    list.splice(toIdx, 0, moved)
+    const updated = list.map((c, i) => ({ ...c, display_order: i * 10 }))
+    setAllCases(prev => {
+      const nonFeat = prev.filter(c => !c.featured || c.gallery === 'skincancer')
+      return [...nonFeat, ...updated]
+    })
+    setDraggedFeaturedId(null)
+    setDragOverFeaturedId(null)
+    await Promise.all(updated.map(c =>
+      fetch(`/api/admin/cases/${c.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ display_order: c.display_order }) })
+    ))
   }
 
   if (fetching) return <div style={{ padding: 40, fontFamily: 'Montserrat, sans-serif', fontSize: 12, color: '#aaa' }}>Loading…</div>
@@ -1081,8 +1103,16 @@ function HomepageView() {
               const img = c.cover_image ?? c.images[0] ?? null
               const title = c.procedures[0] ?? GALLERY_LABELS[c.gallery] ?? 'Case Study'
               return (
-                <div key={c.id} style={{ position: 'relative' }}>
-                  <a className="case-card wipe-revealed" href="#" onClick={e => e.preventDefault()} style={{ cursor: 'default' }}>
+                <div
+                  key={c.id}
+                  draggable
+                  onDragStart={() => setDraggedFeaturedId(c.id)}
+                  onDragOver={e => { e.preventDefault(); setDragOverFeaturedId(c.id) }}
+                  onDrop={() => handleFeaturedDrop(c.id)}
+                  onDragEnd={() => { setDraggedFeaturedId(null); setDragOverFeaturedId(null) }}
+                  style={{ position: 'relative', opacity: draggedFeaturedId === c.id ? 0.35 : 1, outline: dragOverFeaturedId === c.id && draggedFeaturedId !== c.id ? '2px solid #c9a96e' : 'none', transition: 'opacity 0.15s', cursor: 'grab' }}
+                >
+                  <a className="case-card wipe-revealed" href="#" onClick={e => e.preventDefault()} style={{ cursor: 'inherit' }}>
                     <div className="case-img">
                       {img
                         ? <img src={img} alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', transition: 'transform 0.5s ease' }} className="case-img-inner" /> // eslint-disable-line @next/next/no-img-element
