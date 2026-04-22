@@ -42,10 +42,10 @@ export default function LogoMark({
             </span>
             <span style={{
               fontFamily:    "'Montserrat', sans-serif",
-              fontWeight:    400,
-              fontSize:      jknSize * 0.28,
+              fontWeight:    300,
+              fontSize:      jknSize * 0.18,
               color,
-              letterSpacing: '0.18em',
+              letterSpacing: '0.22em',
               lineHeight:    1,
             }}>
               MD
