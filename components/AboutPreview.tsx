@@ -2,15 +2,19 @@
 
 import Image from 'next/image'
 import { useEffect, useRef } from 'react'
-import type { Doctor } from '@/lib/types'
-import { urlFor } from '@/sanity/lib/image'
 
 const DEFAULT_FIRST_PARA = "Dr. John Nia is a fellowship-trained cosmetic and reconstructive surgeon renowned for his refined, natural approach to facial aesthetics. With advanced training spanning facial plastic surgery, oculoplastic surgery, dermatologic surgery, cutaneous oncology, and skin cancer reconstruction, he brings a rare level of precision and artistry to every procedure."
 
-export default function AboutPreview({ doctor }: { doctor: Doctor | null }) {
-  const name  = doctor?.name  ?? 'Dr. John K. Nia'
-  const title = doctor?.title ?? 'Fellowship-Trained Cosmetic and Reconstructive Surgeon'
-  const para  = doctor?.bio?.[0] ?? DEFAULT_FIRST_PARA
+export default function AboutPreview({ name, title, para, photoUrl }: {
+  name?: string | null
+  title?: string | null
+  para?: string | null
+  photoUrl?: string | null
+}) {
+  const displayName  = name  ?? 'Dr. John K. Nia'
+  const displayTitle = title ?? 'Fellowship-Trained Cosmetic and Reconstructive Surgeon'
+  const displayPara  = para  ?? DEFAULT_FIRST_PARA
+  const photo        = photoUrl || '/dr-nia-home.png'
 
   const sectionRef  = useRef<HTMLElement>(null)
   const imgWrapRef  = useRef<HTMLDivElement>(null)
@@ -44,33 +48,23 @@ export default function AboutPreview({ doctor }: { doctor: Doctor | null }) {
       <span className="section-label">The Surgeon</span>
       <div className="about-preview-grid">
         <div className="about-preview-photo">
-          {/* Inner wrapper receives the parallax transform; extra height lets image shift without white edges */}
           <div
             ref={imgWrapRef}
             style={{ position: 'absolute', inset: '-30px 0', willChange: 'transform' }}
           >
-            {doctor?.photo ? (
-              <Image
-                src={urlFor(doctor.photo).width(560).height(760).url()}
-                alt={name}
-                fill
-                style={{ objectFit: 'cover', objectPosition: 'center 10%' }}
-              />
-            ) : (
-              <Image
-                src="/dr-nia-home.png"
-                alt={name}
-                fill
-                style={{ objectFit: 'cover', objectPosition: 'center 10%' }}
-              />
-            )}
+            <Image
+              src={photo}
+              alt={displayName}
+              fill
+              style={{ objectFit: 'cover', objectPosition: 'center 10%' }}
+            />
           </div>
         </div>
         <div className="about-preview-content">
           <span className="section-label">About</span>
-          <h2 className="about-name">{name}</h2>
-          <span className="about-title">{title}</span>
-          <p className="about-body" style={{ marginTop: '28px' }}>{para}</p>
+          <h2 className="about-name">{displayName}</h2>
+          <span className="about-title">{displayTitle}</span>
+          <p className="about-body" style={{ marginTop: '28px' }}>{displayPara}</p>
           <div style={{ marginTop: '36px' }}>
             <a className="about-read-more" href="/about">Read More &nbsp;→</a>
           </div>

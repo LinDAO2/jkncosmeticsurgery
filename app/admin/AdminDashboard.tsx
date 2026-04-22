@@ -870,6 +870,16 @@ function CasesView() {
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: 4, marginTop: 6 }}>
+                    <button
+                      onClick={async () => {
+                        const next = !c.featured
+                        await fetch(`/api/admin/cases/${c.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ featured: next }) })
+                        await load()
+                      }}
+                      style={{ ...s, fontSize: 8, letterSpacing: '0.12em', textTransform: 'uppercase', background: c.featured ? '#c9a96e' : 'none', color: c.featured ? '#fff' : '#888', border: '0.5px solid #ddd', padding: '5px 8px', cursor: 'pointer', flex: 1 }}
+                    >
+                      {c.featured ? '★ Featured' : '☆ Feature'}
+                    </button>
                     {gallery !== 'skincancer' && (
                       <button
                         onClick={() => editingLinksId === c.id ? setEditingLinksId(null) : openEditLinks(c)}
@@ -958,6 +968,7 @@ type DbCase = {
   cover_image: string | null
   display_order: number
   instagram_videos: { url: string; label: string }[]
+  featured: boolean
 }
 
 type HiddenCase = { slug: string; gallery: string }
@@ -976,96 +987,201 @@ const STATIC_CASES_BY_GALLERY: Record<string, string[]> = {
   skincancer: Array.from({ length: 76 }, (_, i) => String(i + 1).padStart(2, '0')),
 }
 
+// ─── ContentEditable helper ────────────────────────────────────────────────────
+function CE({ tag = 'p', className, style, value, onSave }: {
+  tag?: 'p' | 'h2' | 'h1' | 'span' | 'blockquote' | 'li'
+  className?: string
+  style?: React.CSSProperties
+  value: string
+  onSave: (v: string) => void
+}) {
+  const ref = useRef<HTMLElement>(null)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (ref.current) ref.current.innerText = value }, [])
+  const Tag = tag as any
+  return (
+    <Tag
+      ref={ref}
+      contentEditable
+      suppressContentEditableWarning
+      className={className}
+      style={{ outline: 'none', cursor: 'text', minWidth: 20, ...style }}
+      onBlur={(e: React.FocusEvent<HTMLElement>) => onSave(e.currentTarget.innerText.trim())}
+    />
+  )
+}
+
 // ─── Homepage editor ──────────────────────────────────────────────────────────
 
 function HomepageView() {
   const s = { fontFamily: 'Montserrat, sans-serif' }
   const [fields, setFields] = useState<Record<string, string>>({})
-  const [saving, setSaving] = useState<string | null>(null)
-  const [saved, setSaved] = useState<string | null>(null)
   const [fetching, setFetching] = useState(true)
+  const [allCases, setAllCases] = useState<DbCase[]>([])
 
   useEffect(() => {
-    fetch('/api/admin/site-content')
-      .then(r => r.json())
-      .then(d => {
-        const map: Record<string, string> = {}
-        for (const row of d.content ?? []) map[`${row.section}__${row.key}`] = row.value
-        setFields(map)
-        setFetching(false)
-      })
+    Promise.all([
+      fetch('/api/admin/site-content').then(r => r.json()),
+      fetch('/api/admin/cases').then(r => r.json()),
+    ]).then(([contentData, casesData]) => {
+      const map: Record<string, string> = {}
+      for (const row of contentData.content ?? []) map[`${row.section}__${row.key}`] = row.value
+      setFields(map)
+      setFetching(false)
+      setAllCases(casesData.cases ?? [])
+    })
   }, [])
 
   function get(section: string, key: string) { return fields[`${section}__${key}`] ?? '' }
-  function set(section: string, key: string, value: string) { setFields(f => ({ ...f, [`${section}__${key}`]: value })) }
 
-  async function save(section: string, key: string) {
-    const k = `${section}__${key}`
-    setSaving(k)
-    await fetch('/api/admin/site-content', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ section, key, value: fields[k] ?? '' }) })
-    setSaving(null)
-    setSaved(k)
-    setTimeout(() => setSaved(null), 2000)
+  async function saveField(section: string, key: string, value: string) {
+    setFields(f => ({ ...f, [`${section}__${key}`]: value }))
+    await fetch('/api/admin/site-content', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ section, key, value }) })
   }
 
-  function Field({ section, k, label, multiline = false, rows = 3 }: { section: string; k: string; label: string; multiline?: boolean; rows?: number }) {
-    const fk = `${section}__${k}`
-    const isSaving = saving === fk
-    const isSaved = saved === fk
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        <label style={{ ...s, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#aaa' }}>{label}</label>
-        {multiline ? (
-          <textarea value={get(section, k)} onChange={e => set(section, k, e.target.value)} rows={rows}
-            style={{ border: '0.5px solid #ddd', padding: '10px 12px', ...s, fontSize: 13, lineHeight: 1.6, resize: 'vertical', outline: 'none', color: '#1c1917' }} />
-        ) : (
-          <input value={get(section, k)} onChange={e => set(section, k, e.target.value)}
-            style={{ border: '0.5px solid #ddd', padding: '10px 12px', ...s, fontSize: 13, outline: 'none', color: '#1c1917' }} />
-        )}
-        <button onClick={() => save(section, k)} disabled={isSaving}
-          style={{ ...s, fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', background: isSaving ? '#ccc' : '#1c1917', color: '#fff', border: 'none', padding: '8px 18px', cursor: isSaving ? 'not-allowed' : 'pointer', alignSelf: 'flex-start' }}>
-          {isSaving ? 'Saving…' : isSaved ? 'Saved ✓' : 'Save'}
-        </button>
-      </div>
-    )
+  async function toggleFeatured(c: DbCase) {
+    await fetch(`/api/admin/cases/${c.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ featured: !c.featured }) })
+    const d = await fetch('/api/admin/cases').then(r => r.json())
+    setAllCases(d.cases ?? [])
   }
 
-  if (fetching) return <div style={{ padding: 40, ...s, fontSize: 12, color: '#aaa' }}>Loading…</div>
+  if (fetching) return <div style={{ padding: 40, fontFamily: 'Montserrat, sans-serif', fontSize: 12, color: '#aaa' }}>Loading…</div>
+
+  const featuredCases = allCases.filter(c => c.featured)
+  const nonFeatured = allCases.filter(c => !c.featured && (c.cover_image || c.images.length > 0))
 
   return (
     <div>
       <div className="admin-header">
         <div><span className="admin-header-label">Content</span><h1 className="admin-header-title">Homepage</h1></div>
       </div>
-      <div style={{ padding: '0 40px', maxWidth: 680, display: 'flex', flexDirection: 'column', gap: 48 }}>
 
-        <div>
-          <p style={{ ...s, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#aaa', marginBottom: 24 }}>Philosophy Section</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            <Field section="philosophy" k="heading" label="Heading" multiline rows={2} />
-            <Field section="philosophy" k="body" label="Body Text" multiline rows={5} />
+      {/* Full-bleed — escape admin-main padding on sides/bottom */}
+      <div style={{ margin: '0 -48px -48px' }}>
+
+        {/* ── SELECTED CASES ─────────────────────────────────────────── */}
+        <section className="cases-section">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <span className="section-label">Selected Cases</span>
+            <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', color: featuredCases.length >= 3 ? '#c9a96e' : '#aaa' }}>
+              {featuredCases.length}/3 on homepage
+            </span>
+          </div>
+
+          <div className="cases-grid">
+            {/* Featured slots */}
+            {featuredCases.map(c => {
+              const img = c.cover_image ?? c.images[0] ?? null
+              const title = c.procedures[0] ?? GALLERY_LABELS[c.gallery] ?? 'Case Study'
+              return (
+                <div key={c.id} style={{ position: 'relative' }}>
+                  <a className="case-card wipe-revealed" href="#" onClick={e => e.preventDefault()} style={{ cursor: 'default' }}>
+                    <div className="case-img">
+                      {img
+                        ? <img src={img} alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', transition: 'transform 0.5s ease' }} className="case-img-inner" /> // eslint-disable-line @next/next/no-img-element
+                        : <div className="case-img-placeholder" />}
+                    </div>
+                    <div className="case-meta">
+                      <span className="case-title">{title}</span>
+                      <div className="case-tags">{c.procedures.slice(0, 3).map(t => <span key={t} className="case-tag">{t}</span>)}</div>
+                      <span className="case-link">View Case &nbsp;→</span>
+                    </div>
+                  </a>
+                  <button onClick={() => toggleFeatured(c)} style={{ fontFamily: 'Montserrat, sans-serif', position: 'absolute', top: 12, left: 52, background: '#c9a96e', color: '#fff', border: 'none', padding: '5px 12px', fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                    ★ Remove
+                  </button>
+                </div>
+              )
+            })}
+
+            {/* Empty slots */}
+            {Array.from({ length: Math.max(0, 3 - featuredCases.length) }).map((_, i) => (
+              <div key={`empty-${i}`} className="case-card" style={{ cursor: 'default' }}>
+                <div className="case-img" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 12 }}>
+                  <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#bbb' }}>Empty slot</span>
+                </div>
+                <div className="case-meta" style={{ paddingTop: 16 }}>
+                  <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 9, color: '#bbb', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Select a case below ↓</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Case picker — shown when slots are available */}
+          {featuredCases.length < 3 && nonFeatured.length > 0 && (
+            <div style={{ marginTop: 56, paddingTop: 40, borderTop: '0.5px solid var(--jkn-divider)' }}>
+              <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.26em', textTransform: 'uppercase', color: '#aaa', display: 'block', marginBottom: 24 }}>
+                Click a case to add it to the homepage
+              </span>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 8 }}>
+                {nonFeatured.slice(0, 30).map(c => {
+                  const img = c.cover_image ?? c.images[0]
+                  return (
+                    <div key={c.id} onClick={() => toggleFeatured(c)} style={{ cursor: 'pointer' }}>
+                      <div style={{ position: 'relative', paddingBottom: '125%', overflow: 'hidden', background: '#f0ede9' }}>
+                        {img && <img src={img} alt={c.procedures[0]} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} />} {/* eslint-disable-line @next/next/no-img-element */}
+                        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 100%)', padding: '24px 8px 8px' }}>
+                          <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 8, color: '#fff', margin: 0, textTransform: 'uppercase', letterSpacing: '0.06em', lineHeight: 1.3 }}>{c.procedures[0]?.slice(0, 24)}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* ── PHILOSOPHY ─────────────────────────────────────────────── */}
+        <div className="philosophy-bg">
+          <div className="philosophy-inner">
+            <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--jkn-light)', display: 'block', marginBottom: 16 }}>
+              Click any text to edit it directly
+            </span>
+            <div className="philosophy-header">
+              <div className="philosophy-header-left">
+                <span className="section-label">Our Approach</span>
+                <CE tag="h2" className="philosophy-heading" value={get('philosophy', 'heading') || 'Elevation Through Precision'} onSave={v => saveField('philosophy', 'heading', v)} />
+              </div>
+              <div className="philosophy-header-right">
+                <CE tag="p" className="philosophy-teaser-body" value={get('philosophy', 'body') || ''} onSave={v => saveField('philosophy', 'body', v)} />
+              </div>
+            </div>
           </div>
         </div>
 
-        <div>
-          <p style={{ ...s, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#aaa', marginBottom: 24 }}>Quote Section</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            <Field section="quote" k="text" label="Quote" multiline rows={3} />
-            <Field section="quote" k="attribution" label="Attribution" />
-          </div>
-        </div>
+        {/* ── QUOTE ──────────────────────────────────────────────────── */}
+        <section className="quote-section">
+          <span className="quote-mark">&ldquo;</span>
+          <CE tag="p" className="quote-text" value={get('quote', 'text') || ''} onSave={v => saveField('quote', 'text', v)} />
+          <CE tag="span" className="quote-attr" value={get('quote', 'attribution') || ''} onSave={v => saveField('quote', 'attribution', v)} style={{ display: 'block', marginTop: 20 }} />
+        </section>
 
-        <div>
-          <p style={{ ...s, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#aaa', marginBottom: 24 }}>Contact Page</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            <Field section="contact" k="body1" label="First Paragraph" multiline rows={4} />
-            <Field section="contact" k="body2" label="Second Paragraph" multiline rows={2} />
-            <Field section="contact" k="availability" label="Availability Status" />
-            <Field section="contact" k="instagram_handle" label="Instagram Handle" />
-            <Field section="contact" k="instagram_url" label="Instagram URL" />
-            <Field section="contact" k="email" label="Contact Email" />
+        {/* ── CONTACT (Begin page) ────────────────────────────────────── */}
+        <section className="contact-section">
+          <span className="section-label">Begin</span>
+          <div className="contact-grid">
+            <div className="contact-left">
+              <h2 className="contact-heading">Begin Your Journey</h2>
+              <CE tag="p" className="contact-body" value={get('contact', 'body1') || ''} onSave={v => saveField('contact', 'body1', v)} />
+              <CE tag="p" className="contact-body" value={get('contact', 'body2') || ''} onSave={v => saveField('contact', 'body2', v)} />
+              <div className="contact-detail">
+                <div className="contact-detail-row" style={{ borderBottom: 'none' }}>
+                  <span className="contact-detail-label">Availability</span>
+                  <CE tag="span" className="contact-detail-value" value={get('contact', 'availability') || ''} onSave={v => saveField('contact', 'availability', v)} />
+                </div>
+              </div>
+              <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {[['Instagram handle', 'contact', 'instagram_handle'], ['Instagram URL', 'contact', 'instagram_url'], ['Email', 'contact', 'email']].map(([label, sec, key]) => (
+                  <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--jkn-mid)', width: 110, flexShrink: 0 }}>{label}</span>
+                    <CE tag="span" value={get(sec, key)} onSave={v => saveField(sec, key, v)} style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 13, color: 'var(--jkn-black)' }} />
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
 
       </div>
     </div>
@@ -1081,8 +1197,6 @@ function ServicesAdminView() {
   const [services, setServices] = useState<AdminService[]>([])
   const [localServices, setLocalServices] = useState<AdminService[]>([])
   const [fetching, setFetching] = useState(true)
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [draft, setDraft] = useState<Partial<AdminService>>({})
   const [saving, setSaving] = useState(false)
   const [showAdd, setShowAdd] = useState(false)
   const [newSvc, setNewSvc] = useState({ name: '', price: '', description: '' })
@@ -1100,17 +1214,8 @@ function ServicesAdminView() {
   useEffect(() => { load() }, [])
   useEffect(() => { setLocalServices([...services]) }, [services])
 
-  function openEdit(svc: AdminService) {
-    setEditingId(svc.id)
-    setDraft({ name: svc.name, price: svc.price, description: svc.description })
-  }
-
-  async function saveEdit(id: string) {
-    setSaving(true)
-    await fetch(`/api/admin/services/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(draft) })
-    setSaving(false)
-    setEditingId(null)
-    await load()
+  async function saveSvcField(id: string, field: 'name' | 'price' | 'description', value: string) {
+    await fetch(`/api/admin/services/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ [field]: value }) })
   }
 
   async function deleteSvc(id: string) {
@@ -1122,7 +1227,7 @@ function ServicesAdminView() {
   async function addSvc() {
     if (!newSvc.name.trim()) return
     setSaving(true)
-    const maxOrder = localServices.length ? Math.max(...localServices.map(s => s.display_order)) : -10
+    const maxOrder = localServices.length ? Math.max(...localServices.map(sv => sv.display_order)) : -10
     await fetch('/api/admin/services', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...newSvc, display_order: maxOrder + 10 }) })
     setNewSvc({ name: '', price: '', description: '' })
     setShowAdd(false)
@@ -1133,15 +1238,14 @@ function ServicesAdminView() {
   async function handleDrop(targetId: string) {
     if (!draggedId || draggedId === targetId) return
     const list = [...localServices]
-    const fromIdx = list.findIndex(s => s.id === draggedId)
-    const toIdx = list.findIndex(s => s.id === targetId)
+    const fromIdx = list.findIndex(sv => sv.id === draggedId)
+    const toIdx = list.findIndex(sv => sv.id === targetId)
     const [moved] = list.splice(fromIdx, 1)
     list.splice(toIdx, 0, moved)
-    const updated = list.map((s, i) => ({ ...s, display_order: i * 10 }))
+    const updated = list.map((sv, i) => ({ ...sv, display_order: i * 10 }))
     setLocalServices(updated)
-    setDraggedId(null)
-    setDragOverId(null)
-    await Promise.all(updated.map(s => fetch(`/api/admin/services/${s.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ display_order: s.display_order }) })))
+    setDraggedId(null); setDragOverId(null)
+    await Promise.all(updated.map(sv => fetch(`/api/admin/services/${sv.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ display_order: sv.display_order }) })))
     await load()
   }
 
@@ -1151,82 +1255,57 @@ function ServicesAdminView() {
     <div>
       <div className="admin-header">
         <div><span className="admin-header-label">Content</span><h1 className="admin-header-title">Services</h1></div>
-        <button onClick={() => { setShowAdd(true); setEditingId(null) }}
-          style={{ ...s, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', background: '#1c1917', color: '#fff', border: 'none', padding: '10px 20px', cursor: 'pointer' }}>
+        <button onClick={() => setShowAdd(true)} style={{ ...s, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', background: '#1c1917', color: '#fff', border: 'none', padding: '10px 20px', cursor: 'pointer' }}>
           + Add Service
         </button>
       </div>
 
-      <div style={{ padding: '0 40px', maxWidth: 800 }}>
+      <div style={{ margin: '0 -48px -48px', padding: '0 48px 48px' }}>
+        <span style={{ ...s, fontSize: 9, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--jkn-light)', display: 'block', marginBottom: 36 }}>
+          Click any text to edit · Drag to reorder
+        </span>
+
         {showAdd && (
-          <div style={{ border: '0.5px solid #e5e5e5', padding: 24, marginBottom: 32, display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <p style={{ ...s, fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#888', margin: 0 }}>New Service</p>
+          <div style={{ border: '0.5px solid var(--jkn-divider)', padding: 28, marginBottom: 40, display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <p style={{ ...s, fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--jkn-mid)', margin: 0 }}>New Service</p>
             <input value={newSvc.name} onChange={e => setNewSvc(n => ({ ...n, name: e.target.value }))} placeholder="Service name"
-              style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 14, outline: 'none' }} />
+              style={{ border: '0.5px solid #ddd', padding: '9px 12px', fontFamily: 'var(--font-display, Georgia)', fontSize: 22, outline: 'none', color: 'var(--jkn-black)' }} />
             <input value={newSvc.price} onChange={e => setNewSvc(n => ({ ...n, price: e.target.value }))} placeholder="Price range"
-              style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 13, outline: 'none' }} />
+              style={{ border: '0.5px solid #ddd', padding: '9px 12px', fontFamily: 'var(--font-display, Georgia)', fontSize: 15, outline: 'none', color: 'var(--jkn-black)' }} />
             <textarea value={newSvc.description} onChange={e => setNewSvc(n => ({ ...n, description: e.target.value }))} placeholder="Description" rows={4}
-              style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 13, resize: 'vertical', outline: 'none', lineHeight: 1.6 }} />
+              style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 14, resize: 'vertical', outline: 'none', lineHeight: 1.8, color: 'var(--jkn-body)' }} />
             <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={addSvc} disabled={saving}
-                style={{ ...s, fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', background: saving ? '#ccc' : '#1c1917', color: '#fff', border: 'none', padding: '10px 20px', cursor: saving ? 'not-allowed' : 'pointer' }}>
-                {saving ? 'Saving…' : 'Save Service'}
+              <button onClick={addSvc} disabled={saving} style={{ ...s, fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', background: saving ? '#ccc' : '#1c1917', color: '#fff', border: 'none', padding: '10px 20px', cursor: saving ? 'not-allowed' : 'pointer' }}>
+                {saving ? 'Saving…' : 'Add Service'}
               </button>
-              <button onClick={() => setShowAdd(false)}
-                style={{ ...s, fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '10px 20px', cursor: 'pointer', color: '#888' }}>
-                Cancel
-              </button>
+              <button onClick={() => setShowAdd(false)} style={{ ...s, fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '10px 20px', cursor: 'pointer', color: '#888' }}>Cancel</button>
             </div>
           </div>
         )}
 
-        <p style={{ ...s, fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#aaa', marginBottom: 16 }}>Drag to reorder</p>
-
         {localServices.map(svc => (
-          <div key={svc.id}
-            draggable={editingId !== svc.id}
+          <div
+            key={svc.id}
+            className="service-row row-revealed"
+            draggable
             onDragStart={() => setDraggedId(svc.id)}
             onDragOver={e => { e.preventDefault(); setDragOverId(svc.id) }}
             onDrop={() => handleDrop(svc.id)}
             onDragEnd={() => { setDraggedId(null); setDragOverId(null) }}
-            style={{ borderTop: '0.5px solid #e5e5e5', outline: dragOverId === svc.id && draggedId !== svc.id ? '1px solid #1c1917' : 'none', opacity: draggedId === svc.id ? 0.4 : 1, transition: 'opacity 0.15s' }}
+            style={{ opacity: draggedId === svc.id ? 0.35 : 1, outline: dragOverId === svc.id && draggedId !== svc.id ? '1.5px solid var(--jkn-black)' : 'none', cursor: draggedId ? 'grabbing' : 'grab', transition: 'opacity 0.15s' }}
           >
-            {editingId === svc.id ? (
-              <div style={{ padding: '20px 0', display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <input value={draft.name ?? ''} onChange={e => setDraft(d => ({ ...d, name: e.target.value }))}
-                  style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 14, fontWeight: 500, outline: 'none', color: '#1c1917' }} />
-                <input value={draft.price ?? ''} onChange={e => setDraft(d => ({ ...d, price: e.target.value }))} placeholder="Price range"
-                  style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 12, color: '#c9a96e', outline: 'none' }} />
-                <textarea value={draft.description ?? ''} onChange={e => setDraft(d => ({ ...d, description: e.target.value }))} rows={5}
-                  style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 13, lineHeight: 1.7, resize: 'vertical', outline: 'none', color: '#3d3530' }} />
-                <div style={{ display: 'flex', gap: 10 }}>
-                  <button onClick={() => saveEdit(svc.id)} disabled={saving}
-                    style={{ ...s, fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', background: saving ? '#ccc' : '#1c1917', color: '#fff', border: 'none', padding: '8px 18px', cursor: saving ? 'not-allowed' : 'pointer' }}>
-                    {saving ? 'Saving…' : 'Save'}
-                  </button>
-                  <button onClick={() => setEditingId(null)}
-                    style={{ ...s, fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '8px 18px', cursor: 'pointer', color: '#888' }}>
-                    Cancel
-                  </button>
-                  <button onClick={() => deleteSvc(svc.id)}
-                    style={{ ...s, fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '8px 18px', cursor: 'pointer', color: '#c00', marginLeft: 'auto' }}>
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div style={{ padding: '24px 0', cursor: 'pointer' }} onClick={() => openEdit(svc)}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
-                  <span style={{ ...s, fontSize: 14, fontWeight: 500, color: '#1c1917' }}>{svc.name}</span>
-                  <span style={{ ...s, fontSize: 11, color: '#c9a96e', letterSpacing: '0.04em' }}>{svc.price}</span>
-                </div>
-                <p style={{ ...s, fontSize: 13, color: '#3d3530', lineHeight: 1.7, margin: 0 }}>{svc.description}</p>
-                <span style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#aaa', display: 'block', marginTop: 10 }}>Click to edit</span>
-              </div>
-            )}
+            <div className="service-row-left">
+              <CE tag="span" className="service-row-name" value={svc.name} onSave={v => saveSvcField(svc.id, 'name', v)} style={{ display: 'block' }} />
+              <CE tag="span" className="service-row-price" value={svc.price} onSave={v => saveSvcField(svc.id, 'price', v)} style={{ display: 'block', marginTop: 8 }} />
+            </div>
+            <div className="service-row-right">
+              <CE tag="p" className="service-row-desc" value={svc.description} onSave={v => saveSvcField(svc.id, 'description', v)} />
+              <button onClick={() => deleteSvc(svc.id)} style={{ ...s, fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', background: 'none', border: 'none', color: 'var(--jkn-light)', cursor: 'pointer', padding: '8px 0 0', display: 'block' }}>
+                Delete service
+              </button>
+            </div>
           </div>
         ))}
-        {localServices.length > 0 && <div style={{ borderTop: '0.5px solid #e5e5e5' }} />}
       </div>
     </div>
   )
@@ -1240,15 +1319,10 @@ function AboutAdminView() {
   const s = { fontFamily: 'Montserrat, sans-serif' }
   const [items, setItems] = useState<AboutItem[]>([])
   const [nameTitle, setNameTitle] = useState({ name: '', title: '' })
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null)
   const [fetching, setFetching] = useState(true)
-  const [tab, setTab] = useState<'bio' | 'credential' | 'cert' | 'recognition' | 'tag'>('bio')
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [draft, setDraft] = useState<Partial<AboutItem>>({})
-  const [saving, setSaving] = useState(false)
-  const [showAdd, setShowAdd] = useState(false)
-  const [newItem, setNewItem] = useState({ content: '', url: '' })
-  const [savingMeta, setSavingMeta] = useState(false)
-  const [metaSaved, setMetaSaved] = useState(false)
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
+  const photoInputRef = useRef<HTMLInputElement>(null)
 
   async function load() {
     setFetching(true)
@@ -1259,31 +1333,35 @@ function AboutAdminView() {
     setItems(itemsRes.items ?? [])
     const content: Record<string, string> = {}
     for (const row of contentRes.content ?? []) if (row.section === 'about') content[row.key] = row.value
-    setNameTitle({ name: content.name ?? '', title: content.title ?? '' })
+    setNameTitle({ name: content.name ?? 'Dr. John K. Nia', title: content.title ?? 'Fellowship-Trained Cosmetic and Reconstructive Surgeon' })
+    setPhotoUrl(content.photo_url ?? null)
     setFetching(false)
+  }
+
+  async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingPhoto(true)
+    const fd = new FormData()
+    fd.append('file', file)
+    const res = await fetch('/api/admin/about-photo', { method: 'POST', body: fd })
+    if (res.ok) { const { url } = await res.json(); setPhotoUrl(url) }
+    setUploadingPhoto(false)
+    e.target.value = ''
   }
 
   useEffect(() => { load() }, [])
 
-  const tabItems = items.filter(i => i.type === tab).sort((a, b) => a.display_order - b.display_order)
-
-  async function saveMeta() {
-    setSavingMeta(true)
-    await Promise.all([
-      fetch('/api/admin/site-content', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ section: 'about', key: 'name', value: nameTitle.name }) }),
-      fetch('/api/admin/site-content', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ section: 'about', key: 'title', value: nameTitle.title }) }),
-    ])
-    setSavingMeta(false)
-    setMetaSaved(true)
-    setTimeout(() => setMetaSaved(false), 2000)
+  async function saveAboutField(key: 'name' | 'title', value: string) {
+    await fetch('/api/admin/site-content', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ section: 'about', key, value }) })
   }
 
-  async function saveEdit(id: string) {
-    setSaving(true)
-    await fetch(`/api/admin/about-items/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: draft.content, url: draft.url ?? null }) })
-    setSaving(false)
-    setEditingId(null)
-    await load()
+  async function saveItemContent(id: string, content: string) {
+    await fetch(`/api/admin/about-items/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content }) })
+  }
+
+  async function saveItemUrl(id: string, url: string) {
+    await fetch(`/api/admin/about-items/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: url || null }) })
   }
 
   async function deleteItem(id: string) {
@@ -1292,22 +1370,22 @@ function AboutAdminView() {
     await load()
   }
 
-  async function addItem() {
-    if (!newItem.content.trim()) return
-    setSaving(true)
-    const maxOrder = tabItems.length ? Math.max(...tabItems.map(i => i.display_order)) : -10
-    await fetch('/api/admin/about-items', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: tab, content: newItem.content, url: newItem.url || null, display_order: maxOrder + 10 }) })
-    setNewItem({ content: '', url: '' })
-    setShowAdd(false)
-    setSaving(false)
+  async function addItem(type: string, content = '') {
+    const typeItems = items.filter(i => i.type === type)
+    const maxOrder = typeItems.length ? Math.max(...typeItems.map(i => i.display_order)) : -10
+    await fetch('/api/admin/about-items', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type, content, display_order: maxOrder + 10 }) })
     await load()
   }
 
-  const TAB_LABELS: Record<string, string> = { bio: 'Bio', credential: 'Education', cert: 'Certifications', recognition: 'Recognition', tag: 'Expertise Tags' }
-  const needsUrl = tab === 'recognition'
-  const isMultiline = tab === 'bio'
+  const byType = (type: string) => items.filter(i => i.type === type).sort((a, b) => a.display_order - b.display_order)
 
-  if (fetching) return <div style={{ padding: 40, ...s, fontSize: 12, color: '#aaa' }}>Loading…</div>
+  if (fetching) return <div style={{ padding: 40, fontFamily: 'Montserrat, sans-serif', fontSize: 12, color: '#aaa' }}>Loading…</div>
+
+  const bioItems = byType('bio')
+  const credItems = byType('credential')
+  const certItems = byType('cert')
+  const recogItems = byType('recognition')
+  const tagItems = byType('tag')
 
   return (
     <div>
@@ -1315,110 +1393,113 @@ function AboutAdminView() {
         <div><span className="admin-header-label">Content</span><h1 className="admin-header-title">About</h1></div>
       </div>
 
-      <div style={{ padding: '0 40px', maxWidth: 720 }}>
+      <div style={{ margin: '0 -48px -48px' }}>
+        <section className="about-section">
+          <span className="section-label">The Surgeon</span>
+          <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--jkn-light)', display: 'block', marginTop: 8, marginBottom: 0 }}>
+            Click any text to edit it directly
+          </span>
+          <div className="about-grid">
 
-        <div style={{ marginBottom: 36, padding: 24, border: '0.5px solid #e5e5e5' }}>
-          <p style={{ ...s, fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#aaa', marginBottom: 16 }}>Doctor Name and Title</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <input value={nameTitle.name} onChange={e => setNameTitle(n => ({ ...n, name: e.target.value }))} placeholder="Dr. John K. Nia"
-              style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 15, fontWeight: 500, outline: 'none', color: '#1c1917' }} />
-            <input value={nameTitle.title} onChange={e => setNameTitle(n => ({ ...n, title: e.target.value }))} placeholder="Fellowship-Trained Cosmetic and Reconstructive Surgeon"
-              style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 12, color: '#888', outline: 'none' }} />
-            <button onClick={saveMeta} disabled={savingMeta}
-              style={{ ...s, fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', background: savingMeta ? '#ccc' : '#1c1917', color: '#fff', border: 'none', padding: '9px 20px', cursor: savingMeta ? 'not-allowed' : 'pointer', alignSelf: 'flex-start' }}>
-              {savingMeta ? 'Saving…' : metaSaved ? 'Saved ✓' : 'Save'}
-            </button>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', gap: 2, marginBottom: 28, flexWrap: 'wrap' }}>
-          {(['bio', 'credential', 'cert', 'recognition', 'tag'] as const).map(t => (
-            <button key={t} onClick={() => { setTab(t); setEditingId(null); setShowAdd(false) }}
-              style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', padding: '7px 14px', border: '0.5px solid #ddd', background: tab === t ? '#1c1917' : '#fff', color: tab === t ? '#fff' : '#888', cursor: 'pointer' }}>
-              {TAB_LABELS[t]}
-            </button>
-          ))}
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <p style={{ ...s, fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#aaa', margin: 0 }}>{TAB_LABELS[tab]}</p>
-          <button onClick={() => { setShowAdd(true); setEditingId(null) }}
-            style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '6px 14px', cursor: 'pointer', color: '#888' }}>
-            + Add
-          </button>
-        </div>
-
-        {showAdd && (
-          <div style={{ border: '0.5px solid #e5e5e5', padding: 20, marginBottom: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {isMultiline ? (
-              <textarea value={newItem.content} onChange={e => setNewItem(n => ({ ...n, content: e.target.value }))} placeholder="Paragraph text…" rows={5}
-                style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 13, lineHeight: 1.7, resize: 'vertical', outline: 'none' }} />
-            ) : (
-              <input value={newItem.content} onChange={e => setNewItem(n => ({ ...n, content: e.target.value }))} placeholder="Content…"
-                style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 13, outline: 'none' }} />
-            )}
-            {needsUrl && (
-              <input value={newItem.url} onChange={e => setNewItem(n => ({ ...n, url: e.target.value }))} placeholder="https://…"
-                style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 12, outline: 'none' }} />
-            )}
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={addItem} disabled={saving}
-                style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: saving ? '#ccc' : '#1c1917', color: '#fff', border: 'none', padding: '8px 18px', cursor: saving ? 'not-allowed' : 'pointer' }}>
-                {saving ? 'Saving…' : 'Add'}
-              </button>
-              <button onClick={() => setShowAdd(false)}
-                style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '8px 18px', cursor: 'pointer', color: '#888' }}>
-                Cancel
-              </button>
+            {/* ── Photo column ─────────────────── */}
+            <div>
+              <div className="about-photo" style={{ position: 'relative' }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={photoUrl ?? '/dr-nia-portrait.png'} alt={nameTitle.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%' }} />
+                <div
+                  style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0)', transition: 'background 0.25s', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', padding: 20 }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0.45)' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0)' }}
+                >
+                  <button onClick={() => photoInputRef.current?.click()} disabled={uploadingPhoto}
+                    style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', background: 'rgba(247,245,242,0.96)', color: '#1c1917', border: 'none', padding: '10px 22px', cursor: uploadingPhoto ? 'not-allowed' : 'pointer' }}>
+                    {uploadingPhoto ? 'Uploading…' : 'Replace Photo'}
+                  </button>
+                  <input ref={photoInputRef} type="file" accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />
+                </div>
+              </div>
             </div>
-          </div>
-        )}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-          {tabItems.map(item => (
-            <div key={item.id} style={{ borderTop: '0.5px solid #e5e5e5', padding: '16px 0' }}>
-              {editingId === item.id ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {isMultiline ? (
-                    <textarea value={draft.content ?? ''} onChange={e => setDraft(d => ({ ...d, content: e.target.value }))} rows={5}
-                      style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 13, lineHeight: 1.7, resize: 'vertical', outline: 'none', color: '#1c1917' }} />
-                  ) : (
-                    <input value={draft.content ?? ''} onChange={e => setDraft(d => ({ ...d, content: e.target.value }))}
-                      style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 13, outline: 'none', color: '#1c1917' }} />
-                  )}
-                  {needsUrl && (
-                    <input value={draft.url ?? ''} onChange={e => setDraft(d => ({ ...d, url: e.target.value }))} placeholder="https://…"
-                      style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 12, outline: 'none' }} />
-                  )}
-                  <div style={{ display: 'flex', gap: 10 }}>
-                    <button onClick={() => saveEdit(item.id)} disabled={saving}
-                      style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: saving ? '#ccc' : '#1c1917', color: '#fff', border: 'none', padding: '8px 18px', cursor: saving ? 'not-allowed' : 'pointer' }}>
-                      {saving ? 'Saving…' : 'Save'}
-                    </button>
-                    <button onClick={() => setEditingId(null)}
-                      style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '8px 18px', cursor: 'pointer', color: '#888' }}>
-                      Cancel
-                    </button>
-                    <button onClick={() => deleteItem(item.id)}
-                      style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '8px 18px', cursor: 'pointer', color: '#c00', marginLeft: 'auto' }}>
-                      Delete
-                    </button>
+            {/* ── Content column ───────────────── */}
+            <div className="about-content">
+              <span className="section-label">About</span>
+              <CE tag="h2" className="about-name" value={nameTitle.name} onSave={v => { setNameTitle(n => ({ ...n, name: v })); saveAboutField('name', v) }} />
+              <CE tag="span" className="about-title" value={nameTitle.title} onSave={v => { setNameTitle(n => ({ ...n, title: v })); saveAboutField('title', v) }} />
+
+              {bioItems.map(item => (
+                <div key={item.id} style={{ position: 'relative' }}>
+                  <CE tag="p" className="about-body" value={item.content} onSave={v => saveItemContent(item.id, v)} />
+                  <button onClick={() => deleteItem(item.id)} title="Remove paragraph" style={{ position: 'absolute', top: 0, right: -20, fontFamily: 'Montserrat, sans-serif', fontSize: 11, color: 'var(--jkn-light)', background: 'none', border: 'none', cursor: 'pointer', padding: 4, lineHeight: 1 }}>×</button>
+                </div>
+              ))}
+              <button onClick={() => addItem('bio', 'New paragraph…')} style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px dashed var(--jkn-divider)', color: 'var(--jkn-light)', padding: '7px 16px', cursor: 'pointer', marginBottom: 8 }}>
+                + Add paragraph
+              </button>
+
+              <div className="about-rule" />
+              <span className="about-block-label">Education and Training</span>
+              <ul className="about-list">
+                {credItems.map(item => (
+                  <li key={item.id}>
+                    <CE tag="span" value={item.content} onSave={v => saveItemContent(item.id, v)} style={{ flex: 1 }} />
+                    <button onClick={() => deleteItem(item.id)} style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 11, color: 'var(--jkn-light)', background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0 }}>×</button>
+                  </li>
+                ))}
+                <li style={{ border: 'none', padding: '8px 0 0' }}>
+                  <button onClick={() => addItem('credential', 'New credential…')} style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', background: 'none', border: '0.5px dashed var(--jkn-divider)', color: 'var(--jkn-light)', padding: '6px 14px', cursor: 'pointer' }}>+ Add</button>
+                </li>
+              </ul>
+
+              <div className="about-rule" />
+              <span className="about-block-label">Certifications</span>
+              <ul className="about-list">
+                {certItems.map(item => (
+                  <li key={item.id}>
+                    <CE tag="span" value={item.content} onSave={v => saveItemContent(item.id, v)} style={{ flex: 1 }} />
+                    <button onClick={() => deleteItem(item.id)} style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 11, color: 'var(--jkn-light)', background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0 }}>×</button>
+                  </li>
+                ))}
+                <li style={{ border: 'none', padding: '8px 0 0' }}>
+                  <button onClick={() => addItem('cert', 'New certification…')} style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', background: 'none', border: '0.5px dashed var(--jkn-divider)', color: 'var(--jkn-light)', padding: '6px 14px', cursor: 'pointer' }}>+ Add</button>
+                </li>
+              </ul>
+
+              <div className="about-rule" />
+              <span className="about-block-label">Recognition</span>
+              <div className="about-recognition">
+                {recogItems.map(item => (
+                  <div key={item.id} className="recognition-item" style={{ alignItems: 'flex-start' }}>
+                    <div className="recognition-dash" style={{ marginTop: 6 }} />
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <CE tag="span" className="recognition-text" value={item.content} onSave={v => saveItemContent(item.id, v)} style={{ display: 'block' }} />
+                      <input defaultValue={item.url ?? ''} onBlur={e => saveItemUrl(item.id, e.target.value)} placeholder="https://…"
+                        style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 10, color: 'var(--jkn-light)', border: 'none', borderBottom: '0.5px solid var(--jkn-divider)', outline: 'none', background: 'transparent', padding: '2px 0', width: '100%' }} />
+                    </div>
+                    <button onClick={() => deleteItem(item.id)} style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 11, color: 'var(--jkn-light)', background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0, marginLeft: 8 }}>×</button>
                   </div>
-                </div>
-              ) : (
-                <div style={{ cursor: 'pointer' }} onClick={() => { setEditingId(item.id); setDraft({ content: item.content, url: item.url ?? '' }) }}>
-                  <p style={{ ...s, fontSize: 13, color: '#1c1917', lineHeight: 1.7, margin: '0 0 4px' }}>{item.content}</p>
-                  {item.url && <p style={{ ...s, fontSize: 11, color: '#aaa', margin: 0 }}>{item.url}</p>}
-                  <span style={{ ...s, fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#ccc' }}>Click to edit</span>
-                </div>
-              )}
+                ))}
+                <button onClick={() => addItem('recognition', 'New recognition…')} style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', background: 'none', border: '0.5px dashed var(--jkn-divider)', color: 'var(--jkn-light)', padding: '6px 14px', cursor: 'pointer', marginTop: 8 }}>+ Add</button>
+              </div>
+
+              <div className="about-rule" />
+              <span className="about-block-label">Areas of Expertise</span>
+              <div className="about-expertise" style={{ marginTop: 16 }}>
+                {tagItems.map(item => (
+                  <div key={item.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    <CE tag="span" className="expertise-tag" value={item.content} onSave={v => saveItemContent(item.id, v)} />
+                    <button onClick={() => deleteItem(item.id)} style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 11, color: 'var(--jkn-light)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, lineHeight: 1 }}>×</button>
+                  </div>
+                ))}
+                <button onClick={() => addItem('tag', 'New Tag')} className="expertise-tag" style={{ cursor: 'pointer', borderStyle: 'dashed', color: 'var(--jkn-light)' }}>+ Add tag</button>
+              </div>
+
+              <div style={{ marginTop: 40 }}>
+                <a className="btn-navy" href="/begin">Request a Consultation</a>
+              </div>
             </div>
-          ))}
-          {tabItems.length > 0 && <div style={{ borderTop: '0.5px solid #e5e5e5' }} />}
-          {tabItems.length === 0 && !showAdd && (
-            <p style={{ ...s, fontSize: 12, color: '#aaa' }}>No {TAB_LABELS[tab].toLowerCase()} items yet.</p>
-          )}
-        </div>
+
+          </div>
+        </section>
       </div>
     </div>
   )

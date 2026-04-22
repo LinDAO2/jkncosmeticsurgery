@@ -11,7 +11,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   if (!await requireAuth()) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
   const { id } = await params
   const body = await req.json()
-  const allowed = ['procedures', 'images', 'cover_image', 'display_order', 'instagram_videos']
+  const allowed = ['procedures', 'images', 'cover_image', 'display_order', 'instagram_videos', 'featured']
   const update = Object.fromEntries(Object.entries(body).filter(([k]) => allowed.includes(k)))
   const { error } = await supabase.from('cases').update(update).eq('id', id)
   if (error) return NextResponse.json({ error: 'Failed to update' }, { status: 500 })

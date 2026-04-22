@@ -36,10 +36,12 @@ export default async function AboutPage() {
     tags: byType('tag').map(i => i.content),
   }
 
+  const photoUrl = content.photo_url ?? null
+
   return (
     <>
       <Nav />
-      <About data={data} />
+      <About data={data} photoUrl={photoUrl} />
       <Footer />
     </>
   )

@@ -1,7 +1,4 @@
 import type { Metadata } from 'next'
-import { client } from '@/sanity/lib/client'
-import { casesPreviewQuery, doctorQuery } from '@/sanity/lib/queries'
-import type { BeforeAfterCase, Doctor } from '@/lib/types'
 import { supabase } from '@/lib/supabase'
 
 import Nav from '@/components/Nav'
@@ -76,10 +73,10 @@ const jsonLd = {
 }
 
 export default async function HomePage() {
-  const [cases, doctor, contentResult] = await Promise.all([
-    client.fetch<BeforeAfterCase[]>(casesPreviewQuery).catch(() => []),
-    client.fetch<Doctor>(doctorQuery).catch(() => null),
+  const [contentResult, featuredResult, aboutItemsResult] = await Promise.all([
     supabase.from('site_content').select('*'),
+    supabase.from('cases').select('id, gallery, procedures, images, cover_image').eq('featured', true).order('display_order', { ascending: true }).limit(3),
+    supabase.from('about_items').select('content').eq('type', 'bio').order('display_order', { ascending: true }).limit(1),
   ])
 
   const content: Record<string, Record<string, string>> = {}
@@ -92,6 +89,12 @@ export default async function HomePage() {
   const quoteAttr = content.quote?.attribution ?? null
   const philHeading = content.philosophy?.heading ?? null
   const philBody = content.philosophy?.body ?? null
+  const photoUrl = content.about?.photo_url ?? null
+  const aboutName = content.about?.name ?? null
+  const aboutTitle = content.about?.title ?? null
+  const firstBio = aboutItemsResult.data?.[0]?.content ?? null
+
+  const featuredCases = featuredResult.data ?? []
 
   return (
     <>
@@ -102,8 +105,8 @@ export default async function HomePage() {
       <Nav />
       <Hero />
       <Philosophy heading={philHeading} body={philBody} />
-      <CaseStudies cases={cases} />
-      <AboutPreview doctor={doctor} />
+      <CaseStudies dbCases={featuredCases.length > 0 ? featuredCases : undefined} />
+      <AboutPreview name={aboutName} title={aboutTitle} para={firstBio} photoUrl={photoUrl} />
       <QuoteSection quote={quote} attribution={quoteAttr} />
       <Testimonials />
       <Footer />

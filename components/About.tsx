@@ -44,8 +44,9 @@ const DEFAULTS: AboutData = {
   tags: ['Face and Neck Lift', 'Eyelid Surgery', 'Mohs Surgery', 'Scar Revision', 'Skin Reconstruction', 'Hair Restoration', 'Facial Contouring', 'Lip Lifting'],
 }
 
-export default function About({ data }: { data: AboutData | null }) {
+export default function About({ data, photoUrl }: { data: AboutData | null; photoUrl?: string | null }) {
   const d = data ?? DEFAULTS
+  const photo = photoUrl || '/dr-nia-portrait.png'
 
   return (
     <section className="about-section" id="about-section">
@@ -54,7 +55,7 @@ export default function About({ data }: { data: AboutData | null }) {
         <div>
           <div className="about-photo">
             <Image
-              src="/dr-nia-portrait.png"
+              src={photo}
               alt={d.name}
               fill
               style={{ objectFit: 'cover', objectPosition: 'center 15%' }}
