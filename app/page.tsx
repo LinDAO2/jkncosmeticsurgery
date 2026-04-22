@@ -75,7 +75,7 @@ const jsonLd = {
 export default async function HomePage() {
   const [contentResult, featuredResult, aboutItemsResult] = await Promise.all([
     supabase.from('site_content').select('*'),
-    supabase.from('cases').select('id, gallery, procedures, images, cover_image').eq('featured', true).order('display_order', { ascending: true }).limit(3),
+    supabase.from('cases').select('id, gallery, procedures, images, cover_image').eq('featured', true).neq('gallery', 'skincancer').order('display_order', { ascending: true }).limit(3),
     supabase.from('about_items').select('content').eq('type', 'bio').order('display_order', { ascending: true }).limit(1),
   ])
 
