@@ -172,7 +172,20 @@ function ReviewsView() {
   const [showAdd, setShowAdd] = useState(false)
   const [quote, setQuote] = useState('')
   const [procedure, setProcedure] = useState('')
+  const [otherProcedure, setOtherProcedure] = useState('')
   const [saving, setSaving] = useState(false)
+
+  const PROCEDURES = [
+    'Deep Plane Face and Neck Lift',
+    'Mid Facelift',
+    'Eyelid Rejuvenation',
+    'Lip Lifting',
+    'Facial Contouring',
+    'Hair Restoration',
+    'Skin Cancer Reconstruction',
+    'Comprehensive Rejuvenation',
+    'Other',
+  ]
   const [error, setError] = useState('')
 
   async function load() {
@@ -185,8 +198,19 @@ function ReviewsView() {
 
   useEffect(() => { load() }, [])
 
-  function openAdd() { setQuote(''); setProcedure(''); setEditing(null); setShowAdd(true); setError('') }
-  function openEdit(t: Testimonial) { setQuote(t.quote); setProcedure(t.attribution.replace(/^Patient\s*[—-]\s*/i, '')); setEditing(t); setShowAdd(false); setError('') }
+  function toTitleCase(str: string) { return str.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1)) }
+
+  function openAdd() { setQuote(''); setProcedure(''); setOtherProcedure(''); setEditing(null); setShowAdd(true); setError('') }
+  function openEdit(t: Testimonial) {
+    const proc = t.attribution.replace(/^Patient\s*[—-]\s*/i, '')
+    const isKnown = PROCEDURES.slice(0, -1).includes(proc)
+    setQuote(t.quote)
+    setProcedure(isKnown ? proc : 'Other')
+    setOtherProcedure(isKnown ? '' : proc)
+    setEditing(t)
+    setShowAdd(false)
+    setError('')
+  }
   function cancel() { setShowAdd(false); setEditing(null); setError('') }
 
   async function handleSave(e: React.FormEvent) {
@@ -196,10 +220,12 @@ function ReviewsView() {
     setSaving(true)
     const maxOrder = testimonials.length ? Math.max(...testimonials.map(t => t.display_order)) : 0
 
-    const attribution = `Patient — ${procedure.trim()}`
+    const finalQuote = quote.trim().charAt(0).toUpperCase() + quote.trim().slice(1)
+    const finalProc = procedure === 'Other' ? toTitleCase(otherProcedure.trim()) : procedure
+    const attribution = `Patient — ${finalProc}`
     const res = editing
-      ? await fetch(`/api/admin/testimonials/${editing.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ quote, attribution, display_order: editing.display_order }) })
-      : await fetch('/api/admin/testimonials', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ quote, attribution, display_order: maxOrder + 1 }) })
+      ? await fetch(`/api/admin/testimonials/${editing.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ quote: finalQuote, attribution, display_order: editing.display_order }) })
+      : await fetch('/api/admin/testimonials', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ quote: finalQuote, attribution, display_order: maxOrder + 1 }) })
 
     if (res.ok) { cancel(); await load() }
     else { const d = await res.json(); setError(d.error || 'Failed to save') }
@@ -231,14 +257,20 @@ function ReviewsView() {
             <p style={{ ...s, fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888', margin: 0 }}>{editing ? 'Edit Review' : 'New Review'}</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Review</label>
-              <textarea value={quote} onChange={e => setQuote(e.target.value)} required rows={4} style={{ border: `0.5px solid ${quote.length > 272 ? '#c00' : '#ddd'}`, padding: '10px 12px', ...s, fontSize: 13, resize: 'vertical' }} />
+              <textarea value={quote} onChange={e => setQuote(e.target.value)} required rows={4} spellCheck={true} style={{ border: `0.5px solid ${quote.length > 272 ? '#c00' : '#ddd'}`, padding: '10px 12px', ...s, fontSize: 13, resize: 'vertical' }} />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Procedure</label>
               <div style={{ display: 'flex', alignItems: 'center', border: '0.5px solid #ddd' }}>
                 <span style={{ ...s, fontSize: 13, color: '#aaa', padding: '10px 12px', borderRight: '0.5px solid #ddd', whiteSpace: 'nowrap' }}>Patient —</span>
-                <input value={procedure} onChange={e => setProcedure(e.target.value)} required placeholder="Deep Plane Face and Neck Lift" style={{ border: 'none', padding: '10px 12px', ...s, fontSize: 13, flex: 1, outline: 'none' }} />
+                <select value={procedure} onChange={e => { setProcedure(e.target.value); setOtherProcedure('') }} required style={{ border: 'none', padding: '10px 12px', ...s, fontSize: 13, flex: 1, outline: 'none', background: 'transparent', color: procedure ? '#0a0a0a' : '#aaa', appearance: 'none' }}>
+                  <option value="" disabled>Select a procedure</option>
+                  {PROCEDURES.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
               </div>
+              {procedure === 'Other' && (
+                <input value={otherProcedure} onChange={e => setOtherProcedure(e.target.value)} required placeholder="Enter procedure name" style={{ border: '0.5px solid #ddd', padding: '10px 12px', ...s, fontSize: 13, outline: 'none' }} />
+              )}
             </div>
             {error && <p style={{ ...s, fontSize: 12, color: '#c00', margin: 0 }}>{error}</p>}
             <div style={{ display: 'flex', gap: 10 }}>
