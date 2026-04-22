@@ -171,7 +171,7 @@ function ReviewsView() {
   const [editing, setEditing] = useState<Testimonial | null>(null)
   const [showAdd, setShowAdd] = useState(false)
   const [quote, setQuote] = useState('')
-  const [attribution, setAttribution] = useState('')
+  const [procedure, setProcedure] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
@@ -185,8 +185,8 @@ function ReviewsView() {
 
   useEffect(() => { load() }, [])
 
-  function openAdd() { setQuote(''); setAttribution(''); setEditing(null); setShowAdd(true); setError('') }
-  function openEdit(t: Testimonial) { setQuote(t.quote); setAttribution(t.attribution); setEditing(t); setShowAdd(false); setError('') }
+  function openAdd() { setQuote(''); setProcedure(''); setEditing(null); setShowAdd(true); setError('') }
+  function openEdit(t: Testimonial) { setQuote(t.quote); setProcedure(t.attribution.replace(/^Patient\s*[—-]\s*/i, '')); setEditing(t); setShowAdd(false); setError('') }
   function cancel() { setShowAdd(false); setEditing(null); setError('') }
 
   async function handleSave(e: React.FormEvent) {
@@ -195,6 +195,7 @@ function ReviewsView() {
     setSaving(true)
     const maxOrder = testimonials.length ? Math.max(...testimonials.map(t => t.display_order)) : 0
 
+    const attribution = `Patient — ${procedure.trim()}`
     const res = editing
       ? await fetch(`/api/admin/testimonials/${editing.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ quote, attribution, display_order: editing.display_order }) })
       : await fetch('/api/admin/testimonials', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ quote, attribution, display_order: maxOrder + 1 }) })
@@ -232,8 +233,11 @@ function ReviewsView() {
               <textarea value={quote} onChange={e => setQuote(e.target.value)} required rows={4} style={{ border: '0.5px solid #ddd', padding: '10px 12px', ...s, fontSize: 13, resize: 'vertical' }} />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Attribution</label>
-              <input value={attribution} onChange={e => setAttribution(e.target.value)} required placeholder="e.g. Patient — Deep Plane Face and Neck Lift" style={{ border: '0.5px solid #ddd', padding: '10px 12px', ...s, fontSize: 13 }} />
+              <label style={{ ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Procedure</label>
+              <div style={{ display: 'flex', alignItems: 'center', border: '0.5px solid #ddd' }}>
+                <span style={{ ...s, fontSize: 13, color: '#aaa', padding: '10px 12px', borderRight: '0.5px solid #ddd', whiteSpace: 'nowrap' }}>Patient —</span>
+                <input value={procedure} onChange={e => setProcedure(e.target.value)} required placeholder="Deep Plane Face and Neck Lift" style={{ border: 'none', padding: '10px 12px', ...s, fontSize: 13, flex: 1, outline: 'none' }} />
+              </div>
             </div>
             {error && <p style={{ ...s, fontSize: 12, color: '#c00', margin: 0 }}>{error}</p>}
             <div style={{ display: 'flex', gap: 10 }}>
