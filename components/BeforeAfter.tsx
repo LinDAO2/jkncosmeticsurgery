@@ -18,8 +18,8 @@ type StaticCase = {
 // Upper and Lower Blepharoplasty — 15 patient cases, all linking to individual case pages
 const BLEPH_CASES: StaticCase[] = [
   { thumbnail: '/ba/eyelid/case-01/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-01' },
-  { thumbnail: '/ba/eyelid/case-02/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-02' },
   { thumbnail: '/ba/eyelid/case-03/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-03' },
+  { thumbnail: '/ba/eyelid/case-02/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-02' },
   { thumbnail: '/ba/eyelid/case-04/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-04' },
   { thumbnail: '/ba/eyelid/case-05/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-05' },
   { thumbnail: '/ba/eyelid/case-06/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-06' },
