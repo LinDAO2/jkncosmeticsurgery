@@ -49,6 +49,16 @@ export default function CaseClient({ data }: { data: EyelidCase }) {
           </ul>
         </div>
 
+        {data.videos && data.videos.length > 0 && (
+          <div className="case-detail-video-link">
+            {data.videos.map((v) => (
+              <a key={v.url} href={v.url} target="_blank" rel="noopener noreferrer" className="case-video-btn">
+                {v.label}
+              </a>
+            ))}
+          </div>
+        )}
+
         <div className="case-detail-rule" />
 
         <div className="case-detail-set">

@@ -1,8 +1,11 @@
+export type CaseVideo = { url: string; label: string }
+
 export type EyelidCase = {
   slug: string
   caseNumber: string
   procedures: string[]
   imageCount: number
+  videos?: CaseVideo[]
 }
 
 export const EYELID_CASES_DATA: EyelidCase[] = [
@@ -11,7 +14,9 @@ export const EYELID_CASES_DATA: EyelidCase[] = [
   { slug: 'case-03', caseNumber: '03', procedures: ['Upper and Lower Blepharoplasty'], imageCount: 5 },
   { slug: 'case-04', caseNumber: '04', procedures: ['Upper and Lower Blepharoplasty'], imageCount: 3 },
   { slug: 'case-05', caseNumber: '05', procedures: ['Upper and Lower Blepharoplasty'], imageCount: 19 },
-  { slug: 'case-06', caseNumber: '06', procedures: ['Upper and Lower Blepharoplasty'], imageCount: 3 },
+  { slug: 'case-06', caseNumber: '06', procedures: ['Upper and Lower Blepharoplasty'], imageCount: 3, videos: [
+    { url: 'https://www.instagram.com/reel/DNqd231x_64/?igsh=MTYybmN6bWNraDVpaA%3D%3D', label: "Watch Patient's Transformation →" },
+  ]},
   { slug: 'case-07', caseNumber: '07', procedures: ['Upper and Lower Blepharoplasty'], imageCount: 4 },
   { slug: 'case-08', caseNumber: '08', procedures: ['Upper and Lower Blepharoplasty'], imageCount: 5 },
   { slug: 'case-09', caseNumber: '09', procedures: ['Upper and Lower Blepharoplasty'], imageCount: 3 },
