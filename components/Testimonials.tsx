@@ -36,7 +36,8 @@ export default function Testimonials() {
         {TESTIMONIALS.map((t) => (
           <div key={t.id} className="testimonial-card">
             <div>
-              <p className="testimonial-quote">&ldquo;{t.quote}&rdquo;</p>
+              <span className="testimonial-mark">&ldquo;</span>
+              <p className="testimonial-quote">{t.quote}&rdquo;</p>
             </div>
             <div className="testimonial-attribution">{t.attribution}</div>
           </div>
