@@ -36,7 +36,7 @@ const BLEPH_CASES: StaticCase[] = [
 
 // Invisible Access Mid Facelift — 2 patient cases
 const PONYTAIL_CASES: StaticCase[] = [
-  { thumbnail: '/ba/midfacelift/case-01/01.jpeg', images: [], procedure: 'Invisible Access Mid Facelift', category: 'ponytail', href: '/before-after/midfacelift/case-01' },
+  { thumbnail: '/ba/midfacelift/case-01-new/01.jpg', images: [], procedure: 'Invisible Access Mid Facelift', category: 'ponytail', href: '/before-after/midfacelift/case-01' },
   { thumbnail: '/ba/midfacelift/case-02/01.jpeg', images: [], procedure: 'Invisible Access Mid Facelift', category: 'ponytail', href: '/before-after/midfacelift/case-02' },
 ]
 

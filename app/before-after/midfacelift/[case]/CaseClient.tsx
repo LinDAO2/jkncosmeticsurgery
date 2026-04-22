@@ -24,7 +24,7 @@ export default function CaseClient({ data }: { data: MidfaceliftCase }) {
   }, [lightbox])
 
   const images = Array.from({ length: data.imageCount }, (_, i) =>
-    `/ba/midfacelift/${data.slug}/${String(i + 1).padStart(2, '0')}.jpeg`
+    `/ba/midfacelift/${data.slug}-new/${String(i + 1).padStart(2, '0')}.jpg`
   )
 
   return (
