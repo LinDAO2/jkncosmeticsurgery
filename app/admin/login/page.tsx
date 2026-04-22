@@ -4,15 +4,27 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function AdminLogin() {
+  const [view, setView] = useState<'signin' | 'signup'>('signin')
+
+  // Sign in state
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [loginError, setLoginError] = useState('')
+  const [loginLoading, setLoginLoading] = useState(false)
+
+  // Sign up state
+  const [masterPassword, setMasterPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
+  const [setupError, setSetupError] = useState('')
+  const [setupLoading, setSetupLoading] = useState(false)
+  const [setupDone, setSetupDone] = useState(false)
+
   const router = useRouter()
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSignIn(e: React.FormEvent) {
     e.preventDefault()
-    setLoading(true)
-    setError('')
+    setLoginLoading(true)
+    setLoginError('')
 
     const res = await fetch('/api/admin/login', {
       method: 'POST',
@@ -24,8 +36,32 @@ export default function AdminLogin() {
       router.push('/admin')
     } else {
       const data = await res.json()
-      setError(data.error || 'Incorrect password')
-      setLoading(false)
+      setLoginError(data.error || 'Incorrect password')
+      setLoginLoading(false)
+    }
+  }
+
+  async function handleSignUp(e: React.FormEvent) {
+    e.preventDefault()
+    setSetupError('')
+
+    if (newPassword !== confirm) { setSetupError('Passwords do not match'); return }
+    if (newPassword.length < 8) { setSetupError('Password must be at least 8 characters'); return }
+
+    setSetupLoading(true)
+    const res = await fetch('/api/admin/setup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ masterPassword, password: newPassword }),
+    })
+
+    const data = await res.json()
+    if (res.ok) {
+      setSetupDone(true)
+      setTimeout(() => { setView('signin'); setSetupDone(false) }, 2000)
+    } else {
+      setSetupError(data.error || 'Something went wrong')
+      setSetupLoading(false)
     }
   }
 
@@ -36,24 +72,88 @@ export default function AdminLogin() {
           <span className="admin-login-logo">JKN</span>
           <span className="admin-login-sub">Practice Portal</span>
         </div>
-        <form onSubmit={handleSubmit} className="admin-login-form">
-          <div className="admin-login-field">
-            <label className="admin-login-label">Password</label>
-            <input
-              className="admin-login-input"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter password"
-              autoFocus
-              required
-            />
-          </div>
-          {error && <p className="admin-login-error">{error}</p>}
-          <button className="admin-login-btn" type="submit" disabled={loading}>
-            {loading ? 'Signing in…' : 'Sign In →'}
+
+        <div className="admin-login-tabs">
+          <button
+            className={`admin-login-tab${view === 'signin' ? ' active' : ''}`}
+            onClick={() => setView('signin')}
+            type="button"
+          >
+            Sign In
           </button>
-        </form>
+          <button
+            className={`admin-login-tab${view === 'signup' ? ' active' : ''}`}
+            onClick={() => setView('signup')}
+            type="button"
+          >
+            Set Up Account
+          </button>
+        </div>
+
+        {view === 'signin' ? (
+          <form onSubmit={handleSignIn} className="admin-login-form">
+            <div className="admin-login-field">
+              <label className="admin-login-label">Password</label>
+              <input
+                className="admin-login-input"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter password"
+                autoFocus
+                required
+              />
+            </div>
+            {loginError && <p className="admin-login-error">{loginError}</p>}
+            <button className="admin-login-btn" type="submit" disabled={loginLoading}>
+              {loginLoading ? 'Signing in…' : 'Sign In →'}
+            </button>
+          </form>
+        ) : setupDone ? (
+          <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 13, color: '#3d3530', textAlign: 'center', marginTop: 24 }}>
+            Password set successfully. Redirecting to sign in…
+          </p>
+        ) : (
+          <form onSubmit={handleSignUp} className="admin-login-form">
+            <div className="admin-login-field">
+              <label className="admin-login-label">Master Password</label>
+              <input
+                className="admin-login-input"
+                type="password"
+                value={masterPassword}
+                onChange={(e) => setMasterPassword(e.target.value)}
+                placeholder="Provided by your admin"
+                required
+              />
+            </div>
+            <div className="admin-login-field">
+              <label className="admin-login-label">New Password</label>
+              <input
+                className="admin-login-input"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="At least 8 characters"
+                required
+              />
+            </div>
+            <div className="admin-login-field">
+              <label className="admin-login-label">Confirm Password</label>
+              <input
+                className="admin-login-input"
+                type="password"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                placeholder="Repeat new password"
+                required
+              />
+            </div>
+            {setupError && <p className="admin-login-error">{setupError}</p>}
+            <button className="admin-login-btn" type="submit" disabled={setupLoading}>
+              {setupLoading ? 'Saving…' : 'Create Password →'}
+            </button>
+          </form>
+        )}
       </div>
     </div>
   )

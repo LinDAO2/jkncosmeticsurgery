@@ -346,6 +346,9 @@ footer { background: var(--jkn-black); padding: 60px var(--grid); display: flex;
 .admin-login-input { font-family: var(--font-body); font-weight: 300; font-size: 14px; color: var(--jkn-black); background: var(--jkn-white); border: 0.5px solid var(--jkn-divider); padding: 14px 16px; outline: none; width: 100%; transition: border-color 0.2s; }
 .admin-login-input:focus { border-color: var(--jkn-black); }
 .admin-login-error { font-family: var(--font-body); font-size: 12px; color: #c0392b; }
+.admin-login-tabs { display: flex; border-bottom: 0.5px solid #ddd; margin-bottom: 28px; }
+.admin-login-tab { flex: 1; font-family: var(--font-ui); font-size: 9px; font-weight: 400; letter-spacing: 0.18em; text-transform: uppercase; background: none; border: none; border-bottom: 1.5px solid transparent; padding: 10px 0; cursor: pointer; color: #aaa; transition: color 0.2s, border-color 0.2s; margin-bottom: -0.5px; }
+.admin-login-tab.active { color: var(--jkn-black); border-bottom-color: var(--jkn-black); }
 .admin-login-btn { font-family: var(--font-ui); font-weight: 500; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--jkn-white); background: var(--jkn-black); border: none; padding: 16px; cursor: pointer; transition: background 0.2s; margin-top: 8px; }
 .admin-login-btn:hover { background: var(--jkn-body); }
 .admin-login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
