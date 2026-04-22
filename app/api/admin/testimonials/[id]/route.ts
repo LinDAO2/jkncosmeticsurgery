@@ -14,6 +14,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   if (!quote?.trim() || !attribution?.trim()) {
     return NextResponse.json({ error: 'Quote and attribution are required' }, { status: 400 })
   }
+  if (quote.trim().length > 280) {
+    return NextResponse.json({ error: 'Review must be 280 characters or fewer' }, { status: 400 })
+  }
   const { error } = await supabase
     .from('testimonials')
     .update({ quote: quote.trim(), attribution: attribution.trim(), display_order: display_order ?? 0 })

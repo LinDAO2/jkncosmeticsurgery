@@ -245,7 +245,7 @@ function ReviewsView() {
             </div>
             {error && <p style={{ ...s, fontSize: 12, color: '#c00', margin: 0 }}>{error}</p>}
             <div style={{ display: 'flex', gap: 10 }}>
-              <button type="submit" disabled={saving} style={{ background: '#1c1917', color: '#fff', border: 'none', padding: '10px 20px', ...s, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer' }}>
+              <button type="submit" disabled={saving || quote.length > 280} style={{ background: quote.length > 280 ? '#ccc' : '#1c1917', color: '#fff', border: 'none', padding: '10px 20px', ...s, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: quote.length > 280 ? 'not-allowed' : 'pointer' }}>
                 {saving ? 'Saving…' : 'Save'}
               </button>
               <button type="button" onClick={cancel} style={{ background: 'none', border: '0.5px solid #ddd', padding: '10px 20px', ...s, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer', color: '#888' }}>
