@@ -163,6 +163,113 @@ function EmailRoutingView() {
   )
 }
 
+type Testimonial = { id: string; quote: string; attribution: string; display_order: number }
+
+function ReviewsView() {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([])
+  const [fetching, setFetching] = useState(true)
+  const [editing, setEditing] = useState<Testimonial | null>(null)
+  const [showAdd, setShowAdd] = useState(false)
+  const [quote, setQuote] = useState('')
+  const [attribution, setAttribution] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+
+  async function load() {
+    setFetching(true)
+    const res = await fetch('/api/admin/testimonials')
+    const data = await res.json()
+    setTestimonials(data.testimonials ?? [])
+    setFetching(false)
+  }
+
+  useEffect(() => { load() }, [])
+
+  function openAdd() { setQuote(''); setAttribution(''); setEditing(null); setShowAdd(true); setError('') }
+  function openEdit(t: Testimonial) { setQuote(t.quote); setAttribution(t.attribution); setEditing(t); setShowAdd(false); setError('') }
+  function cancel() { setShowAdd(false); setEditing(null); setError('') }
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault()
+    setError('')
+    setSaving(true)
+    const maxOrder = testimonials.length ? Math.max(...testimonials.map(t => t.display_order)) : 0
+
+    const res = editing
+      ? await fetch(`/api/admin/testimonials/${editing.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ quote, attribution, display_order: editing.display_order }) })
+      : await fetch('/api/admin/testimonials', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ quote, attribution, display_order: maxOrder + 1 }) })
+
+    if (res.ok) { cancel(); await load() }
+    else { const d = await res.json(); setError(d.error || 'Failed to save') }
+    setSaving(false)
+  }
+
+  async function handleDelete(id: string) {
+    await fetch(`/api/admin/testimonials/${id}`, { method: 'DELETE' })
+    await load()
+  }
+
+  const s = { fontFamily: 'Montserrat, sans-serif' }
+
+  return (
+    <div>
+      <div className="admin-header">
+        <div>
+          <span className="admin-header-label">Content</span>
+          <h1 className="admin-header-title">Reviews</h1>
+        </div>
+        <button onClick={openAdd} style={{ ...s, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', background: '#1c1917', color: '#fff', border: 'none', padding: '10px 20px', cursor: 'pointer' }}>
+          + Add Review
+        </button>
+      </div>
+
+      <div style={{ maxWidth: 680, padding: '0 40px' }}>
+        {(showAdd || editing) && (
+          <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 36, padding: 24, border: '0.5px solid #e5e5e5' }}>
+            <p style={{ ...s, fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888', margin: 0 }}>{editing ? 'Edit Review' : 'New Review'}</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={{ ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Review</label>
+              <textarea value={quote} onChange={e => setQuote(e.target.value)} required rows={4} style={{ border: '0.5px solid #ddd', padding: '10px 12px', ...s, fontSize: 13, resize: 'vertical' }} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={{ ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Attribution</label>
+              <input value={attribution} onChange={e => setAttribution(e.target.value)} required placeholder="e.g. Patient — Deep Plane Face and Neck Lift" style={{ border: '0.5px solid #ddd', padding: '10px 12px', ...s, fontSize: 13 }} />
+            </div>
+            {error && <p style={{ ...s, fontSize: 12, color: '#c00', margin: 0 }}>{error}</p>}
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button type="submit" disabled={saving} style={{ background: '#1c1917', color: '#fff', border: 'none', padding: '10px 20px', ...s, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                {saving ? 'Saving…' : 'Save'}
+              </button>
+              <button type="button" onClick={cancel} style={{ background: 'none', border: '0.5px solid #ddd', padding: '10px 20px', ...s, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer', color: '#888' }}>
+                Cancel
+              </button>
+            </div>
+          </form>
+        )}
+
+        {fetching ? (
+          <p style={{ ...s, fontSize: 12, color: '#aaa' }}>Loading…</p>
+        ) : testimonials.length === 0 ? (
+          <p style={{ ...s, fontSize: 12, color: '#aaa' }}>No reviews yet.</p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {testimonials.map(t => (
+              <div key={t.id} style={{ border: '0.5px solid #e5e5e5', padding: '16px 20px' }}>
+                <p style={{ ...s, fontSize: 13, color: '#3d3530', lineHeight: 1.6, marginBottom: 8 }}>"{t.quote}"</p>
+                <p style={{ ...s, fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#aaa', marginBottom: 12 }}>{t.attribution}</p>
+                <div style={{ display: 'flex', gap: 16 }}>
+                  <button onClick={() => openEdit(t)} style={{ background: 'none', border: 'none', ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#3d3530', cursor: 'pointer' }}>Edit</button>
+                  <button onClick={() => handleDelete(t.id)} style={{ background: 'none', border: 'none', ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#aaa', cursor: 'pointer' }}>Delete</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 type Inquiry = {
   id: number
   created_at: string
@@ -174,7 +281,7 @@ type Inquiry = {
   message?: string
 }
 
-type View = 'inquiries' | 'email-routing'
+type View = 'inquiries' | 'reviews' | 'email-routing'
 
 export default function AdminDashboard({ inquiries }: { inquiries: Inquiry[] }) {
   const [view, setView] = useState<View>('inquiries')
@@ -202,6 +309,7 @@ export default function AdminDashboard({ inquiries }: { inquiries: Inquiry[] }) 
         </div>
         <div className="admin-nav">
           <span className={`admin-nav-item${view === 'inquiries' ? ' active' : ''}`} onClick={() => setView('inquiries')}>Inquiries</span>
+          <span className={`admin-nav-item${view === 'reviews' ? ' active' : ''}`} onClick={() => setView('reviews')}>Reviews</span>
           <span className={`admin-nav-item${view === 'email-routing' ? ' active' : ''}`} onClick={() => setView('email-routing')}>Email Routing</span>
         </div>
         <button className="admin-change-password-btn" onClick={() => setShowChangePassword(true)}>Change Password</button>
@@ -213,8 +321,10 @@ export default function AdminDashboard({ inquiries }: { inquiries: Inquiry[] }) 
       <main className="admin-main">
         {view === 'email-routing' ? (
           <EmailRoutingView />
+        ) : view === 'reviews' ? (
+          <ReviewsView />
         ) : (
-          <>
+<>
             <div className="admin-header">
               <div>
                 <span className="admin-header-label">Inquiries</span>
