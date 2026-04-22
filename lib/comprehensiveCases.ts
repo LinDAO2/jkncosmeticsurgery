@@ -59,6 +59,9 @@ export const COMPREHENSIVE_CASES_DATA: ComprehensiveCase[] = [
       'Laser Resurfacing',
     ],
     imageCount: 7,
+    videos: [
+      { url: 'https://www.instagram.com/reel/DP2C4LOkotZ/?igsh=MWlmMDg1MjltZ2VrYw%3D%3D', label: "Watch Patient's 1 Week Post Op →" },
+    ],
   },
   {
     slug: 'case-05',
