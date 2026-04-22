@@ -89,7 +89,7 @@ export default function CaseClient({ data }: { data: ComprehensiveCase }) {
 
         {/* ── View More ── */}
         <div className="case-detail-more">
-          <a className="case-detail-more-link" href="/before-after?category=comprehensive">View More Cases →</a>
+          <a className="case-detail-more-link" href="/before-after?category=comprehensive">VIEW ALL CASES  →</a>
         </div>
 
         {/* ── CTA ── */}

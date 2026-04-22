@@ -270,9 +270,9 @@ nav.nav-home.scrolled .nav-cta:hover { background: var(--jkn-black) !important; 
 .case-detail-card:hover .case-detail-card-overlay { opacity: 1; }
 .case-detail-card-overlay { position: absolute; inset: 0; background: rgba(10,10,10,0.45); display: flex; align-items: flex-end; justify-content: flex-end; padding: 16px; opacity: 0; transition: opacity 0.3s ease; }
 .case-detail-card-link { font-family: var(--font-ui); font-weight: 300; font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(255,255,255,0.8); }
-.case-detail-more { text-align: center; padding: 48px 0 0; }
-.case-detail-more-link { font-family: var(--font-sans); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--jkn-navy); text-decoration: none; border-bottom: 1px solid currentColor; padding-bottom: 2px; }
-.case-detail-more-link:hover { opacity: 0.6; }
+.case-detail-more { text-align: center; padding: 64px 0 0; }
+.case-detail-more-link { font-family: var(--font-sans); font-size: 15px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--jkn-black); text-decoration: none; border-bottom: 1px solid currentColor; padding-bottom: 4px; font-weight: 300; }
+.case-detail-more-link:hover { opacity: 0.5; }
 .case-detail-cta { text-align: center; padding-top: 40px; border-top: 0.5px solid var(--jkn-divider); }
 
 /* ─── TESTIMONIALS ─── */

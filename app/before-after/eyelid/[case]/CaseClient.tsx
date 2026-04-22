@@ -82,7 +82,7 @@ export default function CaseClient({ data }: { data: EyelidCase }) {
         </div>
 
         <div className="case-detail-more">
-          <a className="case-detail-more-link" href="/before-after?category=bleph">View More Cases →</a>
+          <a className="case-detail-more-link" href="/before-after?category=bleph">VIEW ALL CASES  →</a>
         </div>
 
         <div className="case-detail-cta">
