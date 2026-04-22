@@ -138,6 +138,11 @@ export default function CaseHC() {
           </div>
         </div>
 
+        {/* ── View More ── */}
+        <div className="case-detail-more">
+          <a className="case-detail-more-link" href="/before-after?category=comprehensive">View More Cases →</a>
+        </div>
+
         {/* ── CTA ── */}
         <div className="case-detail-cta">
           <a className="btn-navy" href="/begin">Begin Your Journey</a>
