@@ -1,10 +1,11 @@
+export type CaseVideo = { url: string; label: string }
+
 export type ComprehensiveCase = {
   slug: string
   caseNumber: string
   procedures: string[]
   imageCount: number
-  videoUrl?: string
-  videoUrl2?: string
+  videos?: CaseVideo[]
 }
 
 // Procedures marked TODO — update from Google Drive patient detail files
@@ -73,8 +74,10 @@ export const COMPREHENSIVE_CASES_DATA: ComprehensiveCase[] = [
       'Ptosis Repair',
     ],
     imageCount: 12,
-    videoUrl: 'https://www.instagram.com/reel/DV1Uyy7D8ta/?igsh=dnIyZjZsYzB6cDlx',
-    videoUrl2: 'https://www.instagram.com/reel/DMGAk4RxuMm/?igsh=MWNxZHdzcTJxYjQ0OA==',
+    videos: [
+      { url: 'https://www.instagram.com/reel/DV1Uyy7D8ta/?igsh=dnIyZjZsYzB6cDlx', label: 'Watch Dr. Nia Walk Through This Case →' },
+      { url: 'https://www.instagram.com/reel/DMGAk4RxuMm/?igsh=MWNxZHdzcTJxYjQ0OA==', label: "Watch Patient's 5 Months Post Op →" },
+    ],
   },
   {
     slug: 'case-06',
@@ -123,6 +126,9 @@ export const COMPREHENSIVE_CASES_DATA: ComprehensiveCase[] = [
       'Laser Resurfacing',
     ],
     imageCount: 8,
+    videos: [
+      { url: 'https://www.instagram.com/reel/DU_oNAOkkGP/?igsh=MWE2bmYxOG5mNHhpaA%3D%3D', label: "Watch Patient's 1 Week Post Op →" },
+    ],
   },
 ]
 
