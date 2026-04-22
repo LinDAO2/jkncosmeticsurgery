@@ -276,9 +276,7 @@ nav.nav-home.scrolled .nav-cta:hover { background: var(--jkn-black) !important; 
 .case-detail-cta { text-align: center; padding-top: 40px; border-top: 0.5px solid var(--jkn-divider); }
 
 /* ─── TESTIMONIALS ─── */
-.testimonials-section { background: #ffffff; padding: 100px 40px; border-top: 0.5px solid #e8e8e8; text-align: center; }
-.testimonials-doctor { margin-bottom: 32px; display: flex; justify-content: center; }
-.testimonials-doctor img { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; object-position: center top; border: 0.5px solid #e8e8e8; }
+.testimonials-section { background: #ffffff; padding: 100px 40px; border-top: 0.5px solid #e8e8e8; }
 .testimonials-label { font-family: var(--font-ui); font-weight: 500; font-size: 8.5px; letter-spacing: 0.38em; text-transform: uppercase; color: #888888; display: block; margin-bottom: 16px; }
 .testimonials-heading { font-family: var(--font-display); font-weight: 400; font-size: clamp(32px, 4vw, 48px); letter-spacing: 0.01em; color: #0a0a0a; margin-bottom: 64px; }
 .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
