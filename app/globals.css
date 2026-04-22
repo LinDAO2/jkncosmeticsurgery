@@ -261,7 +261,7 @@ nav.nav-home.scrolled .nav-cta:hover { background: var(--jkn-black) !important; 
 .case-proc-list { list-style: none; margin-top: 24px; display: flex; flex-direction: column; gap: 0; border-top: 0.5px solid var(--jkn-divider); }
 .case-proc-item { font-family: var(--font-body); font-weight: 300; font-size: 14px; line-height: 1.6; color: var(--jkn-body); letter-spacing: 0.01em; padding: 14px 0; border-bottom: 0.5px solid var(--jkn-divider); }
 .case-detail-rule { height: 0.5px; background: var(--jkn-divider); margin-bottom: 64px; }
-.case-detail-video-link { margin-bottom: 40px; }
+.case-detail-video-link { margin-bottom: 40px; display: flex; flex-direction: column; gap: 16px; }
 .case-video-btn { font-family: var(--font-ui); font-size: 11px; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(--jkn-body); text-decoration: none; border-bottom: 0.5px solid var(--jkn-body); padding-bottom: 2px; transition: opacity 0.2s; }
 .case-video-btn:hover { opacity: 0.6; }
 .case-detail-set { margin-bottom: 32px; }

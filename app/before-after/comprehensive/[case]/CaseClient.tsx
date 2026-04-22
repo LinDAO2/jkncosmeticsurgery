@@ -53,12 +53,19 @@ export default function CaseClient({ data }: { data: ComprehensiveCase }) {
           </ul>
         </div>
 
-        {/* ── Video link ── */}
-        {data.videoUrl && (
+        {/* ── Video links ── */}
+        {(data.videoUrl || data.videoUrl2) && (
           <div className="case-detail-video-link">
-            <a href={data.videoUrl} target="_blank" rel="noopener noreferrer" className="case-video-btn">
-              Watch Dr. Nia Walk Through This Case →
-            </a>
+            {data.videoUrl && (
+              <a href={data.videoUrl} target="_blank" rel="noopener noreferrer" className="case-video-btn">
+                Watch Dr. Nia Walk Through This Case →
+              </a>
+            )}
+            {data.videoUrl2 && (
+              <a href={data.videoUrl2} target="_blank" rel="noopener noreferrer" className="case-video-btn">
+                Watch Patient's 5 Month Post Op →
+              </a>
+            )}
           </div>
         )}
 
