@@ -1018,6 +1018,9 @@ function HomepageView() {
   const [fields, setFields] = useState<Record<string, string>>({})
   const [fetching, setFetching] = useState(true)
   const [allCases, setAllCases] = useState<DbCase[]>([])
+  const [editingSection, setEditingSection] = useState<'philosophy' | 'quote' | 'contact' | null>(null)
+  const [draft, setDraft] = useState<Record<string, string>>({})
+  const [sectionSaving, setSectionSaving] = useState(false)
 
   useEffect(() => {
     Promise.all([
@@ -1046,6 +1049,10 @@ function HomepageView() {
   }
 
   if (fetching) return <div style={{ padding: 40, fontFamily: 'Montserrat, sans-serif', fontSize: 12, color: '#aaa' }}>Loading…</div>
+
+  const editBtnStyle = { fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase' as const, background: 'none', border: '0.5px solid var(--jkn-divider)', padding: '6px 14px', cursor: 'pointer', color: 'var(--jkn-light)' }
+  const saveBtnStyle = { fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase' as const, background: '#1c1917', color: '#fff', border: 'none', padding: '7px 16px', cursor: 'pointer' }
+  const cancelBtnStyle = { fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase' as const, background: 'none', border: '0.5px solid rgba(255,255,255,0.3)', padding: '7px 12px', cursor: 'pointer', color: 'var(--jkn-light)' }
 
   const featuredCases = allCases.filter(c => c.featured)
   const nonFeatured = allCases.filter(c => !c.featured && (c.cover_image || c.images.length > 0))
@@ -1135,17 +1142,28 @@ function HomepageView() {
         {/* ── PHILOSOPHY ─────────────────────────────────────────────── */}
         <div className="philosophy-bg">
           <div className="philosophy-inner">
-            <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--jkn-light)', display: 'block', marginBottom: 16 }}>
-              Click any text to edit it directly
-            </span>
             <div className="philosophy-header">
               <div className="philosophy-header-left">
                 <span className="section-label">Our Approach</span>
-                <CE tag="h2" className="philosophy-heading" value={get('philosophy', 'heading') || 'Elevation Through Precision'} onSave={v => saveField('philosophy', 'heading', v)} />
+                {editingSection === 'philosophy'
+                  ? <textarea value={draft.heading ?? ''} onChange={e => setDraft(d => ({ ...d, heading: e.target.value }))} className="philosophy-heading" rows={2} style={{ background: 'transparent', border: '0.5px solid rgba(255,255,255,0.3)', outline: 'none', resize: 'vertical', width: '100%', color: 'inherit', padding: 4 }} />
+                  : <h2 className="philosophy-heading">{get('philosophy', 'heading') || 'Elevation Through Precision'}</h2>}
               </div>
               <div className="philosophy-header-right">
-                <CE tag="p" className="philosophy-teaser-body" value={get('philosophy', 'body') || ''} onSave={v => saveField('philosophy', 'body', v)} />
+                {editingSection === 'philosophy'
+                  ? <textarea value={draft.body ?? ''} onChange={e => setDraft(d => ({ ...d, body: e.target.value }))} className="philosophy-teaser-body" rows={4} style={{ background: 'transparent', border: '0.5px solid rgba(255,255,255,0.3)', outline: 'none', resize: 'vertical', width: '100%', color: 'inherit', padding: 4 }} />
+                  : <p className="philosophy-teaser-body">{get('philosophy', 'body')}</p>}
               </div>
+            </div>
+            <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
+              {editingSection === 'philosophy' ? (
+                <>
+                  <button onClick={async () => { setSectionSaving(true); await Promise.all([saveField('philosophy', 'heading', draft.heading ?? ''), saveField('philosophy', 'body', draft.body ?? '')]); setSectionSaving(false); setEditingSection(null) }} disabled={sectionSaving} style={saveBtnStyle}>{sectionSaving ? 'Saving…' : 'Save'}</button>
+                  <button onClick={() => setEditingSection(null)} style={cancelBtnStyle}>Cancel</button>
+                </>
+              ) : (
+                <button onClick={() => { setDraft({ heading: get('philosophy', 'heading') || 'Elevation Through Precision', body: get('philosophy', 'body') }); setEditingSection('philosophy') }} style={editBtnStyle}>Edit</button>
+              )}
             </div>
           </div>
         </div>
@@ -1153,8 +1171,22 @@ function HomepageView() {
         {/* ── QUOTE ──────────────────────────────────────────────────── */}
         <section className="quote-section">
           <span className="quote-mark">&ldquo;</span>
-          <CE tag="p" className="quote-text" value={get('quote', 'text') || ''} onSave={v => saveField('quote', 'text', v)} />
-          <CE tag="span" className="quote-attr" value={get('quote', 'attribution') || ''} onSave={v => saveField('quote', 'attribution', v)} style={{ display: 'block', marginTop: 20 }} />
+          {editingSection === 'quote'
+            ? <textarea value={draft.text ?? ''} onChange={e => setDraft(d => ({ ...d, text: e.target.value }))} className="quote-text" rows={3} style={{ background: 'transparent', border: '0.5px solid var(--jkn-divider)', outline: 'none', resize: 'vertical', width: '100%', color: 'inherit', padding: 4 }} />
+            : <p className="quote-text">{get('quote', 'text')}</p>}
+          {editingSection === 'quote'
+            ? <textarea value={draft.attribution ?? ''} onChange={e => setDraft(d => ({ ...d, attribution: e.target.value }))} className="quote-attr" rows={1} style={{ background: 'transparent', border: '0.5px solid var(--jkn-divider)', outline: 'none', resize: 'none', width: '100%', color: 'inherit', display: 'block', marginTop: 20, padding: 4 }} />
+            : <span className="quote-attr" style={{ display: 'block', marginTop: 20 }}>{get('quote', 'attribution')}</span>}
+          <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
+            {editingSection === 'quote' ? (
+              <>
+                <button onClick={async () => { setSectionSaving(true); await Promise.all([saveField('quote', 'text', draft.text ?? ''), saveField('quote', 'attribution', draft.attribution ?? '')]); setSectionSaving(false); setEditingSection(null) }} disabled={sectionSaving} style={saveBtnStyle}>{sectionSaving ? 'Saving…' : 'Save'}</button>
+                <button onClick={() => setEditingSection(null)} style={cancelBtnStyle}>Cancel</button>
+              </>
+            ) : (
+              <button onClick={() => { setDraft({ text: get('quote', 'text'), attribution: get('quote', 'attribution') }); setEditingSection('quote') }} style={editBtnStyle}>Edit</button>
+            )}
+          </div>
         </section>
 
         {/* ── CONTACT (Begin page) ────────────────────────────────────── */}
@@ -1163,21 +1195,47 @@ function HomepageView() {
           <div className="contact-grid">
             <div className="contact-left">
               <h2 className="contact-heading">Begin Your Journey</h2>
-              <CE tag="p" className="contact-body" value={get('contact', 'body1') || ''} onSave={v => saveField('contact', 'body1', v)} />
-              <CE tag="p" className="contact-body" value={get('contact', 'body2') || ''} onSave={v => saveField('contact', 'body2', v)} />
+              {editingSection === 'contact' ? (
+                <>
+                  <textarea value={draft.body1 ?? ''} onChange={e => setDraft(d => ({ ...d, body1: e.target.value }))} className="contact-body" rows={3} style={{ background: 'transparent', border: '0.5px solid var(--jkn-divider)', outline: 'none', resize: 'vertical', width: '100%', color: 'inherit', padding: 4 }} />
+                  <textarea value={draft.body2 ?? ''} onChange={e => setDraft(d => ({ ...d, body2: e.target.value }))} className="contact-body" rows={3} style={{ background: 'transparent', border: '0.5px solid var(--jkn-divider)', outline: 'none', resize: 'vertical', width: '100%', color: 'inherit', padding: 4, marginTop: 8 }} />
+                </>
+              ) : (
+                <>
+                  <p className="contact-body">{get('contact', 'body1')}</p>
+                  <p className="contact-body">{get('contact', 'body2')}</p>
+                </>
+              )}
               <div className="contact-detail">
                 <div className="contact-detail-row" style={{ borderBottom: 'none' }}>
                   <span className="contact-detail-label">Availability</span>
-                  <CE tag="span" className="contact-detail-value" value={get('contact', 'availability') || ''} onSave={v => saveField('contact', 'availability', v)} />
+                  {editingSection === 'contact'
+                    ? <input value={draft.availability ?? ''} onChange={e => setDraft(d => ({ ...d, availability: e.target.value }))} className="contact-detail-value" style={{ background: 'transparent', border: 'none', borderBottom: '0.5px solid var(--jkn-divider)', outline: 'none', color: 'inherit', flex: 1 }} />
+                    : <span className="contact-detail-value">{get('contact', 'availability')}</span>}
                 </div>
               </div>
               <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {[['Instagram handle', 'contact', 'instagram_handle'], ['Instagram URL', 'contact', 'instagram_url'], ['Email', 'contact', 'email']].map(([label, sec, key]) => (
-                  <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--jkn-mid)', width: 110, flexShrink: 0 }}>{label}</span>
-                    <CE tag="span" value={get(sec, key)} onSave={v => saveField(sec, key, v)} style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 13, color: 'var(--jkn-black)' }} />
-                  </div>
-                ))}
+                {(['instagram_handle', 'instagram_url', 'email'] as const).map(key => {
+                  const labels: Record<string, string> = { instagram_handle: 'Instagram handle', instagram_url: 'Instagram URL', email: 'Email' }
+                  return (
+                    <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--jkn-mid)', width: 110, flexShrink: 0 }}>{labels[key]}</span>
+                      {editingSection === 'contact'
+                        ? <input value={draft[key] ?? ''} onChange={e => setDraft(d => ({ ...d, [key]: e.target.value }))} style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 13, color: 'var(--jkn-black)', background: 'transparent', border: 'none', borderBottom: '0.5px solid var(--jkn-divider)', outline: 'none', flex: 1 }} />
+                        : <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 13, color: 'var(--jkn-black)' }}>{get('contact', key)}</span>}
+                    </div>
+                  )
+                })}
+              </div>
+              <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
+                {editingSection === 'contact' ? (
+                  <>
+                    <button onClick={async () => { setSectionSaving(true); await Promise.all(['body1','body2','availability','instagram_handle','instagram_url','email'].map(k => saveField('contact', k, draft[k] ?? ''))); setSectionSaving(false); setEditingSection(null) }} disabled={sectionSaving} style={saveBtnStyle}>{sectionSaving ? 'Saving…' : 'Save'}</button>
+                    <button onClick={() => setEditingSection(null)} style={{ ...cancelBtnStyle, border: '0.5px solid #ddd', color: '#888' }}>Cancel</button>
+                  </>
+                ) : (
+                  <button onClick={() => { setDraft({ body1: get('contact','body1'), body2: get('contact','body2'), availability: get('contact','availability'), instagram_handle: get('contact','instagram_handle'), instagram_url: get('contact','instagram_url'), email: get('contact','email') }); setEditingSection('contact') }} style={{ ...editBtnStyle, border: '0.5px solid #ddd', color: '#888' }}>Edit</button>
+                )}
               </div>
             </div>
           </div>
@@ -1202,6 +1260,9 @@ function ServicesAdminView() {
   const [newSvc, setNewSvc] = useState({ name: '', price: '', description: '' })
   const [draggedId, setDraggedId] = useState<string | null>(null)
   const [dragOverId, setDragOverId] = useState<string | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editDraft, setEditDraft] = useState<{ name: string; price: string; description: string }>({ name: '', price: '', description: '' })
+  const [svcSaving, setSvcSaving] = useState(false)
 
   async function load() {
     setFetching(true)
@@ -1249,7 +1310,28 @@ function ServicesAdminView() {
     await load()
   }
 
+  function startEditSvc(svc: AdminService) {
+    setEditDraft({ name: svc.name, price: svc.price, description: svc.description })
+    setEditingId(svc.id)
+  }
+
+  async function saveEditSvc(id: string) {
+    setSvcSaving(true)
+    await Promise.all([
+      saveSvcField(id, 'name', editDraft.name),
+      saveSvcField(id, 'price', editDraft.price),
+      saveSvcField(id, 'description', editDraft.description),
+    ])
+    setLocalServices(prev => prev.map(sv => sv.id === id ? { ...sv, ...editDraft } : sv))
+    setSvcSaving(false)
+    setEditingId(null)
+  }
+
   if (fetching) return <div style={{ padding: 40, ...s, fontSize: 12, color: '#aaa' }}>Loading…</div>
+
+  const svcEditBtn = { fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase' as const, background: 'none', border: '0.5px solid var(--jkn-divider)', padding: '5px 12px', cursor: 'pointer', color: 'var(--jkn-light)' }
+  const svcSaveBtn = { fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase' as const, background: '#1c1917', color: '#fff', border: 'none', padding: '6px 14px', cursor: 'pointer' }
+  const svcCancelBtn = { fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase' as const, background: 'none', border: '0.5px solid #ddd', padding: '6px 10px', cursor: 'pointer', color: '#888' }
 
   return (
     <div>
@@ -1262,7 +1344,7 @@ function ServicesAdminView() {
 
       <div style={{ margin: '0 -48px -48px', padding: '0 48px 48px' }}>
         <span style={{ ...s, fontSize: 9, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--jkn-light)', display: 'block', marginBottom: 36 }}>
-          Click any text to edit · Drag to reorder
+          Drag to reorder
         </span>
 
         {showAdd && (
@@ -1287,22 +1369,45 @@ function ServicesAdminView() {
           <div
             key={svc.id}
             className="service-row row-revealed"
-            draggable
-            onDragStart={() => setDraggedId(svc.id)}
+            draggable={editingId !== svc.id}
+            onDragStart={() => { if (editingId !== svc.id) setDraggedId(svc.id) }}
             onDragOver={e => { e.preventDefault(); setDragOverId(svc.id) }}
             onDrop={() => handleDrop(svc.id)}
             onDragEnd={() => { setDraggedId(null); setDragOverId(null) }}
-            style={{ opacity: draggedId === svc.id ? 0.35 : 1, outline: dragOverId === svc.id && draggedId !== svc.id ? '1.5px solid var(--jkn-black)' : 'none', cursor: draggedId ? 'grabbing' : 'grab', transition: 'opacity 0.15s' }}
+            style={{ opacity: draggedId === svc.id ? 0.35 : 1, outline: dragOverId === svc.id && draggedId !== svc.id ? '1.5px solid var(--jkn-black)' : 'none', cursor: editingId === svc.id ? 'default' : draggedId ? 'grabbing' : 'grab', transition: 'opacity 0.15s' }}
           >
             <div className="service-row-left">
-              <CE tag="span" className="service-row-name" value={svc.name} onSave={v => saveSvcField(svc.id, 'name', v)} style={{ display: 'block' }} />
-              <CE tag="span" className="service-row-price" value={svc.price} onSave={v => saveSvcField(svc.id, 'price', v)} style={{ display: 'block', marginTop: 8 }} />
+              {editingId === svc.id ? (
+                <>
+                  <input value={editDraft.name} onChange={e => setEditDraft(d => ({ ...d, name: e.target.value }))} className="service-row-name" style={{ display: 'block', background: 'transparent', border: 'none', borderBottom: '0.5px solid var(--jkn-divider)', outline: 'none', width: '100%', color: 'inherit' }} />
+                  <input value={editDraft.price} onChange={e => setEditDraft(d => ({ ...d, price: e.target.value }))} className="service-row-price" style={{ display: 'block', marginTop: 8, background: 'transparent', border: 'none', borderBottom: '0.5px solid var(--jkn-divider)', outline: 'none', width: '100%', color: 'inherit' }} />
+                </>
+              ) : (
+                <>
+                  <span className="service-row-name" style={{ display: 'block' }}>{svc.name}</span>
+                  <span className="service-row-price" style={{ display: 'block', marginTop: 8 }}>{svc.price}</span>
+                </>
+              )}
             </div>
             <div className="service-row-right">
-              <CE tag="p" className="service-row-desc" value={svc.description} onSave={v => saveSvcField(svc.id, 'description', v)} />
-              <button onClick={() => deleteSvc(svc.id)} style={{ ...s, fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', background: 'none', border: 'none', color: 'var(--jkn-light)', cursor: 'pointer', padding: '8px 0 0', display: 'block' }}>
-                Delete service
-              </button>
+              {editingId === svc.id ? (
+                <textarea value={editDraft.description} onChange={e => setEditDraft(d => ({ ...d, description: e.target.value }))} className="service-row-desc" rows={4} style={{ background: 'transparent', border: 'none', borderBottom: '0.5px solid var(--jkn-divider)', outline: 'none', resize: 'vertical', width: '100%', color: 'inherit', padding: 0 }} />
+              ) : (
+                <p className="service-row-desc">{svc.description}</p>
+              )}
+              <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
+                {editingId === svc.id ? (
+                  <>
+                    <button onClick={() => saveEditSvc(svc.id)} disabled={svcSaving} style={svcSaveBtn}>{svcSaving ? 'Saving…' : 'Save'}</button>
+                    <button onClick={() => setEditingId(null)} style={svcCancelBtn}>Cancel</button>
+                  </>
+                ) : (
+                  <button onClick={() => startEditSvc(svc)} style={svcEditBtn}>Edit</button>
+                )}
+                <button onClick={() => deleteSvc(svc.id)} style={{ ...s, fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', background: 'none', border: 'none', color: 'var(--jkn-light)', cursor: 'pointer', padding: '5px 0' }}>
+                  Delete
+                </button>
+              </div>
             </div>
           </div>
         ))}
@@ -1323,6 +1428,12 @@ function AboutAdminView() {
   const [fetching, setFetching] = useState(true)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const photoInputRef = useRef<HTMLInputElement>(null)
+  const [editingNameTitle, setEditingNameTitle] = useState(false)
+  const [nameTitleDraft, setNameTitleDraft] = useState({ name: '', title: '' })
+  const [nameTitleSaving, setNameTitleSaving] = useState(false)
+  const [editingItemId, setEditingItemId] = useState<string | null>(null)
+  const [itemDraft, setItemDraft] = useState({ content: '', url: '' })
+  const [itemSaving, setItemSaving] = useState(false)
 
   async function load() {
     setFetching(true)
@@ -1379,6 +1490,28 @@ function AboutAdminView() {
 
   const byType = (type: string) => items.filter(i => i.type === type).sort((a, b) => a.display_order - b.display_order)
 
+  async function saveNameTitleFields() {
+    setNameTitleSaving(true)
+    await Promise.all([saveAboutField('name', nameTitleDraft.name), saveAboutField('title', nameTitleDraft.title)])
+    setNameTitle(nameTitleDraft)
+    setNameTitleSaving(false)
+    setEditingNameTitle(false)
+  }
+
+  function startEditItem(item: AboutItem) {
+    setItemDraft({ content: item.content, url: item.url ?? '' })
+    setEditingItemId(item.id)
+  }
+
+  async function saveItem(item: AboutItem) {
+    setItemSaving(true)
+    await saveItemContent(item.id, itemDraft.content)
+    if (item.type === 'recognition') await saveItemUrl(item.id, itemDraft.url)
+    setItems(prev => prev.map(i => i.id === item.id ? { ...i, content: itemDraft.content, url: item.type === 'recognition' ? (itemDraft.url || null) : i.url } : i))
+    setItemSaving(false)
+    setEditingItemId(null)
+  }
+
   if (fetching) return <div style={{ padding: 40, fontFamily: 'Montserrat, sans-serif', fontSize: 12, color: '#aaa' }}>Loading…</div>
 
   const bioItems = byType('bio')
@@ -1386,6 +1519,10 @@ function AboutAdminView() {
   const certItems = byType('cert')
   const recogItems = byType('recognition')
   const tagItems = byType('tag')
+
+  const aEditBtn = { fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase' as const, background: 'none', border: '0.5px solid var(--jkn-divider)', padding: '4px 10px', cursor: 'pointer', color: 'var(--jkn-light)' }
+  const aSaveBtn = { fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase' as const, background: '#1c1917', color: '#fff', border: 'none', padding: '5px 12px', cursor: 'pointer' }
+  const aCancelBtn = { fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase' as const, background: 'none', border: '0.5px solid #ddd', padding: '5px 8px', cursor: 'pointer', color: '#888' }
 
   return (
     <div>
@@ -1396,9 +1533,6 @@ function AboutAdminView() {
       <div style={{ margin: '0 -48px -48px' }}>
         <section className="about-section">
           <span className="section-label">The Surgeon</span>
-          <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--jkn-light)', display: 'block', marginTop: 8, marginBottom: 0 }}>
-            Click any text to edit it directly
-          </span>
           <div className="about-grid">
 
             {/* ── Photo column ─────────────────── */}
@@ -1423,13 +1557,44 @@ function AboutAdminView() {
             {/* ── Content column ───────────────── */}
             <div className="about-content">
               <span className="section-label">About</span>
-              <CE tag="h2" className="about-name" value={nameTitle.name} onSave={v => { setNameTitle(n => ({ ...n, name: v })); saveAboutField('name', v) }} />
-              <CE tag="span" className="about-title" value={nameTitle.title} onSave={v => { setNameTitle(n => ({ ...n, title: v })); saveAboutField('title', v) }} />
+              {editingNameTitle ? (
+                <>
+                  <input value={nameTitleDraft.name} onChange={e => setNameTitleDraft(d => ({ ...d, name: e.target.value }))} className="about-name" style={{ display: 'block', background: 'transparent', border: 'none', borderBottom: '0.5px solid var(--jkn-divider)', outline: 'none', width: '100%', color: 'inherit' }} />
+                  <input value={nameTitleDraft.title} onChange={e => setNameTitleDraft(d => ({ ...d, title: e.target.value }))} className="about-title" style={{ display: 'block', marginTop: 4, background: 'transparent', border: 'none', borderBottom: '0.5px solid var(--jkn-divider)', outline: 'none', width: '100%', color: 'inherit' }} />
+                  <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                    <button onClick={saveNameTitleFields} disabled={nameTitleSaving} style={aSaveBtn}>{nameTitleSaving ? 'Saving…' : 'Save'}</button>
+                    <button onClick={() => setEditingNameTitle(false)} style={aCancelBtn}>Cancel</button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h2 className="about-name">{nameTitle.name}</h2>
+                  <span className="about-title">{nameTitle.title}</span>
+                  <div style={{ marginTop: 8 }}>
+                    <button onClick={() => { setNameTitleDraft({ name: nameTitle.name, title: nameTitle.title }); setEditingNameTitle(true) }} style={aEditBtn}>Edit Name & Title</button>
+                  </div>
+                </>
+              )}
 
               {bioItems.map(item => (
-                <div key={item.id} style={{ position: 'relative' }}>
-                  <CE tag="p" className="about-body" value={item.content} onSave={v => saveItemContent(item.id, v)} />
-                  <button onClick={() => deleteItem(item.id)} title="Remove paragraph" style={{ position: 'absolute', top: 0, right: -20, fontFamily: 'Montserrat, sans-serif', fontSize: 11, color: 'var(--jkn-light)', background: 'none', border: 'none', cursor: 'pointer', padding: 4, lineHeight: 1 }}>×</button>
+                <div key={item.id} style={{ marginBottom: 4 }}>
+                  {editingItemId === item.id ? (
+                    <>
+                      <textarea value={itemDraft.content} onChange={e => setItemDraft(d => ({ ...d, content: e.target.value }))} className="about-body" rows={4} style={{ background: 'transparent', border: '0.5px solid var(--jkn-divider)', outline: 'none', resize: 'vertical', width: '100%', color: 'inherit', padding: 4 }} />
+                      <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
+                        <button onClick={() => saveItem(item)} disabled={itemSaving} style={aSaveBtn}>{itemSaving ? 'Saving…' : 'Save'}</button>
+                        <button onClick={() => setEditingItemId(null)} style={aCancelBtn}>Cancel</button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <p className="about-body">{item.content}</p>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button onClick={() => startEditItem(item)} style={aEditBtn}>Edit</button>
+                        <button onClick={() => deleteItem(item.id)} style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', background: 'none', border: 'none', color: 'var(--jkn-light)', cursor: 'pointer', padding: '4px 0' }}>Delete</button>
+                      </div>
+                    </>
+                  )}
                 </div>
               ))}
               <button onClick={() => addItem('bio', 'New paragraph…')} style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px dashed var(--jkn-divider)', color: 'var(--jkn-light)', padding: '7px 16px', cursor: 'pointer', marginBottom: 8 }}>
@@ -1440,9 +1605,22 @@ function AboutAdminView() {
               <span className="about-block-label">Education and Training</span>
               <ul className="about-list">
                 {credItems.map(item => (
-                  <li key={item.id}>
-                    <CE tag="span" value={item.content} onSave={v => saveItemContent(item.id, v)} style={{ flex: 1 }} />
-                    <button onClick={() => deleteItem(item.id)} style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 11, color: 'var(--jkn-light)', background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0 }}>×</button>
+                  <li key={item.id} style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 6 }}>
+                    {editingItemId === item.id ? (
+                      <>
+                        <input value={itemDraft.content} onChange={e => setItemDraft(d => ({ ...d, content: e.target.value }))} style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '0.5px solid var(--jkn-divider)', outline: 'none', color: 'inherit', fontFamily: 'Montserrat, sans-serif', fontSize: 14, padding: '2px 0' }} />
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <button onClick={() => saveItem(item)} disabled={itemSaving} style={aSaveBtn}>{itemSaving ? 'Saving…' : 'Save'}</button>
+                          <button onClick={() => setEditingItemId(null)} style={aCancelBtn}>Cancel</button>
+                        </div>
+                      </>
+                    ) : (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%' }}>
+                        <span style={{ flex: 1 }}>{item.content}</span>
+                        <button onClick={() => startEditItem(item)} style={aEditBtn}>Edit</button>
+                        <button onClick={() => deleteItem(item.id)} style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 11, color: 'var(--jkn-light)', background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0 }}>×</button>
+                      </div>
+                    )}
                   </li>
                 ))}
                 <li style={{ border: 'none', padding: '8px 0 0' }}>
@@ -1454,9 +1632,22 @@ function AboutAdminView() {
               <span className="about-block-label">Certifications</span>
               <ul className="about-list">
                 {certItems.map(item => (
-                  <li key={item.id}>
-                    <CE tag="span" value={item.content} onSave={v => saveItemContent(item.id, v)} style={{ flex: 1 }} />
-                    <button onClick={() => deleteItem(item.id)} style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 11, color: 'var(--jkn-light)', background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0 }}>×</button>
+                  <li key={item.id} style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 6 }}>
+                    {editingItemId === item.id ? (
+                      <>
+                        <input value={itemDraft.content} onChange={e => setItemDraft(d => ({ ...d, content: e.target.value }))} style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '0.5px solid var(--jkn-divider)', outline: 'none', color: 'inherit', fontFamily: 'Montserrat, sans-serif', fontSize: 14, padding: '2px 0' }} />
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <button onClick={() => saveItem(item)} disabled={itemSaving} style={aSaveBtn}>{itemSaving ? 'Saving…' : 'Save'}</button>
+                          <button onClick={() => setEditingItemId(null)} style={aCancelBtn}>Cancel</button>
+                        </div>
+                      </>
+                    ) : (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%' }}>
+                        <span style={{ flex: 1 }}>{item.content}</span>
+                        <button onClick={() => startEditItem(item)} style={aEditBtn}>Edit</button>
+                        <button onClick={() => deleteItem(item.id)} style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 11, color: 'var(--jkn-light)', background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0 }}>×</button>
+                      </div>
+                    )}
                   </li>
                 ))}
                 <li style={{ border: 'none', padding: '8px 0 0' }}>
@@ -1470,11 +1661,22 @@ function AboutAdminView() {
                 {recogItems.map(item => (
                   <div key={item.id} className="recognition-item" style={{ alignItems: 'flex-start' }}>
                     <div className="recognition-dash" style={{ marginTop: 6 }} />
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                      <CE tag="span" className="recognition-text" value={item.content} onSave={v => saveItemContent(item.id, v)} style={{ display: 'block' }} />
-                      <input defaultValue={item.url ?? ''} onBlur={e => saveItemUrl(item.id, e.target.value)} placeholder="https://…"
-                        style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 10, color: 'var(--jkn-light)', border: 'none', borderBottom: '0.5px solid var(--jkn-divider)', outline: 'none', background: 'transparent', padding: '2px 0', width: '100%' }} />
-                    </div>
+                    {editingItemId === item.id ? (
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        <input value={itemDraft.content} onChange={e => setItemDraft(d => ({ ...d, content: e.target.value }))} className="recognition-text" style={{ display: 'block', background: 'transparent', border: 'none', borderBottom: '0.5px solid var(--jkn-divider)', outline: 'none', color: 'inherit', width: '100%' }} />
+                        <input value={itemDraft.url} onChange={e => setItemDraft(d => ({ ...d, url: e.target.value }))} placeholder="https://…" style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 10, color: 'var(--jkn-light)', border: 'none', borderBottom: '0.5px solid var(--jkn-divider)', outline: 'none', background: 'transparent', padding: '2px 0', width: '100%' }} />
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <button onClick={() => saveItem(item)} disabled={itemSaving} style={aSaveBtn}>{itemSaving ? 'Saving…' : 'Save'}</button>
+                          <button onClick={() => setEditingItemId(null)} style={aCancelBtn}>Cancel</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        <span className="recognition-text" style={{ display: 'block' }}>{item.content}</span>
+                        {item.url && <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 10, color: 'var(--jkn-light)' }}>{item.url}</span>}
+                        <button onClick={() => startEditItem(item)} style={aEditBtn}>Edit</button>
+                      </div>
+                    )}
                     <button onClick={() => deleteItem(item.id)} style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 11, color: 'var(--jkn-light)', background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0, marginLeft: 8 }}>×</button>
                   </div>
                 ))}
@@ -1485,9 +1687,20 @@ function AboutAdminView() {
               <span className="about-block-label">Areas of Expertise</span>
               <div className="about-expertise" style={{ marginTop: 16 }}>
                 {tagItems.map(item => (
-                  <div key={item.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                    <CE tag="span" className="expertise-tag" value={item.content} onSave={v => saveItemContent(item.id, v)} />
-                    <button onClick={() => deleteItem(item.id)} style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 11, color: 'var(--jkn-light)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, lineHeight: 1 }}>×</button>
+                  <div key={item.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+                    {editingItemId === item.id ? (
+                      <>
+                        <input value={itemDraft.content} onChange={e => setItemDraft(d => ({ ...d, content: e.target.value }))} className="expertise-tag" style={{ background: 'transparent', border: '0.5px solid var(--jkn-divider)', outline: 'none' }} />
+                        <button onClick={() => saveItem(item)} disabled={itemSaving} style={aSaveBtn}>{itemSaving ? '…' : 'Save'}</button>
+                        <button onClick={() => setEditingItemId(null)} style={aCancelBtn}>×</button>
+                      </>
+                    ) : (
+                      <>
+                        <span className="expertise-tag">{item.content}</span>
+                        <button onClick={() => startEditItem(item)} style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 10, color: 'var(--jkn-light)', background: 'none', border: 'none', cursor: 'pointer', padding: '0 2px', lineHeight: 1 }}>✎</button>
+                        <button onClick={() => deleteItem(item.id)} style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 11, color: 'var(--jkn-light)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, lineHeight: 1 }}>×</button>
+                      </>
+                    )}
                   </div>
                 ))}
                 <button onClick={() => addItem('tag', 'New Tag')} className="expertise-tag" style={{ cursor: 'pointer', borderStyle: 'dashed', color: 'var(--jkn-light)' }}>+ Add tag</button>
