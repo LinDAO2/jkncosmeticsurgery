@@ -192,6 +192,7 @@ function ReviewsView() {
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
     setError('')
+    if (quote.length > 280) { setError('Review must be 280 characters or fewer.'); return }
     setSaving(true)
     const maxOrder = testimonials.length ? Math.max(...testimonials.map(t => t.display_order)) : 0
 
@@ -230,8 +231,10 @@ function ReviewsView() {
             <p style={{ ...s, fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888', margin: 0 }}>{editing ? 'Edit Review' : 'New Review'}</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Review</label>
-              <textarea value={quote} onChange={e => setQuote(e.target.value.slice(0, 280))} required rows={4} maxLength={280} style={{ border: '0.5px solid #ddd', padding: '10px 12px', ...s, fontSize: 13, resize: 'vertical' }} />
-              <span style={{ ...s, fontSize: 10, color: quote.length >= 260 ? '#c00' : '#aaa', textAlign: 'right' }}>{quote.length}/280</span>
+              <textarea value={quote} onChange={e => setQuote(e.target.value)} required rows={4} style={{ border: `0.5px solid ${quote.length > 280 ? '#c00' : '#ddd'}`, padding: '10px 12px', ...s, fontSize: 13, resize: 'vertical' }} />
+              <span style={{ ...s, fontSize: 10, color: quote.length > 280 ? '#c00' : '#aaa', textAlign: 'right' }}>
+                {quote.length > 280 ? `${quote.length - 280} characters over the limit` : `${quote.length}/280`}
+              </span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Procedure</label>
