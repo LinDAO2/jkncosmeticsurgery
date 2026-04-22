@@ -9,14 +9,14 @@ export const metadata: Metadata = {
     description: 'Cosmetic surgery. Artistry. Precision. Confidence.',
     url: 'https://jkncosmeticsurgery.com',
     siteName: 'JKN Cosmetic Surgery',
-    images: [{ url: 'https://jkncosmeticsurgery.com/opengraph-image', width: 1200, height: 630 }],
+    images: [{ url: 'https://jkncosmeticsurgery.com/og-image.png', width: 1200, height: 630 }],
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'JKN Cosmetic Surgery',
     description: 'Cosmetic surgery. Artistry. Precision. Confidence.',
-    images: ['https://jkncosmeticsurgery.com/opengraph-image'],
+    images: ['https://jkncosmeticsurgery.com/og-image.png'],
   },
 }
 
