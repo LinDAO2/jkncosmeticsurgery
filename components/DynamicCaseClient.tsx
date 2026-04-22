@@ -31,7 +31,7 @@ type Props = {
   gallery: string
   procedures: string[]
   images: string[]
-  instagramVideos?: string[]
+  instagramVideos?: { url: string; label: string }[]
 }
 
 export default function DynamicCaseClient({ gallery, procedures, images, instagramVideos }: Props) {
@@ -76,9 +76,9 @@ export default function DynamicCaseClient({ gallery, procedures, images, instagr
 
         {instagramVideos && instagramVideos.length > 0 && (
           <div className="case-detail-video-link">
-            {instagramVideos.map((url, i) => (
-              <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="case-video-btn">
-                View on Instagram {instagramVideos.length > 1 ? `(${i + 1})` : ''}
+            {instagramVideos.map((l) => (
+              <a key={l.url} href={l.url} target="_blank" rel="noopener noreferrer" className="case-video-btn">
+                {l.label || 'View on Instagram'}
               </a>
             ))}
           </div>

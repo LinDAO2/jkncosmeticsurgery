@@ -19,13 +19,13 @@ export async function GET() {
 
 export async function POST(req: Request) {
   if (!await requireAuth()) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
-  const { gallery, procedures, display_order } = await req.json()
+  const { gallery, procedures, display_order, instagram_videos } = await req.json()
   if (!gallery || !['comprehensive', 'eyelid', 'midfacelift'].includes(gallery)) {
     return NextResponse.json({ error: 'Invalid gallery' }, { status: 400 })
   }
   const { data, error } = await supabase
     .from('cases')
-    .insert({ gallery, procedures: procedures ?? [], display_order: display_order ?? 0 })
+    .insert({ gallery, procedures: procedures ?? [], display_order: display_order ?? 0, instagram_videos: instagram_videos ?? [] })
     .select()
     .single()
   if (error) return NextResponse.json({ error: 'Failed to create' }, { status: 500 })

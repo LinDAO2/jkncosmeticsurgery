@@ -346,9 +346,13 @@ function CasesView() {
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
   const [previewUrls, setPreviewUrls] = useState<string[]>([])
   const [coverPreview, setCoverPreview] = useState<string | null>(null)
+  const [links, setLinks] = useState<{ url: string; label: string }[]>([])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [editingLinksId, setEditingLinksId] = useState<string | null>(null)
+  const [draftLinks, setDraftLinks] = useState<{ url: string; label: string }[]>([])
+  const [savingLinks, setSavingLinks] = useState(false)
 
   async function load() {
     setFetching(true)
@@ -372,6 +376,7 @@ function CasesView() {
     setPendingFiles([])
     setPreviewUrls([])
     setCoverPreview(null)
+    setLinks([])
     setError('')
   }
 
@@ -393,7 +398,7 @@ function CasesView() {
     const res = await fetch('/api/admin/cases', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ gallery, procedures: filteredProcs, display_order: displayOrder }),
+      body: JSON.stringify({ gallery, procedures: filteredProcs, display_order: displayOrder, instagram_videos: links.filter(l => l.url.trim()) }),
     })
     if (!res.ok) { setError('Failed to create case.'); setSaving(false); return }
     const { case: newCase } = await res.json()
@@ -427,6 +432,24 @@ function CasesView() {
   async function handleDelete(id: string) {
     if (!confirm('Delete this case and all its photos?')) return
     await fetch(`/api/admin/cases/${id}`, { method: 'DELETE' })
+    await load()
+  }
+
+  function openEditLinks(c: DbCase) {
+    setEditingLinksId(c.id)
+    setDraftLinks(c.instagram_videos.length ? c.instagram_videos : [{ url: '', label: '' }])
+  }
+
+  async function saveLinks(id: string) {
+    setSavingLinks(true)
+    const filtered = draftLinks.filter(l => l.url.trim())
+    await fetch(`/api/admin/cases/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ instagram_videos: filtered }),
+    })
+    setSavingLinks(false)
+    setEditingLinksId(null)
     await load()
   }
 
@@ -537,6 +560,34 @@ function CasesView() {
               )}
             </div>
 
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <label style={{ ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Links (optional)</label>
+              {links.map((l, i) => (
+                <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 6, padding: 12, border: '0.5px solid #e5e5e5' }}>
+                  <input
+                    value={l.label}
+                    onChange={e => { const next = [...links]; next[i] = { ...next[i], label: e.target.value }; setLinks(next) }}
+                    placeholder="Description (e.g. Watch patient one week post op)"
+                    style={{ border: '0.5px solid #ddd', padding: '8px 12px', ...s, fontSize: 12, outline: 'none' }}
+                  />
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <input
+                      value={l.url}
+                      onChange={e => { const next = [...links]; next[i] = { ...next[i], url: e.target.value }; setLinks(next) }}
+                      placeholder="https://www.instagram.com/reel/..."
+                      style={{ border: '0.5px solid #ddd', padding: '8px 12px', ...s, fontSize: 12, flex: 1, outline: 'none' }}
+                    />
+                    <button type="button" onClick={() => setLinks(links.filter((_, j) => j !== i))}
+                      style={{ border: '0.5px solid #ddd', background: 'none', padding: '8px 12px', cursor: 'pointer', ...s, fontSize: 13, color: '#888' }}>✕</button>
+                  </div>
+                </div>
+              ))}
+              <button type="button" onClick={() => setLinks([...links, { url: '', label: '' }])}
+                style={{ ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '8px 16px', cursor: 'pointer', color: '#888', alignSelf: 'flex-start' }}>
+                + Add Link
+              </button>
+            </div>
+
             {error && <p style={{ ...s, fontSize: 12, color: '#c00', margin: 0 }}>{error}</p>}
 
             <div style={{ display: 'flex', gap: 10 }}>
@@ -561,19 +612,66 @@ function CasesView() {
                 <p style={{ ...s, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#aaa', marginBottom: 16 }}>Uploaded Cases</p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {filteredDbCases.map(c => (
-                    <div key={c.id} style={{ border: '0.5px solid #e5e5e5', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16 }}>
-                      {c.cover_image && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={c.cover_image} alt="Cover" style={{ width: 56, height: 56, objectFit: 'cover', flexShrink: 0 }} />
-                      )}
-                      <div style={{ flex: 1 }}>
-                        <p style={{ ...s, fontSize: 12, color: '#3d3530', margin: '0 0 4px' }}>{c.procedures.join(', ') || '—'}</p>
-                        <p style={{ ...s, fontSize: 10, color: '#aaa', margin: 0 }}>{c.images.length} photo{c.images.length !== 1 ? 's' : ''} · order {c.display_order}</p>
+                    <div key={c.id} style={{ border: '0.5px solid #e5e5e5' }}>
+                      <div style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16 }}>
+                        {c.cover_image && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={c.cover_image} alt="Cover" style={{ width: 56, height: 56, objectFit: 'cover', flexShrink: 0 }} />
+                        )}
+                        <div style={{ flex: 1 }}>
+                          <p style={{ ...s, fontSize: 12, color: '#3d3530', margin: '0 0 4px' }}>{c.procedures.join(', ') || '—'}</p>
+                          <p style={{ ...s, fontSize: 10, color: '#aaa', margin: 0 }}>
+                            {c.images.length} photo{c.images.length !== 1 ? 's' : ''} · order {c.display_order}
+                            {c.instagram_videos.length > 0 && ` · ${c.instagram_videos.length} link${c.instagram_videos.length !== 1 ? 's' : ''}`}
+                          </p>
+                        </div>
+                        <button onClick={() => editingLinksId === c.id ? setEditingLinksId(null) : openEditLinks(c)}
+                          style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '6px 12px', cursor: 'pointer', color: '#888' }}>
+                          Links
+                        </button>
+                        <button onClick={() => handleDelete(c.id)}
+                          style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '6px 12px', cursor: 'pointer', color: '#c00' }}>
+                          Delete
+                        </button>
                       </div>
-                      <button onClick={() => handleDelete(c.id)}
-                        style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '6px 12px', cursor: 'pointer', color: '#c00' }}>
-                        Delete
-                      </button>
+                      {editingLinksId === c.id && (
+                        <div style={{ padding: '16px 20px', borderTop: '0.5px solid #e5e5e5', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                          {draftLinks.map((l, i) => (
+                            <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 6, padding: 12, border: '0.5px solid #e5e5e5' }}>
+                              <input
+                                value={l.label}
+                                onChange={e => { const next = [...draftLinks]; next[i] = { ...next[i], label: e.target.value }; setDraftLinks(next) }}
+                                placeholder="Description (e.g. Watch patient one week post op)"
+                                style={{ border: '0.5px solid #ddd', padding: '8px 12px', ...s, fontSize: 12, outline: 'none' }}
+                              />
+                              <div style={{ display: 'flex', gap: 8 }}>
+                                <input
+                                  value={l.url}
+                                  onChange={e => { const next = [...draftLinks]; next[i] = { ...next[i], url: e.target.value }; setDraftLinks(next) }}
+                                  placeholder="https://www.instagram.com/reel/..."
+                                  style={{ border: '0.5px solid #ddd', padding: '8px 12px', ...s, fontSize: 12, flex: 1, outline: 'none' }}
+                                />
+                                <button type="button" onClick={() => setDraftLinks(draftLinks.filter((_, j) => j !== i))}
+                                  style={{ border: '0.5px solid #ddd', background: 'none', padding: '8px 12px', cursor: 'pointer', ...s, fontSize: 13, color: '#888' }}>✕</button>
+                              </div>
+                            </div>
+                          ))}
+                          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                            <button type="button" onClick={() => setDraftLinks([...draftLinks, { url: '', label: '' }])}
+                              style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '6px 12px', cursor: 'pointer', color: '#888' }}>
+                              + Add Link
+                            </button>
+                            <button type="button" onClick={() => saveLinks(c.id)} disabled={savingLinks}
+                              style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: savingLinks ? '#ccc' : '#1c1917', color: '#fff', border: 'none', padding: '6px 12px', cursor: savingLinks ? 'not-allowed' : 'pointer' }}>
+                              {savingLinks ? 'Saving…' : 'Save Links'}
+                            </button>
+                            <button type="button" onClick={() => setEditingLinksId(null)}
+                              style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '6px 12px', cursor: 'pointer', color: '#888' }}>
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
