@@ -279,9 +279,8 @@ nav.nav-home.scrolled .nav-cta:hover { background: var(--jkn-black) !important; 
 .testimonials-section { background: #ffffff; padding: 100px 40px; border-top: 0.5px solid #e8e8e8; }
 .testimonials-label { font-family: var(--font-ui); font-weight: 500; font-size: 8.5px; letter-spacing: 0.38em; text-transform: uppercase; color: #888888; display: block; margin-bottom: 16px; }
 .testimonials-heading { font-family: var(--font-display); font-weight: 400; font-size: clamp(32px, 4vw, 48px); letter-spacing: 0.01em; color: #0a0a0a; margin-bottom: 64px; }
-.testimonials-scroll { display: flex; overflow-x: auto; gap: 2px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; margin: 0 -40px; padding: 0 40px; }
-.testimonials-scroll::-webkit-scrollbar { display: none; }
-.testimonial-card { flex: 0 0 380px; padding: 48px 40px; border: 0.5px solid #e8e8e8; background: #ffffff; display: flex; flex-direction: column; justify-content: space-between; min-height: 320px; scroll-snap-align: start; }
+.testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+.testimonial-card { padding: 48px 40px; border: 0.5px solid #e8e8e8; background: #ffffff; display: flex; flex-direction: column; justify-content: space-between; min-height: 320px; }
 .testimonial-mark { font-family: var(--font-display); font-size: 64px; font-weight: 400; color: #e8e8e8; line-height: 0.5; margin-bottom: 24px; display: block; }
 .testimonial-quote { font-family: var(--font-display); font-size: clamp(16px, 1.8vw, 20px); font-weight: 400; line-height: 1.65; color: #0a0a0a; letter-spacing: 0.01em; flex: 1; }
 .testimonial-attribution { margin-top: 32px; padding-top: 24px; border-top: 0.5px solid #e8e8e8; font-family: var(--font-ui); font-size: 8.5px; font-weight: 500; letter-spacing: 0.28em; text-transform: uppercase; color: #888888; }
@@ -734,8 +733,8 @@ footer { background: var(--jkn-black); padding: 60px var(--grid); display: flex;
 
   /* ─── TESTIMONIALS ─── */
   .testimonials-section { padding: 60px 20px; }
-  .testimonials-scroll { margin: 0 -20px; padding: 0 20px; }
-  .testimonial-card { flex: 0 0 300px; padding: 36px 24px; min-height: unset; }
+  .testimonials-grid { grid-template-columns: 1fr; gap: 2px; }
+  .testimonial-card { padding: 36px 24px; min-height: unset; }
 
   /* ─── FIX 8: GLOBAL SECTION PADDING ─── */
   .services-section  { padding: 60px 20px; }
