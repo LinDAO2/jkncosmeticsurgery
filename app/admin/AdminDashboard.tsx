@@ -1055,7 +1055,7 @@ function HomepageView() {
   const cancelBtnStyle = { fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase' as const, background: 'none', border: '0.5px solid rgba(255,255,255,0.3)', padding: '7px 12px', cursor: 'pointer', color: 'var(--jkn-light)' }
 
   const featuredCases = allCases.filter(c => c.featured)
-  const nonFeatured = allCases.filter(c => !c.featured && (c.cover_image || c.images.length > 0))
+  const nonFeatured = allCases.filter(c => !c.featured && c.gallery !== 'skincancer' && (c.cover_image || c.images.length > 0))
 
   return (
     <div>
