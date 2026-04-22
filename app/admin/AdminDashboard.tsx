@@ -334,6 +334,211 @@ function ReviewsView() {
   )
 }
 
+function CaseDetailView({ c, onBack, onUpdated }: { c: DbCase; onBack: () => void; onUpdated: () => Promise<void> }) {
+  const s = { fontFamily: 'Montserrat, sans-serif' }
+  const [procs, setProcs] = useState(c.procedures)
+  const [links, setLinks] = useState(c.instagram_videos)
+  const [images, setImages] = useState(c.images)
+  const [savingMeta, setSavingMeta] = useState(false)
+  const [metaSaved, setMetaSaved] = useState(false)
+  const [addingPhotos, setAddingPhotos] = useState(false)
+  const [draggedImgIdx, setDraggedImgIdx] = useState<number | null>(null)
+  const [dragOverImgIdx, setDragOverImgIdx] = useState<number | null>(null)
+  const [coverImage, setCoverImageState] = useState(c.cover_image)
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    setImages(c.images)
+    setCoverImageState(c.cover_image)
+  }, [c.images, c.cover_image])
+
+  async function saveMeta() {
+    setSavingMeta(true)
+    setMetaSaved(false)
+    await fetch(`/api/admin/cases/${c.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ procedures: procs.filter(Boolean), instagram_videos: links.filter(l => l.url.trim()) }),
+    })
+    setSavingMeta(false)
+    setMetaSaved(true)
+    setTimeout(() => setMetaSaved(false), 2000)
+    await onUpdated()
+  }
+
+  async function handleImgDrop(targetIdx: number) {
+    if (draggedImgIdx === null || draggedImgIdx === targetIdx) return
+    const imgs = [...images]
+    const [moved] = imgs.splice(draggedImgIdx, 1)
+    imgs.splice(targetIdx, 0, moved)
+    setImages(imgs)
+    setDraggedImgIdx(null)
+    setDragOverImgIdx(null)
+    await fetch(`/api/admin/cases/${c.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ images: imgs }),
+    })
+    await onUpdated()
+  }
+
+  async function setCover(url: string) {
+    setCoverImageState(url)
+    await fetch(`/api/admin/cases/${c.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cover_image: url }),
+    })
+    await onUpdated()
+  }
+
+  async function deleteImage(url: string) {
+    if (!confirm('Delete this photo?')) return
+    await fetch(`/api/admin/cases/${c.id}/images`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+    })
+    const next = images.filter(i => i !== url)
+    setImages(next)
+    if (coverImage === url) setCoverImageState(next[0] ?? null)
+    await onUpdated()
+  }
+
+  async function addPhotos(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? [])
+    if (!files.length) return
+    setAddingPhotos(true)
+    for (const file of files) {
+      const fd = new FormData()
+      fd.append('file', file)
+      const res = await fetch(`/api/admin/cases/${c.id}/images`, { method: 'POST', body: fd })
+      if (res.ok) {
+        const { url } = await res.json()
+        setImages(prev => [...prev, url])
+      }
+    }
+    setAddingPhotos(false)
+    await onUpdated()
+    e.target.value = ''
+  }
+
+  return (
+    <div style={{ padding: '0 40px', maxWidth: 820 }}>
+      <button onClick={onBack} style={{ ...s, fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: 'none', cursor: 'pointer', color: '#888', marginBottom: 32, padding: 0 }}>
+        ← Back to Cases
+      </button>
+
+      <div style={{ marginBottom: 32 }}>
+        <span style={{ ...s, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#aaa' }}>Patient Case</span>
+        <h2 style={{ ...s, fontSize: 22, fontWeight: 300, letterSpacing: '0.04em', color: '#1c1917', margin: '6px 0 0' }}>{GALLERY_LABELS[c.gallery]}</h2>
+      </div>
+
+      <div style={{ borderTop: '0.5px solid #e5e5e5', paddingTop: 28, marginBottom: 28 }}>
+        <span style={{ ...s, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#aaa', display: 'block', marginBottom: 14 }}>Procedure Details</span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxWidth: 560 }}>
+          {procs.map((p, i) => (
+            <div key={i} style={{ display: 'flex', gap: 8 }}>
+              <input value={p} onChange={e => { const n = [...procs]; n[i] = e.target.value; setProcs(n) }}
+                style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 13, flex: 1, outline: 'none', color: '#1c1917' }} />
+              <button onClick={() => setProcs(procs.filter((_, j) => j !== i))}
+                style={{ border: '0.5px solid #ddd', background: 'none', padding: '9px 12px', cursor: 'pointer', ...s, fontSize: 13, color: '#aaa' }}>✕</button>
+            </div>
+          ))}
+          <button onClick={() => setProcs([...procs, ''])}
+            style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '7px 14px', cursor: 'pointer', color: '#888', alignSelf: 'flex-start', marginTop: 4 }}>
+            + Add Procedure
+          </button>
+        </div>
+      </div>
+
+      {c.gallery !== 'skincancer' && (
+        <div style={{ borderTop: '0.5px solid #e5e5e5', paddingTop: 28, marginBottom: 28 }}>
+          <span style={{ ...s, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#aaa', display: 'block', marginBottom: 14 }}>Links</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 560 }}>
+            {links.map((l, i) => (
+              <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 6, padding: 12, border: '0.5px solid #e5e5e5' }}>
+                <input value={l.label} onChange={e => { const n = [...links]; n[i] = { ...n[i], label: e.target.value }; setLinks(n) }}
+                  placeholder="Description (e.g. Watch patient one week post op)"
+                  style={{ border: '0.5px solid #ddd', padding: '8px 12px', ...s, fontSize: 12, outline: 'none' }} />
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input value={l.url} onChange={e => { const n = [...links]; n[i] = { ...n[i], url: e.target.value }; setLinks(n) }}
+                    placeholder="https://www.instagram.com/reel/..."
+                    style={{ border: '0.5px solid #ddd', padding: '8px 12px', ...s, fontSize: 12, flex: 1, outline: 'none' }} />
+                  <button onClick={() => setLinks(links.filter((_, j) => j !== i))}
+                    style={{ border: '0.5px solid #ddd', background: 'none', padding: '8px 12px', cursor: 'pointer', ...s, fontSize: 13, color: '#aaa' }}>✕</button>
+                </div>
+              </div>
+            ))}
+            <button onClick={() => setLinks([...links, { url: '', label: '' }])}
+              style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '7px 14px', cursor: 'pointer', color: '#888', alignSelf: 'flex-start' }}>
+              + Add Link
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div style={{ marginBottom: 48 }}>
+        <button onClick={saveMeta} disabled={savingMeta}
+          style={{ ...s, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', background: savingMeta ? '#ccc' : '#1c1917', color: '#fff', border: 'none', padding: '11px 28px', cursor: savingMeta ? 'not-allowed' : 'pointer' }}>
+          {savingMeta ? 'Saving…' : metaSaved ? 'Saved ✓' : 'Save Changes'}
+        </button>
+      </div>
+
+      <div style={{ borderTop: '0.5px solid #e5e5e5', paddingTop: 32 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
+          <div>
+            <span style={{ ...s, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#aaa', display: 'block' }}>Before and After</span>
+            <p style={{ ...s, fontSize: 11, color: '#aaa', margin: '5px 0 0' }}>Drag to reorder · gold border = gallery cover</p>
+          </div>
+          <div>
+            <input ref={fileRef} type="file" accept="image/*" multiple onChange={addPhotos} style={{ display: 'none' }} />
+            <button onClick={() => fileRef.current?.click()} disabled={addingPhotos}
+              style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '8px 16px', cursor: addingPhotos ? 'not-allowed' : 'pointer', color: '#888' }}>
+              {addingPhotos ? 'Uploading…' : '+ Add Photos'}
+            </button>
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
+          {images.map((url, i) => (
+            <div key={url}
+              draggable
+              onDragStart={() => setDraggedImgIdx(i)}
+              onDragOver={e => { e.preventDefault(); setDragOverImgIdx(i) }}
+              onDrop={() => handleImgDrop(i)}
+              onDragEnd={() => { setDraggedImgIdx(null); setDragOverImgIdx(null) }}
+              style={{
+                opacity: draggedImgIdx === i ? 0.35 : 1,
+                outline: dragOverImgIdx === i && draggedImgIdx !== i ? '2px solid #1c1917' : url === coverImage ? '2px solid #c9a96e' : '2px solid transparent',
+                transition: 'opacity 0.15s',
+              }}
+            >
+              <div style={{ position: 'relative', paddingBottom: '125%', overflow: 'hidden', background: '#f0ede9', cursor: 'grab' }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={url} alt={`Image ${i + 1}`} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', pointerEvents: 'none' }} />
+                {url === coverImage && (
+                  <div style={{ position: 'absolute', top: 8, left: 8, background: '#c9a96e', ...s, fontSize: 8, letterSpacing: '0.1em', color: '#fff', padding: '3px 7px', textTransform: 'uppercase' }}>Cover</div>
+                )}
+              </div>
+              <div style={{ display: 'flex', gap: 4, marginTop: 5 }}>
+                <button onClick={() => setCover(url)} disabled={url === coverImage}
+                  style={{ ...s, fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '5px 8px', cursor: url === coverImage ? 'default' : 'pointer', color: url === coverImage ? '#c9a96e' : '#888', flex: 1 }}>
+                  {url === coverImage ? 'Cover ✓' : 'Set Cover'}
+                </button>
+                <button onClick={() => deleteImage(url)}
+                  style={{ ...s, fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '5px 8px', cursor: 'pointer', color: '#c00' }}>
+                  ✕
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function CasesView() {
   const s = { fontFamily: 'Montserrat, sans-serif' }
   const [gallery, setGallery] = useState<'comprehensive' | 'eyelid' | 'midfacelift' | 'skincancer'>('midfacelift')
@@ -354,6 +559,7 @@ function CasesView() {
   const [savingLinks, setSavingLinks] = useState(false)
   const [draggedId, setDraggedId] = useState<string | null>(null)
   const [dragOverId, setDragOverId] = useState<string | null>(null)
+  const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null)
 
   async function load() {
     setFetching(true)
@@ -368,6 +574,7 @@ function CasesView() {
   useEffect(() => {
     setLocalCases(dbCases.filter(c => c.gallery === gallery).sort((a, b) => a.display_order - b.display_order))
     setEditingLinksId(null)
+    setSelectedCaseId(null)
   }, [dbCases, gallery])
 
   function resetForm() {
@@ -474,6 +681,22 @@ function CasesView() {
       })
     ))
     await load()
+  }
+
+  const selectedCase = localCases.find(c => c.id === selectedCaseId)
+
+  if (selectedCase) {
+    return (
+      <div>
+        <div className="admin-header">
+          <div>
+            <span className="admin-header-label">Content</span>
+            <h1 className="admin-header-title">Cases</h1>
+          </div>
+        </div>
+        <CaseDetailView c={selectedCase} onBack={() => setSelectedCaseId(null)} onUpdated={load} />
+      </div>
+    )
   }
 
   return (
@@ -617,16 +840,17 @@ function CasesView() {
                 <div key={c.id}>
                   <div
                     draggable
-                    onDragStart={() => setDraggedId(c.id)}
+                    onDragStart={e => { e.stopPropagation(); setDraggedId(c.id) }}
                     onDragOver={e => { e.preventDefault(); setDragOverId(c.id) }}
                     onDrop={() => handleDrop(c.id)}
                     onDragEnd={() => { setDraggedId(null); setDragOverId(null) }}
+                    onClick={() => { if (!draggedId) setSelectedCaseId(c.id) }}
                     style={{
                       position: 'relative',
                       paddingBottom: '125%',
                       overflow: 'hidden',
                       background: '#f0ede9',
-                      cursor: 'grab',
+                      cursor: draggedId ? 'grab' : 'pointer',
                       opacity: draggedId === c.id ? 0.35 : 1,
                       outline: dragOverId === c.id && draggedId !== c.id ? '2px solid #1c1917' : '2px solid transparent',
                       transition: 'opacity 0.15s, outline 0.1s',
