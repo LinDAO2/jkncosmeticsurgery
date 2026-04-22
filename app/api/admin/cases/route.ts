@@ -20,7 +20,7 @@ export async function GET() {
 export async function POST(req: Request) {
   if (!await requireAuth()) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
   const { gallery, procedures, display_order, instagram_videos } = await req.json()
-  if (!gallery || !['comprehensive', 'eyelid', 'midfacelift'].includes(gallery)) {
+  if (!gallery || !['comprehensive', 'eyelid', 'midfacelift', 'skincancer'].includes(gallery)) {
     return NextResponse.json({ error: 'Invalid gallery' }, { status: 400 })
   }
   const { data, error } = await supabase

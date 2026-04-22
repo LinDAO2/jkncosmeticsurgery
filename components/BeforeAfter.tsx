@@ -6,103 +6,53 @@ import Image from 'next/image'
 import type { BeforeAfterCase } from '@/lib/types'
 import ImageWatermark from '@/components/ImageWatermark'
 
-type StaticCase = {
+type DbCase = {
+  id: string
+  gallery: 'comprehensive' | 'eyelid' | 'midfacelift' | 'skincancer'
+  procedures: string[]
+  images: string[]
+  cover_image: string | null
+  display_order: number
+  instagram_videos: { url: string; label: string }[]
+}
+
+type DisplayCase = {
+  id: string
   thumbnail: string
   images: string[]
   procedure: string
   sub?: string
   category: string
   href?: string
+  isSkinCancer: boolean
 }
 
-type DbCase = {
-  id: string
-  gallery: 'comprehensive' | 'eyelid' | 'midfacelift'
-  procedures: string[]
-  images: string[]
-  cover_image: string | null
-  display_order: number
-}
-
-type HiddenCase = {
-  slug: string
-  gallery: string
-}
-
-const DB_GALLERY_TO_CATEGORY: Record<string, string> = {
+const GALLERY_TO_CATEGORY: Record<string, string> = {
   comprehensive: 'comprehensive',
   eyelid: 'bleph',
   midfacelift: 'ponytail',
+  skincancer: 'skincancer',
 }
 
-// Upper and Lower Blepharoplasty — 15 patient cases, all linking to individual case pages
-const BLEPH_CASES: StaticCase[] = [
-  { thumbnail: '/ba/eyelid/case-01/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-01' },
-  { thumbnail: '/ba/eyelid/case-03/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-03' },
-  { thumbnail: '/ba/eyelid/case-02/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-02' },
-  { thumbnail: '/ba/eyelid/case-04/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-04' },
-  { thumbnail: '/ba/eyelid/case-05/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-05' },
-  { thumbnail: '/ba/eyelid/case-06/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-06' },
-  { thumbnail: '/ba/eyelid/case-07/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-07' },
-  { thumbnail: '/ba/eyelid/case-08/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-08' },
-  { thumbnail: '/ba/eyelid/case-09/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-09' },
-  { thumbnail: '/ba/eyelid/case-10/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-10' },
-  { thumbnail: '/ba/eyelid/case-11/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-11' },
-  { thumbnail: '/ba/eyelid/case-12/01.jpeg', images: [], procedure: 'Brow Lift', category: 'bleph', href: '/before-after/eyelid/case-12' },
-  { thumbnail: '/ba/eyelid/case-13/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-13' },
-  { thumbnail: '/ba/eyelid/case-14/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-14' },
-  { thumbnail: '/ba/eyelid/case-15/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-15' },
-]
-
-// Invisible Access Mid Facelift — 2 patient cases
-const PONYTAIL_CASES: StaticCase[] = [
-  { thumbnail: '/ba/midfacelift/case-01-new/01.jpg', images: [], procedure: 'Invisible Access Mid Facelift', category: 'ponytail', href: '/before-after/midfacelift/case-01' },
-  { thumbnail: '/ba/midfacelift/case-02/01.jpeg', images: [], procedure: 'Invisible Access Mid Facelift', category: 'ponytail', href: '/before-after/midfacelift/case-02' },
-]
-
-// Comprehensive Rejuvenation (Face, Neck and Eyes) — 9 patient cases
-const COMPREHENSIVE_CASES: StaticCase[] = [
-  { thumbnail: '/ba/hc/01.jpg', images: ['/ba/hc/01.jpg','/ba/hc/02.jpg','/ba/hc/03.jpg','/ba/hc/04.jpg','/ba/hc/05.jpg'], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck and Eyes', category: 'comprehensive', href: '/before-after/hc' },
-  { thumbnail: '/ba/comprehensive/case-04/01.jpeg', images: [], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck and Eyes', category: 'comprehensive', href: '/before-after/comprehensive/case-04' },
-  { thumbnail: '/ba/comprehensive/case-05/01.jpeg', images: [], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck and Eyes', category: 'comprehensive', href: '/before-after/comprehensive/case-05' },
-  { thumbnail: '/ba/comprehensive/case-09/05.jpeg', images: [], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck and Eyes', category: 'comprehensive', href: '/before-after/comprehensive/case-09' },
-  { thumbnail: '/ba/comprehensive/case-01/01.jpeg', images: [], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck and Eyes', category: 'comprehensive', href: '/before-after/comprehensive/case-01' },
-  { thumbnail: '/ba/comprehensive/case-03/01.jpeg', images: [], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck and Eyes', category: 'comprehensive', href: '/before-after/comprehensive/case-03' },
-  { thumbnail: '/ba/comprehensive/case-06/01.jpeg', images: [], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck and Eyes', category: 'comprehensive', href: '/before-after/comprehensive/case-06' },
-  { thumbnail: '/ba/comprehensive/case-07/01.jpeg', images: [], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck and Eyes', category: 'comprehensive', href: '/before-after/comprehensive/case-07' },
-  { thumbnail: '/ba/comprehensive/case-08/01.jpeg', images: [], procedure: 'Comprehensive Rejuvenation', sub: 'Face, Neck and Eyes', category: 'comprehensive', href: '/before-after/comprehensive/case-08' },
-]
-
-// Skin Cancer Reconstruction — 76 individual cards, each with sensitive content overlay
-const SKINCANCER_CASES: StaticCase[] = Array.from({ length: 76 }, (_, i) => {
-  const img = `/ba/skincancer/${String(i + 1).padStart(2, '0')}.jpeg`
-  return { thumbnail: img, images: [img], procedure: 'Skin Cancer Reconstruction', category: 'skincancer' }
-})
-
-const STATIC_CASES: StaticCase[] = [
-  ...PONYTAIL_CASES,
-  ...COMPREHENSIVE_CASES,
-  ...BLEPH_CASES,
-  ...SKINCANCER_CASES,
-]
-
 const FILTERS = [
-  { label: 'All',                        value: 'all' },
+  { label: 'All',                           value: 'all' },
   { label: 'Invisible Access Mid Facelift', value: 'ponytail' },
-  { label: 'Comprehensive Rejuvenation', value: 'comprehensive' },
-  { label: 'Eyelid and Brow',             value: 'bleph' },
-  { label: 'Skin Cancer Reconstruction', value: 'skincancer' },
+  { label: 'Comprehensive Rejuvenation',    value: 'comprehensive' },
+  { label: 'Eyelid and Brow',               value: 'bleph' },
+  { label: 'Skin Cancer Reconstruction',    value: 'skincancer' },
 ]
 
 const CASES_PER_PAGE = 6
 
 type Lightbox = { images: string[]; index: number }
 
-export default function BeforeAfter({ cases, dbCases = [], hiddenCases = [] }: { cases: BeforeAfterCase[]; dbCases?: DbCase[]; hiddenCases?: HiddenCase[] }) {
+export default function BeforeAfter({ cases, dbCases = [] }: { cases: BeforeAfterCase[]; dbCases?: DbCase[] }) {
   const searchParams = useSearchParams()
   const [filter, setFilter] = useState(() => searchParams.get('category') ?? 'all')
   const [scVisible, setScVisible] = useState(CASES_PER_PAGE)
   const [loadBatchStart, setLoadBatchStart] = useState<number | null>(null)
+  const [lightbox, setLightbox] = useState<Lightbox | null>(null)
+  const [revealed, setRevealed] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     const cat = searchParams.get('category')
@@ -122,48 +72,34 @@ export default function BeforeAfter({ cases, dbCases = [], hiddenCases = [] }: {
     return () => clearTimeout(t)
   }, [loadBatchStart])
 
-  const [lightbox, setLightbox] = useState<Lightbox | null>(null)
-  const [revealed, setRevealed] = useState<Set<string>>(new Set())
-
   const hasSanityCases = cases?.length > 0
 
-  // Build set of hidden static case hrefs for fast lookup
-  const hiddenHrefSet = new Set(
-    hiddenCases.map((h) => `/before-after/${h.gallery}/${h.slug}`)
-  )
-
-  // Convert DB cases to the same StaticCase shape for rendering
-  const dbStaticCases: StaticCase[] = dbCases
+  // Map DB cases to unified display format
+  const allDisplay: DisplayCase[] = dbCases
     .filter((c) => c.cover_image)
-    .map((c) => ({
-      thumbnail: c.cover_image!,
-      images: c.images,
-      procedure: c.procedures.length > 0 ? c.procedures[0] : 'Case',
-      sub: c.procedures.length > 1 ? c.procedures.slice(1).join(', ') : undefined,
-      category: DB_GALLERY_TO_CATEGORY[c.gallery] ?? 'comprehensive',
-      href: `/before-after/${c.gallery}/db-${c.id}`,
-    }))
+    .map((c) => {
+      const isSkinCancer = c.gallery === 'skincancer'
+      return {
+        id: c.id,
+        thumbnail: c.cover_image!,
+        images: c.images,
+        procedure: c.procedures[0] ?? 'Case',
+        sub: c.procedures.length > 1 ? c.procedures.slice(1).join(', ') : undefined,
+        category: GALLERY_TO_CATEGORY[c.gallery] ?? 'comprehensive',
+        href: isSkinCancer ? undefined : `/before-after/${c.gallery}/db-${c.id}`,
+        isSkinCancer,
+      }
+    })
 
-  // Filter hidden static cases
-  const visibleStaticNonSC = [...PONYTAIL_CASES, ...COMPREHENSIVE_CASES, ...BLEPH_CASES]
-    .filter((c) => !c.href || !hiddenHrefSet.has(c.href))
-  const visibleStaticSC = SKINCANCER_CASES
+  const skinCancerCases = allDisplay.filter((c) => c.isSkinCancer)
+  const nonSkinCancerCases = allDisplay.filter((c) => !c.isSkinCancer)
+  const totalSkinCancer = skinCancerCases.length
 
-  const ALL_NON_SC: StaticCase[] = [...dbStaticCases, ...visibleStaticNonSC, visibleStaticSC[0]]
-
-  const visible = hasSanityCases
-    ? cases
-    : filter === 'skincancer'
-      ? visibleStaticSC.slice(0, scVisible)
-      : filter === 'all'
-        ? ALL_NON_SC
-        : [
-            ...dbStaticCases.filter((c) => c.category === filter),
-            ...[...PONYTAIL_CASES, ...COMPREHENSIVE_CASES, ...BLEPH_CASES]
-              .filter((c) => c.category === filter && (!c.href || !hiddenHrefSet.has(c.href))),
-          ]
-
-  const totalSkinCancer = SKINCANCER_CASES.length
+  const visible: DisplayCase[] = filter === 'skincancer'
+    ? skinCancerCases.slice(0, scVisible)
+    : filter === 'all'
+      ? [...nonSkinCancerCases, ...(skinCancerCases.length > 0 ? [skinCancerCases[0]] : [])]
+      : allDisplay.filter((c) => c.category === filter)
 
   function loadMore() {
     const prev = scVisible
@@ -171,10 +107,10 @@ export default function BeforeAfter({ cases, dbCases = [], hiddenCases = [] }: {
     setScVisible((n) => Math.min(n + CASES_PER_PAGE, totalSkinCancer))
   }
 
-  function handleCardClick(c: StaticCase) {
-    if (c.category === 'skincancer' && !revealed.has(c.thumbnail)) {
+  function handleCardClick(c: DisplayCase) {
+    if (c.isSkinCancer && !revealed.has(c.thumbnail)) {
       setRevealed((prev) => new Set(prev).add(c.thumbnail))
-    } else {
+    } else if (c.images.length > 0) {
       setLightbox({ images: c.images, index: 0 })
     }
   }
@@ -200,7 +136,10 @@ export default function BeforeAfter({ cases, dbCases = [], hiddenCases = [] }: {
             <button
               key={f.value}
               className={`ba-filter-btn${filter === f.value ? ' active' : ''}`}
-              onClick={() => { setFilter(f.value); if (f.value !== 'skincancer') { setScVisible(CASES_PER_PAGE); setLoadBatchStart(null) } }}
+              onClick={() => {
+                setFilter(f.value)
+                if (f.value !== 'skincancer') { setScVisible(CASES_PER_PAGE); setLoadBatchStart(null) }
+              }}
             >
               {f.label}
             </button>
@@ -221,13 +160,13 @@ export default function BeforeAfter({ cases, dbCases = [], hiddenCases = [] }: {
                 </div>
               </div>
             ))
-          : (visible as StaticCase[]).map((c, i) => {
-              const isSensitive = c.category === 'skincancer'
-              const isTeaser = isSensitive && filter === 'all'
+          : visible.map((c, i) => {
+              const isTeaser = c.isSkinCancer && filter === 'all'
               const isRevealed = revealed.has(c.thumbnail)
               const hasMultiple = c.images.length > 1
-              const batchIdx = (isSensitive && loadBatchStart !== null && i >= loadBatchStart) ? i - loadBatchStart : null
-              const animStyle = batchIdx !== null ? { animation: `scFadeIn 0.5s ease-out both`, animationDelay: `${batchIdx * 0.08}s` } : {}
+              const batchIdx = (c.isSkinCancer && loadBatchStart !== null && i >= loadBatchStart) ? i - loadBatchStart : null
+              const animStyle = batchIdx !== null ? { animation: 'scFadeIn 0.5s ease-out both', animationDelay: `${batchIdx * 0.08}s` } : {}
+
               const cardInner = (
                 <>
                   <div style={{ position: 'relative', width: '100%', height: '100%' }}>
@@ -239,13 +178,13 @@ export default function BeforeAfter({ cases, dbCases = [], hiddenCases = [] }: {
                       style={{
                         objectFit: 'cover',
                         objectPosition: 'center top',
-                        filter: isSensitive && !isRevealed ? 'blur(14px)' : 'none',
-                        transform: isSensitive && !isRevealed ? 'scale(1.05)' : 'scale(1)',
+                        filter: c.isSkinCancer && !isRevealed ? 'blur(14px)' : 'none',
+                        transform: c.isSkinCancer && !isRevealed ? 'scale(1.05)' : 'scale(1)',
                         transition: 'filter 0.4s, transform 0.4s',
                       }}
                       priority={i < 3}
                     />
-                    {!isSensitive && <ImageWatermark />}
+                    {!c.isSkinCancer && <ImageWatermark />}
                   </div>
                   {isTeaser ? (
                     <div className="ba-sensitive-overlay">
@@ -254,7 +193,7 @@ export default function BeforeAfter({ cases, dbCases = [], hiddenCases = [] }: {
                       <span className="ba-sensitive-body">Contains medical imagery. Click to view all cases.</span>
                       <span className="ba-sensitive-cta">View all cases →</span>
                     </div>
-                  ) : isSensitive && !isRevealed ? (
+                  ) : c.isSkinCancer && !isRevealed ? (
                     <div className="ba-sensitive-overlay">
                       <span className="ba-sensitive-icon">!</span>
                       <span className="ba-sensitive-title">Sensitive Content</span>
@@ -271,16 +210,18 @@ export default function BeforeAfter({ cases, dbCases = [], hiddenCases = [] }: {
                   )}
                 </>
               )
+
               return isTeaser ? (
-                <div key={c.thumbnail} className="ba-card" style={{ cursor: 'pointer', ...animStyle }} onClick={() => { setFilter('skincancer'); document.querySelector('.ba-filters')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}>
+                <div key={c.id} className="ba-card" style={{ cursor: 'pointer', ...animStyle }}
+                  onClick={() => { setFilter('skincancer'); document.querySelector('.ba-filters')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}>
                   {cardInner}
                 </div>
               ) : c.href ? (
-                <a key={c.thumbnail} className="ba-card" href={c.href} style={{ textDecoration: 'none', display: 'block', ...animStyle }}>
+                <a key={c.id} className="ba-card" href={c.href} style={{ textDecoration: 'none', display: 'block', ...animStyle }}>
                   {cardInner}
                 </a>
               ) : (
-                <div key={c.thumbnail} className="ba-card" style={animStyle} onClick={() => handleCardClick(c)}>
+                <div key={c.id} className="ba-card" style={animStyle} onClick={() => handleCardClick(c)}>
                   {cardInner}
                 </div>
               )
@@ -307,10 +248,7 @@ export default function BeforeAfter({ cases, dbCases = [], hiddenCases = [] }: {
       </div>
 
       {lightbox && (
-        <div
-          className="ba-modal-backdrop"
-          onClick={(e) => e.target === e.currentTarget && setLightbox(null)}
-        >
+        <div className="ba-modal-backdrop" onClick={(e) => e.target === e.currentTarget && setLightbox(null)}>
           <div className="ba-lightbox">
             <button className="ba-modal-close" onClick={() => setLightbox(null)}>✕</button>
             <div style={{ position: 'relative', width: '100%', maxWidth: '680px', aspectRatio: '3/4' }}>

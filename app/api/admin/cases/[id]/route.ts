@@ -29,11 +29,11 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
     .single()
 
   if (caseData?.images?.length) {
-    const paths = caseData.images.map((url: string) => {
-      const marker = '/object/public/before-after/'
-      return url.slice(url.indexOf(marker) + marker.length)
-    })
-    await supabase.storage.from('before-after').remove(paths)
+    const marker = '/object/public/before-after/'
+    const paths = caseData.images
+      .filter((url: string) => url.includes(marker))
+      .map((url: string) => url.slice(url.indexOf(marker) + marker.length))
+    if (paths.length) await supabase.storage.from('before-after').remove(paths)
   }
 
   const { error } = await supabase.from('cases').delete().eq('id', id)

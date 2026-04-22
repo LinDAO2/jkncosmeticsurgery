@@ -338,7 +338,6 @@ function CasesView() {
   const s = { fontFamily: 'Montserrat, sans-serif' }
   const [gallery, setGallery] = useState<'comprehensive' | 'eyelid' | 'midfacelift' | 'skincancer'>('midfacelift')
   const [dbCases, setDbCases] = useState<DbCase[]>([])
-  const [hidden, setHidden] = useState<HiddenCase[]>([])
   const [fetching, setFetching] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
   const [procedures, setProcedures] = useState<string[]>([''])
@@ -356,14 +355,9 @@ function CasesView() {
 
   async function load() {
     setFetching(true)
-    const [casesRes, hiddenRes] = await Promise.all([
-      fetch('/api/admin/cases'),
-      fetch('/api/admin/hidden-cases'),
-    ])
-    const casesData = await casesRes.json()
-    const hiddenData = await hiddenRes.json()
-    setDbCases(casesData.cases ?? [])
-    setHidden(hiddenData.hidden ?? [])
+    const res = await fetch('/api/admin/cases')
+    const data = await res.json()
+    setDbCases(data.cases ?? [])
     setFetching(false)
   }
 
@@ -453,18 +447,20 @@ function CasesView() {
     await load()
   }
 
-  async function toggleHide(slug: string, gal: string) {
-    const isHidden = hidden.some(h => h.slug === slug && h.gallery === gal)
-    await fetch('/api/admin/hidden-cases', {
-      method: isHidden ? 'DELETE' : 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slug, gallery: gal }),
-    })
+  async function reorderCase(id: string, direction: 'up' | 'down') {
+    const sorted = [...filteredDbCases].sort((a, b) => a.display_order - b.display_order)
+    const idx = sorted.findIndex(c => c.id === id)
+    const target = direction === 'up' ? sorted[idx - 1] : sorted[idx + 1]
+    if (!target) return
+    const current = sorted[idx]
+    await Promise.all([
+      fetch(`/api/admin/cases/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ display_order: target.display_order }) }),
+      fetch(`/api/admin/cases/${target.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ display_order: current.display_order }) }),
+    ])
     await load()
   }
 
-  const filteredDbCases = dbCases.filter(c => c.gallery === gallery)
-  const staticSlugs = STATIC_CASES_BY_GALLERY[gallery] ?? []
+  const filteredDbCases = dbCases.filter(c => c.gallery === gallery).sort((a, b) => a.display_order - b.display_order)
 
   return (
     <div>
@@ -607,9 +603,9 @@ function CasesView() {
           <p style={{ ...s, fontSize: 12, color: '#aaa' }}>Loading…</p>
         ) : (
           <>
-            {filteredDbCases.length > 0 && gallery !== 'skincancer' && (
+            {filteredDbCases.length > 0 && (
               <div style={{ marginBottom: 40 }}>
-                <p style={{ ...s, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#aaa', marginBottom: 16 }}>Uploaded Cases</p>
+                <p style={{ ...s, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#aaa', marginBottom: 16 }}>Cases</p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {filteredDbCases.map(c => (
                     <div key={c.id} style={{ border: '0.5px solid #e5e5e5' }}>
@@ -625,10 +621,16 @@ function CasesView() {
                             {c.instagram_videos.length > 0 && ` · ${c.instagram_videos.length} link${c.instagram_videos.length !== 1 ? 's' : ''}`}
                           </p>
                         </div>
-                        <button onClick={() => editingLinksId === c.id ? setEditingLinksId(null) : openEditLinks(c)}
-                          style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '6px 12px', cursor: 'pointer', color: '#888' }}>
-                          Links
-                        </button>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                          <button onClick={() => reorderCase(c.id, 'up')} style={{ ...s, fontSize: 10, background: 'none', border: '0.5px solid #ddd', padding: '2px 8px', cursor: 'pointer', color: '#888', lineHeight: 1 }}>↑</button>
+                          <button onClick={() => reorderCase(c.id, 'down')} style={{ ...s, fontSize: 10, background: 'none', border: '0.5px solid #ddd', padding: '2px 8px', cursor: 'pointer', color: '#888', lineHeight: 1 }}>↓</button>
+                        </div>
+                        {gallery !== 'skincancer' && (
+                          <button onClick={() => editingLinksId === c.id ? setEditingLinksId(null) : openEditLinks(c)}
+                            style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '6px 12px', cursor: 'pointer', color: '#888' }}>
+                            Links
+                          </button>
+                        )}
                         <button onClick={() => handleDelete(c.id)}
                           style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '6px 12px', cursor: 'pointer', color: '#c00' }}>
                           Delete
@@ -678,23 +680,9 @@ function CasesView() {
               </div>
             )}
 
-            <div>
-              <p style={{ ...s, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#aaa', marginBottom: 16 }}>Existing Cases</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {staticSlugs.map(slug => {
-                  const isHidden = hidden.some(h => h.slug === slug && h.gallery === gallery)
-                  return (
-                    <div key={slug} style={{ display: 'flex', alignItems: 'center', padding: '12px 16px', border: '0.5px solid #e5e5e5', gap: 16, opacity: isHidden ? 0.4 : 1 }}>
-                      <span style={{ ...s, fontSize: 12, color: '#3d3530', flex: 1 }}>{slug}</span>
-                      <button onClick={() => toggleHide(slug, gallery)}
-                        style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '6px 12px', cursor: 'pointer', color: isHidden ? '#2d7a2d' : '#888' }}>
-                        {isHidden ? 'Show' : 'Hide'}
-                      </button>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
+            {filteredDbCases.length === 0 && (
+              <p style={{ ...s, fontSize: 12, color: '#aaa' }}>No cases yet. Add one above.</p>
+            )}
           </>
         )}
       </div>
@@ -717,7 +705,7 @@ type View = 'inquiries' | 'reviews' | 'email-routing' | 'cases'
 
 type DbCase = {
   id: string
-  gallery: 'comprehensive' | 'eyelid' | 'midfacelift'
+  gallery: 'comprehensive' | 'eyelid' | 'midfacelift' | 'skincancer'
   procedures: string[]
   images: string[]
   cover_image: string | null
