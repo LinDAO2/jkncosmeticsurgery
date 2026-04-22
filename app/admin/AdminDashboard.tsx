@@ -221,7 +221,7 @@ function ReviewsView() {
     const maxOrder = testimonials.length ? Math.max(...testimonials.map(t => t.display_order)) : 0
 
     const finalQuote = quote.trim().charAt(0).toUpperCase() + quote.trim().slice(1)
-    const finalProc = procedure === 'Other' ? toTitleCase(otherProcedure.trim()) : procedure
+    const finalProc = procedure === 'Other' ? otherProcedure.trim().toUpperCase() : procedure.toUpperCase()
     const attribution = `Patient — ${finalProc}`
     const res = editing
       ? await fetch(`/api/admin/testimonials/${editing.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ quote: finalQuote, attribution, display_order: editing.display_order }) })
@@ -265,7 +265,7 @@ function ReviewsView() {
                 <span style={{ ...s, fontSize: 13, color: '#aaa', padding: '10px 12px', borderRight: '0.5px solid #ddd', whiteSpace: 'nowrap' }}>Patient —</span>
                 <select value={procedure} onChange={e => { setProcedure(e.target.value); setOtherProcedure('') }} required style={{ border: 'none', padding: '10px 12px', ...s, fontSize: 13, flex: 1, outline: 'none', background: 'transparent', color: procedure ? '#0a0a0a' : '#aaa', appearance: 'none' }}>
                   <option value="" disabled>Select a procedure</option>
-                  {PROCEDURES.map(p => <option key={p} value={p}>{p}</option>)}
+                  {PROCEDURES.map(p => <option key={p} value={p}>{p.toUpperCase()}</option>)}
                 </select>
               </div>
               {procedure === 'Other' && (
