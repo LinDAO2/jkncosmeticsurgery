@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { supabase } from '@/lib/supabase'
 
+export const runtime = 'edge'
+
 async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder()
   const data = encoder.encode(password)
