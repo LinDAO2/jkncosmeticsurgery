@@ -14,6 +14,11 @@ const TESTIMONIALS = [
     quote: 'I travelled from London specifically for Dr. Nia. The level of care, the discretion, and the outcome exceeded everything I had hoped for.',
     attribution: 'Patient — Comprehensive Rejuvenation',
   },
+  {
+    id: '4',
+    quote: 'I\'m incredibly grateful I chose him. Fifteen months later, the results look completely natural and feel like me. Most friends and family don\'t know I had anything done. They just say I look great. I usually smile and credit a little weight loss and growing my hair longer.',
+    attribution: 'Patient — Deep Plane Face and Neck Lift',
+  },
 ]
 
 export default function Testimonials() {
@@ -22,7 +27,7 @@ export default function Testimonials() {
       <span className="testimonials-label">Patient Experiences</span>
       <h2 className="testimonials-heading">In Their Words</h2>
 
-      <div className="testimonials-grid">
+      <div className="testimonials-scroll">
         {TESTIMONIALS.map((t) => (
           <div key={t.id} className="testimonial-card">
             <div>

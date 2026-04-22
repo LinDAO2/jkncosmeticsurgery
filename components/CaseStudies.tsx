@@ -7,8 +7,8 @@ import ImageWatermark from '@/components/ImageWatermark'
 
 const FALLBACK_CASES = [
   { id: 'f1', category: '', filter: 'comprehensive', href: '/before-after/hc', title: 'Comprehensive Rejuvenation', tags: ['Deep Plane Face and Neck Lift', 'Buccal Fat Contouring', 'Fat Transfer', 'Laser Resurfacing'], img: '/ba/hc/01.jpg' },
-  { id: 'f2', category: '', filter: 'bleph',          title: 'Eyelid Rejuvenation',             tags: ['Brow Lift', 'Upper Blepharoplasty', 'Lower Blepharoplasty'], img: '/ba/eyelid/case-05/01.jpeg' },
-  { id: 'f3', category: '', filter: 'ponytail',       title: 'Invisible Access Mid Facelift',   tags: ['Invisible Access Mid Facelift', 'Lip Lift', 'Upper Blepharoplasty', 'Lower Blepharoplasty'], img: '/ba/midfacelift/home-card.png' },
+  { id: 'f2', category: '', filter: 'bleph',          href: '/before-after/eyelid/case-12',        title: 'Eyelid Rejuvenation',             tags: ['Brow Lift', 'Upper Blepharoplasty', 'Lower Blepharoplasty'], img: '/ba/eyelid/case-12/01.jpeg' },
+  { id: 'f3', category: '', filter: 'ponytail',       href: '/before-after/midfacelift/case-01',   title: 'Invisible Access Mid Facelift',   tags: ['Invisible Access Mid Facelift', 'Lip Lift', 'Upper Blepharoplasty', 'Lower Blepharoplasty'], img: '/ba/midfacelift/case-01/01.jpeg' },
 ]
 
 const DELAYS = [0, 150, 300]
