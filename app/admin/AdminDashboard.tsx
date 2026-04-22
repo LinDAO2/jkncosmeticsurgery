@@ -230,7 +230,8 @@ function ReviewsView() {
             <p style={{ ...s, fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888', margin: 0 }}>{editing ? 'Edit Review' : 'New Review'}</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Review</label>
-              <textarea value={quote} onChange={e => setQuote(e.target.value)} required rows={4} style={{ border: '0.5px solid #ddd', padding: '10px 12px', ...s, fontSize: 13, resize: 'vertical' }} />
+              <textarea value={quote} onChange={e => setQuote(e.target.value)} required rows={4} maxLength={280} style={{ border: '0.5px solid #ddd', padding: '10px 12px', ...s, fontSize: 13, resize: 'vertical' }} />
+              <span style={{ ...s, fontSize: 10, color: quote.length >= 260 ? '#c00' : '#aaa', textAlign: 'right' }}>{quote.length}/280</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Procedure</label>
