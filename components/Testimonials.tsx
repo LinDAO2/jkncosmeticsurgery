@@ -1,3 +1,5 @@
+import Image from 'next/image'
+
 const TESTIMONIALS = [
   {
     id: '1',
@@ -19,6 +21,15 @@ const TESTIMONIALS = [
 export default function Testimonials() {
   return (
     <section className="testimonials-section">
+      <div className="testimonials-doctor">
+        <Image
+          src="/dr-nia-home.png"
+          alt="Dr. John K. Nia, MD"
+          width={96}
+          height={96}
+          style={{ objectFit: 'cover', objectPosition: 'center top', borderRadius: '50%' }}
+        />
+      </div>
       <span className="testimonials-label">Patient Experiences</span>
       <h2 className="testimonials-heading">In Their Words</h2>
 
