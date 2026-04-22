@@ -70,7 +70,7 @@ export default function About({ doctor }: { doctor: Doctor | null }) {
           <span className="section-label">About</span>
           <h2 className="about-name">
             {name.startsWith('Dr.') ? (
-              <><span style={{ color: 'red' }}>Dr.</span>{name.slice(3)}</>
+              <>{name}</>
             ) : name}
           </h2>
           <span className="about-title">{title}</span>
