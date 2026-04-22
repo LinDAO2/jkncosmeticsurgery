@@ -28,9 +28,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Failed to save inquiry' }, { status: 500 })
   }
 
+  // Use dynamic email list from DB, fall back to env var
+  const { data: emailRows } = await supabase.from('notification_emails').select('email')
+  const recipients = emailRows && emailRows.length > 0
+    ? emailRows.map((r: { email: string }) => r.email)
+    : [RESEND_TO_EMAIL]
+
   await resend.emails.send({
     from: 'JKN Cosmetic Surgery <onboarding@resend.dev>',
-    to: RESEND_TO_EMAIL,
+    to: recipients,
     subject: `New inquiry from ${first_name} ${last_name}`,
     text: [
       `Name: ${first_name} ${last_name}`,
