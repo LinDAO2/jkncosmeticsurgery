@@ -358,6 +358,8 @@ footer { background: var(--jkn-black); padding: 60px var(--grid); display: flex;
 .admin-nav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
 .admin-nav-item { font-family: var(--font-ui); font-weight: 300; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.45); padding: 10px 12px; cursor: pointer; transition: color 0.2s; }
 .admin-nav-item.active { color: var(--jkn-white); background: rgba(255,255,255,0.08); }
+.admin-change-password-btn { font-family: var(--font-ui); font-weight: 300; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.25); background: none; border: none; cursor: pointer; text-align: left; padding: 10px 12px; transition: color 0.2s; }
+.admin-change-password-btn:hover { color: rgba(255,255,255,0.6); }
 .admin-logout-btn { font-family: var(--font-ui); font-weight: 300; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.25); background: none; border: none; cursor: pointer; text-align: left; padding: 10px 12px; transition: color 0.2s; }
 .admin-logout-btn:hover { color: rgba(255,255,255,0.6); }
 
