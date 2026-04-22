@@ -34,7 +34,7 @@ export async function POST(req: Request) {
     ? emailRows.map((r: { email: string }) => r.email)
     : [RESEND_TO_EMAIL]
 
-  await resend.emails.send({
+  const { data: emailData, error: emailError } = await resend.emails.send({
     from: 'JKN Cosmetic Surgery <onboarding@resend.dev>',
     to: recipients,
     subject: `New inquiry from ${first_name} ${last_name}`,
@@ -48,6 +48,12 @@ export async function POST(req: Request) {
       .filter(Boolean)
       .join('\n'),
   })
+
+  if (emailError) {
+    console.error('Resend error:', JSON.stringify(emailError))
+  } else {
+    console.log('Resend sent to:', recipients.join(', '), '| id:', emailData?.id)
+  }
 
   return NextResponse.json({ ok: true })
 }
