@@ -232,9 +232,6 @@ function ReviewsView() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Review</label>
               <textarea value={quote} onChange={e => setQuote(e.target.value)} required rows={4} style={{ border: `0.5px solid ${quote.length > 280 ? '#c00' : '#ddd'}`, padding: '10px 12px', ...s, fontSize: 13, resize: 'vertical' }} />
-              <span style={{ ...s, fontSize: 10, color: quote.length > 280 ? '#c00' : '#aaa', textAlign: 'right' }}>
-                {quote.length > 280 ? `${quote.length - 280} characters over the limit` : `${quote.length}/280`}
-              </span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Procedure</label>
@@ -251,6 +248,11 @@ function ReviewsView() {
               <button type="button" onClick={cancel} style={{ background: 'none', border: '0.5px solid #ddd', padding: '10px 20px', ...s, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer', color: '#888' }}>
                 Cancel
               </button>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <span style={{ ...s, fontSize: 10, color: quote.length > 280 ? '#c00' : '#aaa' }}>
+                {quote.length > 280 ? `${quote.length - 280} over limit` : `${quote.length}/280`}
+              </span>
             </div>
           </form>
         )}
