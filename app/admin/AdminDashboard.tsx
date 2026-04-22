@@ -192,7 +192,7 @@ function ReviewsView() {
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
     setError('')
-    if (quote.length > 280) { setError('Review must be 280 characters or fewer.'); return }
+    if (quote.length > 272) { setError('Review must be 272 characters or fewer.'); return }
     setSaving(true)
     const maxOrder = testimonials.length ? Math.max(...testimonials.map(t => t.display_order)) : 0
 
@@ -231,7 +231,7 @@ function ReviewsView() {
             <p style={{ ...s, fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888', margin: 0 }}>{editing ? 'Edit Review' : 'New Review'}</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Review</label>
-              <textarea value={quote} onChange={e => setQuote(e.target.value)} required rows={4} style={{ border: `0.5px solid ${quote.length > 280 ? '#c00' : '#ddd'}`, padding: '10px 12px', ...s, fontSize: 13, resize: 'vertical' }} />
+              <textarea value={quote} onChange={e => setQuote(e.target.value)} required rows={4} style={{ border: `0.5px solid ${quote.length > 272 ? '#c00' : '#ddd'}`, padding: '10px 12px', ...s, fontSize: 13, resize: 'vertical' }} />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Procedure</label>
@@ -242,7 +242,7 @@ function ReviewsView() {
             </div>
             {error && <p style={{ ...s, fontSize: 12, color: '#c00', margin: 0 }}>{error}</p>}
             <div style={{ display: 'flex', gap: 10 }}>
-              <button type="submit" disabled={saving || quote.length > 280} style={{ background: quote.length > 280 ? '#ccc' : '#1c1917', color: '#fff', border: 'none', padding: '10px 20px', ...s, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: quote.length > 280 ? 'not-allowed' : 'pointer' }}>
+              <button type="submit" disabled={saving || quote.length > 272} style={{ background: quote.length > 272 ? '#ccc' : '#1c1917', color: '#fff', border: 'none', padding: '10px 20px', ...s, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: quote.length > 272 ? 'not-allowed' : 'pointer' }}>
                 {saving ? 'Saving…' : 'Save'}
               </button>
               <button type="button" onClick={cancel} style={{ background: 'none', border: '0.5px solid #ddd', padding: '10px 20px', ...s, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer', color: '#888' }}>
@@ -250,8 +250,8 @@ function ReviewsView() {
               </button>
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <span style={{ ...s, fontSize: 10, color: quote.length > 280 ? '#c00' : '#aaa' }}>
-                {quote.length > 280 ? `${quote.length - 280} over limit` : `${quote.length}/280`}
+              <span style={{ ...s, fontSize: 10, color: quote.length > 272 ? '#c00' : '#aaa' }}>
+                {quote.length > 272 ? `${quote.length - 272} over limit` : `${quote.length}/272`}
               </span>
             </div>
           </form>
@@ -265,7 +265,7 @@ function ReviewsView() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {testimonials.map(t => (
               <div key={t.id} style={{ border: '0.5px solid #e5e5e5', padding: '16px 20px' }}>
-                <p style={{ ...s, fontSize: 13, color: '#3d3530', lineHeight: 1.6, marginBottom: 8 }}>"{t.quote}"</p>
+                <p style={{ ...s, fontSize: 13, color: '#3d3530', lineHeight: 1.6, marginBottom: 8 }}>{t.quote}</p>
                 <p style={{ ...s, fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#aaa', marginBottom: 12 }}>{t.attribution}</p>
                 <div style={{ display: 'flex', gap: 16 }}>
                   <button onClick={() => openEdit(t)} style={{ background: 'none', border: 'none', ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#3d3530', cursor: 'pointer' }}>Edit</button>

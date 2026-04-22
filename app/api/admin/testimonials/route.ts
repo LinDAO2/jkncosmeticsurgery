@@ -22,8 +22,8 @@ export async function POST(req: Request) {
   if (!quote?.trim() || !attribution?.trim()) {
     return NextResponse.json({ error: 'Quote and attribution are required' }, { status: 400 })
   }
-  if (quote.trim().length > 280) {
-    return NextResponse.json({ error: 'Review must be 280 characters or fewer' }, { status: 400 })
+  if (quote.trim().length > 272) {
+    return NextResponse.json({ error: 'Review must be 272 characters or fewer' }, { status: 400 })
   }
   const { data, error } = await supabase
     .from('testimonials')
