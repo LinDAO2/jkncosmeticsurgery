@@ -29,31 +29,30 @@ export default function LogoMark({
           flexShrink:   0,
           animation:    'slideUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both',
         }}>
-          <span style={{
-            fontFamily:    "'Playfair Display', serif",
-            fontWeight:    500,
-            fontSize:      jknSize,
-            color,
-            letterSpacing: '0.02em',
-            lineHeight:    1,
-            userSelect:    'none',
-          }}>
-            JKN
+          <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: jknSize * 0.1, userSelect: 'none' }}>
+            <span style={{
+              fontFamily:    "'Playfair Display', serif",
+              fontWeight:    500,
+              fontSize:      jknSize,
+              color,
+              letterSpacing: '0.02em',
+              lineHeight:    1,
+            }}>
+              JKN
+            </span>
+            <span style={{
+              fontFamily:    "'Montserrat', sans-serif",
+              fontWeight:    400,
+              fontSize:      jknSize * 0.28,
+              color,
+              letterSpacing: '0.18em',
+              lineHeight:    1,
+            }}>
+              MD
+            </span>
           </span>
         </div>
       </div>
-
-      <span style={{
-        fontFamily:    "'Montserrat', sans-serif",
-        fontWeight:    400,
-        fontSize:      Math.max(6, circleSize * 0.07),
-        letterSpacing: '0.22em',
-        textTransform: 'uppercase' as const,
-        color,
-        userSelect:    'none',
-      }}>
-        MD
-      </span>
 
       {showName && (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: nameSize * 0.55 }}>
