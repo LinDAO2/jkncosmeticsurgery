@@ -13,6 +13,7 @@ export default function AdminLogin() {
 
   // Sign up state
   const [masterPassword, setMasterPassword] = useState('')
+  const [setupEmail, setSetupEmail] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [setupError, setSetupError] = useState('')
@@ -52,7 +53,7 @@ export default function AdminLogin() {
     const res = await fetch('/api/admin/setup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ masterPassword, password: newPassword }),
+      body: JSON.stringify({ masterPassword, email: setupEmail, password: newPassword }),
     })
 
     const data = await res.json()
@@ -123,6 +124,17 @@ export default function AdminLogin() {
                 value={masterPassword}
                 onChange={(e) => setMasterPassword(e.target.value)}
                 placeholder="Provided by your admin"
+                required
+              />
+            </div>
+            <div className="admin-login-field">
+              <label className="admin-login-label">Email</label>
+              <input
+                className="admin-login-input"
+                type="email"
+                value={setupEmail}
+                onChange={(e) => setSetupEmail(e.target.value)}
+                placeholder="your@email.com"
                 required
               />
             </div>

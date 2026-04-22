@@ -14,11 +14,15 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const { password, masterPassword } = await req.json()
+  const { password, masterPassword, email } = await req.json()
 
   // Require master password to set up a new account
   if (masterPassword !== process.env.ADMIN_PASSWORD) {
     return NextResponse.json({ error: 'Invalid master password' }, { status: 401 })
+  }
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return NextResponse.json({ error: 'A valid email address is required' }, { status: 400 })
   }
 
   if (!password || password.length < 8) {
@@ -29,7 +33,7 @@ export async function POST(req: Request) {
 
   // Delete any existing credentials and insert new ones
   await supabase.from('admin_credentials').delete().neq('id', 0)
-  const { error } = await supabase.from('admin_credentials').insert({ password_hash: hash })
+  const { error } = await supabase.from('admin_credentials').insert({ email, password_hash: hash })
 
   if (error) return NextResponse.json({ error: 'Failed to save password' }, { status: 500 })
 
