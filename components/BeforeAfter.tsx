@@ -15,6 +15,26 @@ type StaticCase = {
   href?: string
 }
 
+type DbCase = {
+  id: string
+  gallery: 'comprehensive' | 'eyelid' | 'midfacelift'
+  procedures: string[]
+  images: string[]
+  cover_image: string | null
+  display_order: number
+}
+
+type HiddenCase = {
+  slug: string
+  gallery: string
+}
+
+const DB_GALLERY_TO_CATEGORY: Record<string, string> = {
+  comprehensive: 'comprehensive',
+  eyelid: 'bleph',
+  midfacelift: 'ponytail',
+}
+
 // Upper and Lower Blepharoplasty — 15 patient cases, all linking to individual case pages
 const BLEPH_CASES: StaticCase[] = [
   { thumbnail: '/ba/eyelid/case-01/01.jpeg', images: [], procedure: 'Upper and Lower Blepharoplasty', category: 'bleph', href: '/before-after/eyelid/case-01' },
@@ -78,7 +98,7 @@ const CASES_PER_PAGE = 6
 
 type Lightbox = { images: string[]; index: number }
 
-export default function BeforeAfter({ cases }: { cases: BeforeAfterCase[] }) {
+export default function BeforeAfter({ cases, dbCases = [], hiddenCases = [] }: { cases: BeforeAfterCase[]; dbCases?: DbCase[]; hiddenCases?: HiddenCase[] }) {
   const searchParams = useSearchParams()
   const [filter, setFilter] = useState(() => searchParams.get('category') ?? 'all')
   const [scVisible, setScVisible] = useState(CASES_PER_PAGE)
@@ -107,15 +127,41 @@ export default function BeforeAfter({ cases }: { cases: BeforeAfterCase[] }) {
 
   const hasSanityCases = cases?.length > 0
 
-  const ALL_NON_SC: StaticCase[] = [...PONYTAIL_CASES, ...COMPREHENSIVE_CASES, ...BLEPH_CASES, SKINCANCER_CASES[0]]
+  // Build set of hidden static case hrefs for fast lookup
+  const hiddenHrefSet = new Set(
+    hiddenCases.map((h) => `/before-after/${h.gallery}/${h.slug}`)
+  )
+
+  // Convert DB cases to the same StaticCase shape for rendering
+  const dbStaticCases: StaticCase[] = dbCases
+    .filter((c) => c.cover_image)
+    .map((c) => ({
+      thumbnail: c.cover_image!,
+      images: c.images,
+      procedure: c.procedures.length > 0 ? c.procedures[0] : 'Case',
+      sub: c.procedures.length > 1 ? c.procedures.slice(1).join(', ') : undefined,
+      category: DB_GALLERY_TO_CATEGORY[c.gallery] ?? 'comprehensive',
+      href: `/before-after/${c.gallery}/db-${c.id}`,
+    }))
+
+  // Filter hidden static cases
+  const visibleStaticNonSC = [...PONYTAIL_CASES, ...COMPREHENSIVE_CASES, ...BLEPH_CASES]
+    .filter((c) => !c.href || !hiddenHrefSet.has(c.href))
+  const visibleStaticSC = SKINCANCER_CASES
+
+  const ALL_NON_SC: StaticCase[] = [...dbStaticCases, ...visibleStaticNonSC, visibleStaticSC[0]]
 
   const visible = hasSanityCases
     ? cases
     : filter === 'skincancer'
-      ? SKINCANCER_CASES.slice(0, scVisible)
+      ? visibleStaticSC.slice(0, scVisible)
       : filter === 'all'
         ? ALL_NON_SC
-        : STATIC_CASES.filter((c) => c.category === filter)
+        : [
+            ...dbStaticCases.filter((c) => c.category === filter),
+            ...[...PONYTAIL_CASES, ...COMPREHENSIVE_CASES, ...BLEPH_CASES]
+              .filter((c) => c.category === filter && (!c.href || !hiddenHrefSet.has(c.href))),
+          ]
 
   const totalSkinCancer = SKINCANCER_CASES.length
 
