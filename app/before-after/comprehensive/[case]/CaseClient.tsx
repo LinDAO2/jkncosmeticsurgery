@@ -63,7 +63,7 @@ export default function CaseClient({ data }: { data: ComprehensiveCase }) {
             )}
             {data.videoUrl2 && (
               <a href={data.videoUrl2} target="_blank" rel="noopener noreferrer" className="case-video-btn">
-                Watch Patient's 5 Month Post Op →
+                Watch Patient's 5 Months Post Op →
               </a>
             )}
           </div>
