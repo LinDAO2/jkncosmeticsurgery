@@ -3,6 +3,7 @@ export type ComprehensiveCase = {
   caseNumber: string
   procedures: string[]
   imageCount: number
+  videoUrl?: string
 }
 
 // Procedures marked TODO — update from Google Drive patient detail files
@@ -71,6 +72,7 @@ export const COMPREHENSIVE_CASES_DATA: ComprehensiveCase[] = [
       'Ptosis Repair',
     ],
     imageCount: 12,
+    videoUrl: 'https://www.instagram.com/reel/DV1Uyy7D8ta/?igsh=dnIyZjZsYzB6cDlx',
   },
   {
     slug: 'case-06',
