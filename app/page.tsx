@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import { client } from '@/sanity/lib/client'
-import { philosophyQuery, siteSettingsQuery, casesPreviewQuery, doctorQuery } from '@/sanity/lib/queries'
-import type { PhilosophyCard, SiteSettings, BeforeAfterCase, Doctor } from '@/lib/types'
+import { casesPreviewQuery, doctorQuery } from '@/sanity/lib/queries'
+import type { BeforeAfterCase, Doctor } from '@/lib/types'
+import { supabase } from '@/lib/supabase'
 
 import Nav from '@/components/Nav'
 import Hero from '@/components/Hero'
@@ -12,7 +13,7 @@ import QuoteSection from '@/components/QuoteSection'
 import Testimonials from '@/components/Testimonials'
 import Footer from '@/components/Footer'
 
-export const revalidate = 60
+export const revalidate = 0
 
 export const metadata: Metadata = {
   title: 'JKN Cosmetic Surgery — Dr. John K. Nia, MD | New York City',
@@ -75,12 +76,22 @@ const jsonLd = {
 }
 
 export default async function HomePage() {
-  const [philosophy, settings, cases, doctor] = await Promise.all([
-    client.fetch<PhilosophyCard[]>(philosophyQuery).catch(() => []),
-    client.fetch<SiteSettings>(siteSettingsQuery).catch(() => null),
+  const [cases, doctor, contentResult] = await Promise.all([
     client.fetch<BeforeAfterCase[]>(casesPreviewQuery).catch(() => []),
     client.fetch<Doctor>(doctorQuery).catch(() => null),
+    supabase.from('site_content').select('*'),
   ])
+
+  const content: Record<string, Record<string, string>> = {}
+  for (const row of contentResult.data ?? []) {
+    if (!content[row.section]) content[row.section] = {}
+    content[row.section][row.key] = row.value
+  }
+
+  const quote = content.quote?.text ?? null
+  const quoteAttr = content.quote?.attribution ?? null
+  const philHeading = content.philosophy?.heading ?? null
+  const philBody = content.philosophy?.body ?? null
 
   return (
     <>
@@ -90,10 +101,10 @@ export default async function HomePage() {
       />
       <Nav />
       <Hero />
-      <Philosophy cards={philosophy} />
+      <Philosophy heading={philHeading} body={philBody} />
       <CaseStudies cases={cases} />
       <AboutPreview doctor={doctor} />
-      <QuoteSection settings={settings} />
+      <QuoteSection quote={quote} attribution={quoteAttr} />
       <Testimonials />
       <Footer />
     </>

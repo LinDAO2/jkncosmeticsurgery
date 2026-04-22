@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
-import { client } from '@/sanity/lib/client'
-import { siteSettingsQuery } from '@/sanity/lib/queries'
-import type { SiteSettings } from '@/lib/types'
+import { supabase } from '@/lib/supabase'
 
 import Nav from '@/components/Nav'
 import ContactSection from '@/components/ContactSection'
 import Footer from '@/components/Footer'
+
+export const revalidate = 0
 
 export const metadata: Metadata = {
   title: 'Begin Your Journey — Request a Consultation | JKN Cosmetic Surgery',
@@ -14,12 +14,14 @@ export const metadata: Metadata = {
 }
 
 export default async function BeginPage() {
-  const settings = await client.fetch<SiteSettings>(siteSettingsQuery).catch(() => null)
+  const { data } = await supabase.from('site_content').select('*').eq('section', 'contact')
+  const content: Record<string, string> = {}
+  for (const row of data ?? []) content[row.key] = row.value
 
   return (
     <>
       <Nav />
-      <ContactSection settings={settings} />
+      <ContactSection content={content} />
       <Footer />
     </>
   )

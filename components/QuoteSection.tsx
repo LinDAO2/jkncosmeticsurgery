@@ -1,15 +1,11 @@
-import type { SiteSettings } from '@/lib/types'
-
-export default function QuoteSection({ settings }: { settings: SiteSettings | null }) {
-  const quote = settings?.quote ?? 'The goal is never to look different — it is to look entirely, unmistakably yourself.'
-  const attr  = settings?.quoteAttribution ?? '— Dr. John K. Nia, MD'
+export default function QuoteSection({ quote, attribution }: { quote?: string | null; attribution?: string | null }) {
+  const q = quote ?? 'The goal is never to look different — it is to look entirely, unmistakably yourself.'
+  const a = attribution ?? '— Dr. John K. Nia, MD'
 
   return (
     <section className="quote-section">
-      <p className="quote-text">
-        &ldquo;{quote}&rdquo;
-      </p>
-      <span className="quote-attr">{attr}</span>
+      <p className="quote-text">&ldquo;{q}&rdquo;</p>
+      <span className="quote-attr">{a}</span>
     </section>
   )
 }

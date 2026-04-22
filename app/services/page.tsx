@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
-import { client } from '@/sanity/lib/client'
-import { servicesQuery } from '@/sanity/lib/queries'
+import { supabase } from '@/lib/supabase'
 import type { Service } from '@/lib/types'
 
 import Nav from '@/components/Nav'
 import Services from '@/components/Services'
 import Footer from '@/components/Footer'
+
+export const revalidate = 0
 
 export const metadata: Metadata = {
   title: 'Surgical Services — JKN Cosmetic Surgery | Dr. John K. Nia, MD',
@@ -14,7 +15,8 @@ export const metadata: Metadata = {
 }
 
 export default async function ServicesPage() {
-  const services = await client.fetch<Service[]>(servicesQuery).catch(() => [])
+  const { data } = await supabase.from('services').select('*').order('display_order', { ascending: true })
+  const services: Service[] = (data ?? []).map(s => ({ _id: s.id, name: s.name, description: s.description, price: s.price, order: s.display_order }))
 
   return (
     <>

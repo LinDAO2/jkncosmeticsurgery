@@ -948,7 +948,7 @@ type Inquiry = {
   message?: string
 }
 
-type View = 'inquiries' | 'reviews' | 'email-routing' | 'cases'
+type View = 'inquiries' | 'reviews' | 'email-routing' | 'cases' | 'services' | 'about' | 'homepage'
 
 type DbCase = {
   id: string
@@ -974,6 +974,454 @@ const STATIC_CASES_BY_GALLERY: Record<string, string[]> = {
   eyelid: ['case-01','case-02','case-03','case-04','case-05','case-06','case-07','case-08','case-09','case-10','case-11','case-12','case-13','case-14','case-15'],
   midfacelift: ['case-01','case-02'],
   skincancer: Array.from({ length: 76 }, (_, i) => String(i + 1).padStart(2, '0')),
+}
+
+// ─── Homepage editor ──────────────────────────────────────────────────────────
+
+function HomepageView() {
+  const s = { fontFamily: 'Montserrat, sans-serif' }
+  const [fields, setFields] = useState<Record<string, string>>({})
+  const [saving, setSaving] = useState<string | null>(null)
+  const [saved, setSaved] = useState<string | null>(null)
+  const [fetching, setFetching] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/admin/site-content')
+      .then(r => r.json())
+      .then(d => {
+        const map: Record<string, string> = {}
+        for (const row of d.content ?? []) map[`${row.section}__${row.key}`] = row.value
+        setFields(map)
+        setFetching(false)
+      })
+  }, [])
+
+  function get(section: string, key: string) { return fields[`${section}__${key}`] ?? '' }
+  function set(section: string, key: string, value: string) { setFields(f => ({ ...f, [`${section}__${key}`]: value })) }
+
+  async function save(section: string, key: string) {
+    const k = `${section}__${key}`
+    setSaving(k)
+    await fetch('/api/admin/site-content', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ section, key, value: fields[k] ?? '' }) })
+    setSaving(null)
+    setSaved(k)
+    setTimeout(() => setSaved(null), 2000)
+  }
+
+  function Field({ section, k, label, multiline = false, rows = 3 }: { section: string; k: string; label: string; multiline?: boolean; rows?: number }) {
+    const fk = `${section}__${k}`
+    const isSaving = saving === fk
+    const isSaved = saved === fk
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <label style={{ ...s, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#aaa' }}>{label}</label>
+        {multiline ? (
+          <textarea value={get(section, k)} onChange={e => set(section, k, e.target.value)} rows={rows}
+            style={{ border: '0.5px solid #ddd', padding: '10px 12px', ...s, fontSize: 13, lineHeight: 1.6, resize: 'vertical', outline: 'none', color: '#1c1917' }} />
+        ) : (
+          <input value={get(section, k)} onChange={e => set(section, k, e.target.value)}
+            style={{ border: '0.5px solid #ddd', padding: '10px 12px', ...s, fontSize: 13, outline: 'none', color: '#1c1917' }} />
+        )}
+        <button onClick={() => save(section, k)} disabled={isSaving}
+          style={{ ...s, fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', background: isSaving ? '#ccc' : '#1c1917', color: '#fff', border: 'none', padding: '8px 18px', cursor: isSaving ? 'not-allowed' : 'pointer', alignSelf: 'flex-start' }}>
+          {isSaving ? 'Saving…' : isSaved ? 'Saved ✓' : 'Save'}
+        </button>
+      </div>
+    )
+  }
+
+  if (fetching) return <div style={{ padding: 40, ...s, fontSize: 12, color: '#aaa' }}>Loading…</div>
+
+  return (
+    <div>
+      <div className="admin-header">
+        <div><span className="admin-header-label">Content</span><h1 className="admin-header-title">Homepage</h1></div>
+      </div>
+      <div style={{ padding: '0 40px', maxWidth: 680, display: 'flex', flexDirection: 'column', gap: 48 }}>
+
+        <div>
+          <p style={{ ...s, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#aaa', marginBottom: 24 }}>Philosophy Section</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <Field section="philosophy" k="heading" label="Heading" multiline rows={2} />
+            <Field section="philosophy" k="body" label="Body Text" multiline rows={5} />
+          </div>
+        </div>
+
+        <div>
+          <p style={{ ...s, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#aaa', marginBottom: 24 }}>Quote Section</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <Field section="quote" k="text" label="Quote" multiline rows={3} />
+            <Field section="quote" k="attribution" label="Attribution" />
+          </div>
+        </div>
+
+        <div>
+          <p style={{ ...s, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#aaa', marginBottom: 24 }}>Contact Page</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <Field section="contact" k="body1" label="First Paragraph" multiline rows={4} />
+            <Field section="contact" k="body2" label="Second Paragraph" multiline rows={2} />
+            <Field section="contact" k="availability" label="Availability Status" />
+            <Field section="contact" k="instagram_handle" label="Instagram Handle" />
+            <Field section="contact" k="instagram_url" label="Instagram URL" />
+            <Field section="contact" k="email" label="Contact Email" />
+          </div>
+        </div>
+
+      </div>
+    </div>
+  )
+}
+
+// ─── Services editor ──────────────────────────────────────────────────────────
+
+type AdminService = { id: string; name: string; price: string; description: string; display_order: number }
+
+function ServicesAdminView() {
+  const s = { fontFamily: 'Montserrat, sans-serif' }
+  const [services, setServices] = useState<AdminService[]>([])
+  const [localServices, setLocalServices] = useState<AdminService[]>([])
+  const [fetching, setFetching] = useState(true)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [draft, setDraft] = useState<Partial<AdminService>>({})
+  const [saving, setSaving] = useState(false)
+  const [showAdd, setShowAdd] = useState(false)
+  const [newSvc, setNewSvc] = useState({ name: '', price: '', description: '' })
+  const [draggedId, setDraggedId] = useState<string | null>(null)
+  const [dragOverId, setDragOverId] = useState<string | null>(null)
+
+  async function load() {
+    setFetching(true)
+    const res = await fetch('/api/admin/services')
+    const data = await res.json()
+    setServices(data.services ?? [])
+    setFetching(false)
+  }
+
+  useEffect(() => { load() }, [])
+  useEffect(() => { setLocalServices([...services]) }, [services])
+
+  function openEdit(svc: AdminService) {
+    setEditingId(svc.id)
+    setDraft({ name: svc.name, price: svc.price, description: svc.description })
+  }
+
+  async function saveEdit(id: string) {
+    setSaving(true)
+    await fetch(`/api/admin/services/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(draft) })
+    setSaving(false)
+    setEditingId(null)
+    await load()
+  }
+
+  async function deleteSvc(id: string) {
+    if (!confirm('Delete this service?')) return
+    await fetch(`/api/admin/services/${id}`, { method: 'DELETE' })
+    await load()
+  }
+
+  async function addSvc() {
+    if (!newSvc.name.trim()) return
+    setSaving(true)
+    const maxOrder = localServices.length ? Math.max(...localServices.map(s => s.display_order)) : -10
+    await fetch('/api/admin/services', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...newSvc, display_order: maxOrder + 10 }) })
+    setNewSvc({ name: '', price: '', description: '' })
+    setShowAdd(false)
+    setSaving(false)
+    await load()
+  }
+
+  async function handleDrop(targetId: string) {
+    if (!draggedId || draggedId === targetId) return
+    const list = [...localServices]
+    const fromIdx = list.findIndex(s => s.id === draggedId)
+    const toIdx = list.findIndex(s => s.id === targetId)
+    const [moved] = list.splice(fromIdx, 1)
+    list.splice(toIdx, 0, moved)
+    const updated = list.map((s, i) => ({ ...s, display_order: i * 10 }))
+    setLocalServices(updated)
+    setDraggedId(null)
+    setDragOverId(null)
+    await Promise.all(updated.map(s => fetch(`/api/admin/services/${s.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ display_order: s.display_order }) })))
+    await load()
+  }
+
+  if (fetching) return <div style={{ padding: 40, ...s, fontSize: 12, color: '#aaa' }}>Loading…</div>
+
+  return (
+    <div>
+      <div className="admin-header">
+        <div><span className="admin-header-label">Content</span><h1 className="admin-header-title">Services</h1></div>
+        <button onClick={() => { setShowAdd(true); setEditingId(null) }}
+          style={{ ...s, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', background: '#1c1917', color: '#fff', border: 'none', padding: '10px 20px', cursor: 'pointer' }}>
+          + Add Service
+        </button>
+      </div>
+
+      <div style={{ padding: '0 40px', maxWidth: 800 }}>
+        {showAdd && (
+          <div style={{ border: '0.5px solid #e5e5e5', padding: 24, marginBottom: 32, display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <p style={{ ...s, fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#888', margin: 0 }}>New Service</p>
+            <input value={newSvc.name} onChange={e => setNewSvc(n => ({ ...n, name: e.target.value }))} placeholder="Service name"
+              style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 14, outline: 'none' }} />
+            <input value={newSvc.price} onChange={e => setNewSvc(n => ({ ...n, price: e.target.value }))} placeholder="Price range"
+              style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 13, outline: 'none' }} />
+            <textarea value={newSvc.description} onChange={e => setNewSvc(n => ({ ...n, description: e.target.value }))} placeholder="Description" rows={4}
+              style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 13, resize: 'vertical', outline: 'none', lineHeight: 1.6 }} />
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={addSvc} disabled={saving}
+                style={{ ...s, fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', background: saving ? '#ccc' : '#1c1917', color: '#fff', border: 'none', padding: '10px 20px', cursor: saving ? 'not-allowed' : 'pointer' }}>
+                {saving ? 'Saving…' : 'Save Service'}
+              </button>
+              <button onClick={() => setShowAdd(false)}
+                style={{ ...s, fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '10px 20px', cursor: 'pointer', color: '#888' }}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        <p style={{ ...s, fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#aaa', marginBottom: 16 }}>Drag to reorder</p>
+
+        {localServices.map(svc => (
+          <div key={svc.id}
+            draggable={editingId !== svc.id}
+            onDragStart={() => setDraggedId(svc.id)}
+            onDragOver={e => { e.preventDefault(); setDragOverId(svc.id) }}
+            onDrop={() => handleDrop(svc.id)}
+            onDragEnd={() => { setDraggedId(null); setDragOverId(null) }}
+            style={{ borderTop: '0.5px solid #e5e5e5', outline: dragOverId === svc.id && draggedId !== svc.id ? '1px solid #1c1917' : 'none', opacity: draggedId === svc.id ? 0.4 : 1, transition: 'opacity 0.15s' }}
+          >
+            {editingId === svc.id ? (
+              <div style={{ padding: '20px 0', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <input value={draft.name ?? ''} onChange={e => setDraft(d => ({ ...d, name: e.target.value }))}
+                  style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 14, fontWeight: 500, outline: 'none', color: '#1c1917' }} />
+                <input value={draft.price ?? ''} onChange={e => setDraft(d => ({ ...d, price: e.target.value }))} placeholder="Price range"
+                  style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 12, color: '#c9a96e', outline: 'none' }} />
+                <textarea value={draft.description ?? ''} onChange={e => setDraft(d => ({ ...d, description: e.target.value }))} rows={5}
+                  style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 13, lineHeight: 1.7, resize: 'vertical', outline: 'none', color: '#3d3530' }} />
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button onClick={() => saveEdit(svc.id)} disabled={saving}
+                    style={{ ...s, fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', background: saving ? '#ccc' : '#1c1917', color: '#fff', border: 'none', padding: '8px 18px', cursor: saving ? 'not-allowed' : 'pointer' }}>
+                    {saving ? 'Saving…' : 'Save'}
+                  </button>
+                  <button onClick={() => setEditingId(null)}
+                    style={{ ...s, fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '8px 18px', cursor: 'pointer', color: '#888' }}>
+                    Cancel
+                  </button>
+                  <button onClick={() => deleteSvc(svc.id)}
+                    style={{ ...s, fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '8px 18px', cursor: 'pointer', color: '#c00', marginLeft: 'auto' }}>
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div style={{ padding: '24px 0', cursor: 'pointer' }} onClick={() => openEdit(svc)}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
+                  <span style={{ ...s, fontSize: 14, fontWeight: 500, color: '#1c1917' }}>{svc.name}</span>
+                  <span style={{ ...s, fontSize: 11, color: '#c9a96e', letterSpacing: '0.04em' }}>{svc.price}</span>
+                </div>
+                <p style={{ ...s, fontSize: 13, color: '#3d3530', lineHeight: 1.7, margin: 0 }}>{svc.description}</p>
+                <span style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#aaa', display: 'block', marginTop: 10 }}>Click to edit</span>
+              </div>
+            )}
+          </div>
+        ))}
+        {localServices.length > 0 && <div style={{ borderTop: '0.5px solid #e5e5e5' }} />}
+      </div>
+    </div>
+  )
+}
+
+// ─── About editor ─────────────────────────────────────────────────────────────
+
+type AboutItem = { id: string; type: string; content: string; url?: string | null; display_order: number }
+
+function AboutAdminView() {
+  const s = { fontFamily: 'Montserrat, sans-serif' }
+  const [items, setItems] = useState<AboutItem[]>([])
+  const [nameTitle, setNameTitle] = useState({ name: '', title: '' })
+  const [fetching, setFetching] = useState(true)
+  const [tab, setTab] = useState<'bio' | 'credential' | 'cert' | 'recognition' | 'tag'>('bio')
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [draft, setDraft] = useState<Partial<AboutItem>>({})
+  const [saving, setSaving] = useState(false)
+  const [showAdd, setShowAdd] = useState(false)
+  const [newItem, setNewItem] = useState({ content: '', url: '' })
+  const [savingMeta, setSavingMeta] = useState(false)
+  const [metaSaved, setMetaSaved] = useState(false)
+
+  async function load() {
+    setFetching(true)
+    const [itemsRes, contentRes] = await Promise.all([
+      fetch('/api/admin/about-items').then(r => r.json()),
+      fetch('/api/admin/site-content').then(r => r.json()),
+    ])
+    setItems(itemsRes.items ?? [])
+    const content: Record<string, string> = {}
+    for (const row of contentRes.content ?? []) if (row.section === 'about') content[row.key] = row.value
+    setNameTitle({ name: content.name ?? '', title: content.title ?? '' })
+    setFetching(false)
+  }
+
+  useEffect(() => { load() }, [])
+
+  const tabItems = items.filter(i => i.type === tab).sort((a, b) => a.display_order - b.display_order)
+
+  async function saveMeta() {
+    setSavingMeta(true)
+    await Promise.all([
+      fetch('/api/admin/site-content', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ section: 'about', key: 'name', value: nameTitle.name }) }),
+      fetch('/api/admin/site-content', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ section: 'about', key: 'title', value: nameTitle.title }) }),
+    ])
+    setSavingMeta(false)
+    setMetaSaved(true)
+    setTimeout(() => setMetaSaved(false), 2000)
+  }
+
+  async function saveEdit(id: string) {
+    setSaving(true)
+    await fetch(`/api/admin/about-items/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: draft.content, url: draft.url ?? null }) })
+    setSaving(false)
+    setEditingId(null)
+    await load()
+  }
+
+  async function deleteItem(id: string) {
+    if (!confirm('Delete this item?')) return
+    await fetch(`/api/admin/about-items/${id}`, { method: 'DELETE' })
+    await load()
+  }
+
+  async function addItem() {
+    if (!newItem.content.trim()) return
+    setSaving(true)
+    const maxOrder = tabItems.length ? Math.max(...tabItems.map(i => i.display_order)) : -10
+    await fetch('/api/admin/about-items', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: tab, content: newItem.content, url: newItem.url || null, display_order: maxOrder + 10 }) })
+    setNewItem({ content: '', url: '' })
+    setShowAdd(false)
+    setSaving(false)
+    await load()
+  }
+
+  const TAB_LABELS: Record<string, string> = { bio: 'Bio', credential: 'Education', cert: 'Certifications', recognition: 'Recognition', tag: 'Expertise Tags' }
+  const needsUrl = tab === 'recognition'
+  const isMultiline = tab === 'bio'
+
+  if (fetching) return <div style={{ padding: 40, ...s, fontSize: 12, color: '#aaa' }}>Loading…</div>
+
+  return (
+    <div>
+      <div className="admin-header">
+        <div><span className="admin-header-label">Content</span><h1 className="admin-header-title">About</h1></div>
+      </div>
+
+      <div style={{ padding: '0 40px', maxWidth: 720 }}>
+
+        <div style={{ marginBottom: 36, padding: 24, border: '0.5px solid #e5e5e5' }}>
+          <p style={{ ...s, fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#aaa', marginBottom: 16 }}>Doctor Name and Title</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <input value={nameTitle.name} onChange={e => setNameTitle(n => ({ ...n, name: e.target.value }))} placeholder="Dr. John K. Nia"
+              style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 15, fontWeight: 500, outline: 'none', color: '#1c1917' }} />
+            <input value={nameTitle.title} onChange={e => setNameTitle(n => ({ ...n, title: e.target.value }))} placeholder="Fellowship-Trained Cosmetic and Reconstructive Surgeon"
+              style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 12, color: '#888', outline: 'none' }} />
+            <button onClick={saveMeta} disabled={savingMeta}
+              style={{ ...s, fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', background: savingMeta ? '#ccc' : '#1c1917', color: '#fff', border: 'none', padding: '9px 20px', cursor: savingMeta ? 'not-allowed' : 'pointer', alignSelf: 'flex-start' }}>
+              {savingMeta ? 'Saving…' : metaSaved ? 'Saved ✓' : 'Save'}
+            </button>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: 2, marginBottom: 28, flexWrap: 'wrap' }}>
+          {(['bio', 'credential', 'cert', 'recognition', 'tag'] as const).map(t => (
+            <button key={t} onClick={() => { setTab(t); setEditingId(null); setShowAdd(false) }}
+              style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', padding: '7px 14px', border: '0.5px solid #ddd', background: tab === t ? '#1c1917' : '#fff', color: tab === t ? '#fff' : '#888', cursor: 'pointer' }}>
+              {TAB_LABELS[t]}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <p style={{ ...s, fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#aaa', margin: 0 }}>{TAB_LABELS[tab]}</p>
+          <button onClick={() => { setShowAdd(true); setEditingId(null) }}
+            style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '6px 14px', cursor: 'pointer', color: '#888' }}>
+            + Add
+          </button>
+        </div>
+
+        {showAdd && (
+          <div style={{ border: '0.5px solid #e5e5e5', padding: 20, marginBottom: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {isMultiline ? (
+              <textarea value={newItem.content} onChange={e => setNewItem(n => ({ ...n, content: e.target.value }))} placeholder="Paragraph text…" rows={5}
+                style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 13, lineHeight: 1.7, resize: 'vertical', outline: 'none' }} />
+            ) : (
+              <input value={newItem.content} onChange={e => setNewItem(n => ({ ...n, content: e.target.value }))} placeholder="Content…"
+                style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 13, outline: 'none' }} />
+            )}
+            {needsUrl && (
+              <input value={newItem.url} onChange={e => setNewItem(n => ({ ...n, url: e.target.value }))} placeholder="https://…"
+                style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 12, outline: 'none' }} />
+            )}
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={addItem} disabled={saving}
+                style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: saving ? '#ccc' : '#1c1917', color: '#fff', border: 'none', padding: '8px 18px', cursor: saving ? 'not-allowed' : 'pointer' }}>
+                {saving ? 'Saving…' : 'Add'}
+              </button>
+              <button onClick={() => setShowAdd(false)}
+                style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '8px 18px', cursor: 'pointer', color: '#888' }}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+          {tabItems.map(item => (
+            <div key={item.id} style={{ borderTop: '0.5px solid #e5e5e5', padding: '16px 0' }}>
+              {editingId === item.id ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {isMultiline ? (
+                    <textarea value={draft.content ?? ''} onChange={e => setDraft(d => ({ ...d, content: e.target.value }))} rows={5}
+                      style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 13, lineHeight: 1.7, resize: 'vertical', outline: 'none', color: '#1c1917' }} />
+                  ) : (
+                    <input value={draft.content ?? ''} onChange={e => setDraft(d => ({ ...d, content: e.target.value }))}
+                      style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 13, outline: 'none', color: '#1c1917' }} />
+                  )}
+                  {needsUrl && (
+                    <input value={draft.url ?? ''} onChange={e => setDraft(d => ({ ...d, url: e.target.value }))} placeholder="https://…"
+                      style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 12, outline: 'none' }} />
+                  )}
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <button onClick={() => saveEdit(item.id)} disabled={saving}
+                      style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: saving ? '#ccc' : '#1c1917', color: '#fff', border: 'none', padding: '8px 18px', cursor: saving ? 'not-allowed' : 'pointer' }}>
+                      {saving ? 'Saving…' : 'Save'}
+                    </button>
+                    <button onClick={() => setEditingId(null)}
+                      style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '8px 18px', cursor: 'pointer', color: '#888' }}>
+                      Cancel
+                    </button>
+                    <button onClick={() => deleteItem(item.id)}
+                      style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '8px 18px', cursor: 'pointer', color: '#c00', marginLeft: 'auto' }}>
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ cursor: 'pointer' }} onClick={() => { setEditingId(item.id); setDraft({ content: item.content, url: item.url ?? '' }) }}>
+                  <p style={{ ...s, fontSize: 13, color: '#1c1917', lineHeight: 1.7, margin: '0 0 4px' }}>{item.content}</p>
+                  {item.url && <p style={{ ...s, fontSize: 11, color: '#aaa', margin: 0 }}>{item.url}</p>}
+                  <span style={{ ...s, fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#ccc' }}>Click to edit</span>
+                </div>
+              )}
+            </div>
+          ))}
+          {tabItems.length > 0 && <div style={{ borderTop: '0.5px solid #e5e5e5' }} />}
+          {tabItems.length === 0 && !showAdd && (
+            <p style={{ ...s, fontSize: 12, color: '#aaa' }}>No {TAB_LABELS[tab].toLowerCase()} items yet.</p>
+          )}
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export default function AdminDashboard({ inquiries }: { inquiries: Inquiry[] }) {
@@ -1003,8 +1451,11 @@ export default function AdminDashboard({ inquiries }: { inquiries: Inquiry[] }) 
         <div className="admin-nav">
           <span className={`admin-nav-item${view === 'inquiries' ? ' active' : ''}`} onClick={() => setView('inquiries')}>Inquiries</span>
           <span className={`admin-nav-item${view === 'reviews' ? ' active' : ''}`} onClick={() => setView('reviews')}>Reviews</span>
-          <span className={`admin-nav-item${view === 'email-routing' ? ' active' : ''}`} onClick={() => setView('email-routing')}>Email Routing</span>
           <span className={`admin-nav-item${view === 'cases' ? ' active' : ''}`} onClick={() => setView('cases')}>Cases</span>
+          <span className={`admin-nav-item${view === 'services' ? ' active' : ''}`} onClick={() => setView('services')}>Services</span>
+          <span className={`admin-nav-item${view === 'about' ? ' active' : ''}`} onClick={() => setView('about')}>About</span>
+          <span className={`admin-nav-item${view === 'homepage' ? ' active' : ''}`} onClick={() => setView('homepage')}>Homepage</span>
+          <span className={`admin-nav-item${view === 'email-routing' ? ' active' : ''}`} onClick={() => setView('email-routing')}>Email Routing</span>
         </div>
         <button className="admin-change-password-btn" onClick={() => setShowChangePassword(true)}>Change Password</button>
         <button className="admin-logout-btn" onClick={handleLogout}>Sign Out</button>
@@ -1019,6 +1470,12 @@ export default function AdminDashboard({ inquiries }: { inquiries: Inquiry[] }) 
           <ReviewsView />
         ) : view === 'cases' ? (
           <CasesView />
+        ) : view === 'services' ? (
+          <ServicesAdminView />
+        ) : view === 'about' ? (
+          <AboutAdminView />
+        ) : view === 'homepage' ? (
+          <HomepageView />
         ) : (
 <>
             <div className="admin-header">
