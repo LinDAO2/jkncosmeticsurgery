@@ -2,8 +2,6 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { supabase } from '@/lib/supabase'
 
-export const runtime = 'edge'
-
 async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder()
   const data = encoder.encode(password)
@@ -14,9 +12,12 @@ async function hashPassword(password: string): Promise<string> {
 export async function POST(req: Request) {
   const { email, password } = await req.json()
 
-  // Run DB lookup and password hash in parallel
+  // Run DB lookup and password hash in parallel, with a 5s timeout on the DB call
+  const dbQuery = supabase.from('admin_credentials').select('email, password_hash').limit(1)
+  const timeout = new Promise<{ data: null }>((resolve) => setTimeout(() => resolve({ data: null }), 5000))
+
   const [{ data }, hash] = await Promise.all([
-    supabase.from('admin_credentials').select('email, password_hash').limit(1),
+    Promise.race([dbQuery, timeout]),
     hashPassword(password),
   ])
   const stored = data?.[0]
