@@ -9,6 +9,8 @@ import Nav from '@/components/Nav'
 import BeforeAfter from '@/components/BeforeAfter'
 import Footer from '@/components/Footer'
 
+export const revalidate = 0
+
 export const metadata: Metadata = {
   title: 'Before and After Gallery — JKN Cosmetic Surgery | Dr. John K. Nia',
   description: 'Before and after results from Dr. John K. Nia\'s surgical practice in New York City. Comprehensive facial rejuvenation, eyelid surgery, mid facelift, and Mohs reconstruction cases.',
