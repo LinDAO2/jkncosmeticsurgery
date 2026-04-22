@@ -336,7 +336,7 @@ function ReviewsView() {
 
 function CasesView() {
   const s = { fontFamily: 'Montserrat, sans-serif' }
-  const [gallery, setGallery] = useState<'comprehensive' | 'eyelid' | 'midfacelift'>('comprehensive')
+  const [gallery, setGallery] = useState<'comprehensive' | 'eyelid' | 'midfacelift' | 'skincancer'>('midfacelift')
   const [dbCases, setDbCases] = useState<DbCase[]>([])
   const [hidden, setHidden] = useState<HiddenCase[]>([])
   const [fetching, setFetching] = useState(true)
@@ -450,30 +450,32 @@ function CasesView() {
           <span className="admin-header-label">Content</span>
           <h1 className="admin-header-title">Cases</h1>
         </div>
-        <button
-          onClick={() => { resetForm(); setShowAdd(true) }}
-          style={{ ...s, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', background: '#1c1917', color: '#fff', border: 'none', padding: '10px 20px', cursor: 'pointer' }}
-        >
-          + Add Case
-        </button>
+        {gallery !== 'skincancer' && (
+          <button
+            onClick={() => { resetForm(); setShowAdd(true) }}
+            style={{ ...s, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', background: '#1c1917', color: '#fff', border: 'none', padding: '10px 20px', cursor: 'pointer' }}
+          >
+            + Add Case
+          </button>
+        )}
       </div>
 
       <div style={{ maxWidth: 720, padding: '0 40px' }}>
         <div style={{ display: 'flex', gap: 2, marginBottom: 32 }}>
-          {(['comprehensive', 'eyelid', 'midfacelift'] as const).map(g => (
+          {(['midfacelift', 'comprehensive', 'eyelid', 'skincancer'] as const).map(g => (
             <button
               key={g}
               onClick={() => setGallery(g)}
               style={{ ...s, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', padding: '8px 16px', border: '0.5px solid #ddd', background: gallery === g ? '#1c1917' : '#fff', color: gallery === g ? '#fff' : '#888', cursor: 'pointer' }}
             >
-              {g}
+              {GALLERY_LABELS[g]}
             </button>
           ))}
         </div>
 
-        {showAdd && (
+        {showAdd && gallery !== 'skincancer' && (
           <div style={{ border: '0.5px solid #e5e5e5', padding: 24, marginBottom: 32, display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <p style={{ ...s, fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888', margin: 0 }}>New Case — {gallery}</p>
+            <p style={{ ...s, fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888', margin: 0 }}>New Case — {GALLERY_LABELS[gallery]}</p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Procedures</label>
@@ -554,7 +556,7 @@ function CasesView() {
           <p style={{ ...s, fontSize: 12, color: '#aaa' }}>Loading…</p>
         ) : (
           <>
-            {filteredDbCases.length > 0 && (
+            {filteredDbCases.length > 0 && gallery !== 'skincancer' && (
               <div style={{ marginBottom: 40 }}>
                 <p style={{ ...s, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#aaa', marginBottom: 16 }}>Uploaded Cases</p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -627,10 +629,18 @@ type DbCase = {
 
 type HiddenCase = { slug: string; gallery: string }
 
+const GALLERY_LABELS: Record<string, string> = {
+  midfacelift: 'Invisible Access Mid Facelift',
+  comprehensive: 'Comprehensive Rejuvenation',
+  eyelid: 'Eyelid and Brow',
+  skincancer: 'Skin Cancer Reconstruction',
+}
+
 const STATIC_CASES_BY_GALLERY: Record<string, string[]> = {
   comprehensive: ['case-01','case-02','case-03','case-04','case-05','case-06','case-07','case-08','case-09'],
   eyelid: ['case-01','case-02','case-03','case-04','case-05','case-06','case-07','case-08','case-09','case-10','case-11','case-12','case-13','case-14','case-15'],
   midfacelift: ['case-01','case-02'],
+  skincancer: Array.from({ length: 76 }, (_, i) => String(i + 1).padStart(2, '0')),
 }
 
 export default function AdminDashboard({ inquiries }: { inquiries: Inquiry[] }) {
