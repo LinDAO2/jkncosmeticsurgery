@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
-import { resend, RESEND_TO_EMAIL } from '@/lib/resend'
+import { transporter, MAIL_FROM } from '@/lib/mailer'
 import type { InquiryPayload } from '@/lib/types'
 
 export async function POST(req: Request) {
@@ -28,31 +28,31 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Failed to save inquiry' }, { status: 500 })
   }
 
-  // Use dynamic email list from DB, fall back to env var
+  // Use dynamic email list from DB, fall back to sender
   const { data: emailRows } = await supabase.from('notification_emails').select('email')
   const recipients = emailRows && emailRows.length > 0
     ? emailRows.map((r: { email: string }) => r.email)
-    : [RESEND_TO_EMAIL]
+    : [MAIL_FROM]
 
-  const { data: emailData, error: emailError } = await resend.emails.send({
-    from: 'JKN Cosmetic Surgery <onboarding@resend.dev>',
-    to: recipients,
-    subject: `New inquiry from ${first_name} ${last_name}`,
-    text: [
-      `Name: ${first_name} ${last_name}`,
-      `Email: ${email}`,
-      phone ? `Phone: ${phone}` : '',
-      procedure_interest ? `Procedure: ${procedure_interest}` : '',
-      message ? `Message: ${message}` : '',
-    ]
-      .filter(Boolean)
-      .join('\n'),
-  })
-
-  if (emailError) {
-    console.error('Resend error:', JSON.stringify(emailError))
-  } else {
-    console.log('Resend sent to:', recipients.join(', '), '| id:', emailData?.id)
+  try {
+    await transporter.sendMail({
+      from: `JKN Cosmetic Surgery <${MAIL_FROM}>`,
+      to: recipients,
+      replyTo: email,
+      subject: `New inquiry from ${first_name} ${last_name}`,
+      text: [
+        `Name: ${first_name} ${last_name}`,
+        `Email: ${email}`,
+        phone ? `Phone: ${phone}` : '',
+        procedure_interest ? `Procedure: ${procedure_interest}` : '',
+        message ? `Message: ${message}` : '',
+      ]
+        .filter(Boolean)
+        .join('\n'),
+    })
+    console.log('Email sent to:', recipients.join(', '))
+  } catch (emailError) {
+    console.error('Mail error:', emailError)
   }
 
   return NextResponse.json({ ok: true })
