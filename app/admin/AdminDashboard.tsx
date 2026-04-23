@@ -1470,6 +1470,9 @@ function AboutAdminView() {
   const [editingItemId, setEditingItemId] = useState<string | null>(null)
   const [itemDraft, setItemDraft] = useState({ content: '', url: '' })
   const [itemSaving, setItemSaving] = useState(false)
+  const [addingBio, setAddingBio] = useState(false)
+  const [newBioDraft, setNewBioDraft] = useState('')
+  const [newBioSaving, setNewBioSaving] = useState(false)
 
   async function load() {
     setFetching(true)
@@ -1633,9 +1636,42 @@ function AboutAdminView() {
                   )}
                 </div>
               ))}
-              <button onClick={() => addItem('bio', 'New paragraph…')} style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px dashed var(--jkn-divider)', color: 'var(--jkn-light)', padding: '7px 16px', cursor: 'pointer', marginBottom: 8 }}>
-                + Add paragraph
-              </button>
+              {addingBio ? (
+                <div style={{ marginBottom: 8 }}>
+                  <textarea
+                    value={newBioDraft}
+                    onChange={e => setNewBioDraft(e.target.value)}
+                    autoFocus
+                    rows={4}
+                    placeholder="Type paragraph text…"
+                    className="about-body"
+                    style={{ background: 'transparent', border: '0.5px solid var(--jkn-divider)', outline: 'none', resize: 'vertical', width: '100%', color: 'inherit', padding: 4 }}
+                  />
+                  <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
+                    <button
+                      disabled={newBioSaving || !newBioDraft.trim()}
+                      onClick={async () => {
+                        if (!newBioDraft.trim()) return
+                        setNewBioSaving(true)
+                        await addItem('bio', newBioDraft.trim())
+                        setNewBioDraft('')
+                        setAddingBio(false)
+                        setNewBioSaving(false)
+                      }}
+                      style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', background: '#1c1917', color: '#fff', border: 'none', padding: '5px 12px', cursor: 'pointer', opacity: !newBioDraft.trim() ? 0.4 : 1 }}
+                    >
+                      {newBioSaving ? 'Saving…' : 'Save'}
+                    </button>
+                    <button onClick={() => { setAddingBio(false); setNewBioDraft('') }} style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '5px 8px', cursor: 'pointer', color: '#888' }}>
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button onClick={() => setAddingBio(true)} style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px dashed var(--jkn-divider)', color: 'var(--jkn-light)', padding: '7px 16px', cursor: 'pointer', marginBottom: 8 }}>
+                  + Add paragraph
+                </button>
+              )}
 
               <div className="about-rule" />
               <span className="about-block-label">Education and Training</span>
