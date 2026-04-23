@@ -450,8 +450,8 @@ footer { background: var(--jkn-black); padding: 60px var(--grid); display: flex;
 .recognition-item:last-child { border-bottom: none; }
 .recognition-dash { width: 16px; height: 0.5px; background: var(--jkn-black); flex-shrink: 0; margin-top: 8px; }
 .recognition-text { font-family: var(--font-body); font-weight: 300; font-size: 13px; line-height: 1.7; color: var(--jkn-body); letter-spacing: 0.01em; }
-.recognition-link { text-decoration: none; border-bottom: 0.5px solid transparent; transition: border-color 0.2s, color 0.2s; }
-.recognition-link:hover { color: var(--jkn-black); border-bottom-color: var(--jkn-light); }
+.recognition-link { text-decoration: none; border-bottom: 0.5px solid var(--jkn-light); transition: border-color 0.2s, color 0.2s; }
+.recognition-link:hover { color: var(--jkn-black); border-bottom-color: var(--jkn-black); }
 
 /* ─── ANIMATIONS ─── */
 @keyframes fadeUp { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
