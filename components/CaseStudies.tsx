@@ -73,7 +73,7 @@ export default function CaseStudies({ dbCases }: { dbCases?: DbFeaturedCase[] })
               const img = c.cover_image ?? c.images[0] ?? null
               const title = GALLERY_LABELS[c.gallery] ?? c.procedures[0] ?? 'Case Study'
               const tags = c.procedures.slice(0, 4)
-              const href = `/before-after/${c.gallery}`
+              const href = `/before-after/${c.gallery}/db-${c.id}`
               return (
                 <a key={c.id} className="case-card" href={href}>
                   <div className="case-img">
