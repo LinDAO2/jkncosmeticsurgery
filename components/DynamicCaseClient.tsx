@@ -27,13 +27,20 @@ const GALLERY_META: Record<string, { title: string; subtitle?: string; backCateg
   },
 }
 
-function getYouTubeId(url: string): string | null {
+function getEmbedUrl(url: string): string | null {
   try {
     const u = new URL(url)
-    if (u.hostname === 'youtu.be') return u.pathname.slice(1)
+    // YouTube
+    if (u.hostname === 'youtu.be') return `https://www.youtube.com/embed/${u.pathname.slice(1)}`
     if (u.hostname.includes('youtube.com')) {
-      if (u.pathname.startsWith('/shorts/')) return u.pathname.replace('/shorts/', '')
-      return u.searchParams.get('v')
+      if (u.pathname.startsWith('/shorts/')) return `https://www.youtube.com/embed/${u.pathname.replace('/shorts/', '')}`
+      const v = u.searchParams.get('v')
+      if (v) return `https://www.youtube.com/embed/${v}`
+    }
+    // Vimeo
+    if (u.hostname.includes('vimeo.com')) {
+      const id = u.pathname.split('/').filter(Boolean)[0]
+      if (id) return `https://player.vimeo.com/video/${id}`
     }
   } catch {}
   return null
@@ -89,14 +96,14 @@ export default function DynamicCaseClient({ gallery, procedures, images, instagr
         {instagramVideos && instagramVideos.length > 0 && (
           <div className="case-detail-video-link">
             {instagramVideos.map((l) => {
-              const ytId = getYouTubeId(l.url)
-              if (ytId) {
+              const embedUrl = getEmbedUrl(l.url)
+              if (embedUrl) {
                 return (
                   <div key={l.url} style={{ width: '100%', maxWidth: 720 }}>
                     {l.label && <p className="case-set-note" style={{ marginBottom: 12 }}>{l.label}</p>}
                     <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden' }}>
                       <iframe
-                        src={`https://www.youtube.com/embed/${ytId}`}
+                        src={embedUrl}
                         title={l.label || 'Patient Video'}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
