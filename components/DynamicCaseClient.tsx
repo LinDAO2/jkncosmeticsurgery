@@ -42,6 +42,12 @@ function getEmbedUrl(url: string): string | null {
       const id = u.pathname.split('/').filter(Boolean)[0]
       if (id) return `https://player.vimeo.com/video/${id}`
     }
+    // TikTok
+    if (u.hostname.includes('tiktok.com')) {
+      const parts = u.pathname.split('/').filter(Boolean)
+      const videoId = parts[parts.length - 1]
+      if (videoId) return `https://www.tiktok.com/embed/v2/${videoId}`
+    }
   } catch {}
   return null
 }
@@ -98,10 +104,11 @@ export default function DynamicCaseClient({ gallery, procedures, images, instagr
             {instagramVideos.map((l) => {
               const embedUrl = getEmbedUrl(l.url)
               if (embedUrl) {
+                const isTikTok = l.url.includes('tiktok.com')
                 return (
-                  <div key={l.url} style={{ width: '100%', maxWidth: 720 }}>
+                  <div key={l.url} style={{ width: '100%', maxWidth: isTikTok ? 340 : 720 }}>
                     {l.label && <p className="case-set-note" style={{ marginBottom: 12 }}>{l.label}</p>}
-                    <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden' }}>
+                    <div style={{ position: 'relative', paddingBottom: isTikTok ? '177.77%' : '56.25%', height: 0, overflow: 'hidden' }}>
                       <iframe
                         src={embedUrl}
                         title={l.label || 'Patient Video'}
