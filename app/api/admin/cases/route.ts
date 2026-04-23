@@ -23,9 +23,10 @@ export async function POST(req: Request) {
   if (!gallery || !['comprehensive', 'eyelid', 'midfacelift', 'skincancer'].includes(gallery)) {
     return NextResponse.json({ error: 'Invalid gallery' }, { status: 400 })
   }
+  const order = display_order ?? 0
   const { data, error } = await supabase
     .from('cases')
-    .insert({ gallery, procedures: procedures ?? [], display_order: display_order ?? 0, instagram_videos: instagram_videos ?? [] })
+    .insert({ gallery, procedures: procedures ?? [], display_order: order, all_display_order: order, instagram_videos: instagram_videos ?? [] })
     .select()
     .single()
   if (error) return NextResponse.json({ error: 'Failed to create' }, { status: 500 })
