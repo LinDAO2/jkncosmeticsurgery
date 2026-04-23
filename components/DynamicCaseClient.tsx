@@ -105,18 +105,20 @@ export default function DynamicCaseClient({ gallery, procedures, images, instagr
               const embedUrl = getEmbedUrl(l.url)
               if (embedUrl) {
                 const isTikTok = l.url.includes('tiktok.com')
+                const w = isTikTok ? 320 : 560
+                const h = isTikTok ? 568 : 315
                 return (
-                  <div key={l.url} style={{ width: '100%', maxWidth: isTikTok ? 340 : 720 }}>
+                  <div key={l.url} style={{ alignSelf: 'flex-start' }}>
                     {l.label && <p className="case-set-note" style={{ marginBottom: 12 }}>{l.label}</p>}
-                    <div style={{ position: 'relative', paddingBottom: isTikTok ? '177.77%' : '56.25%', height: 0, overflow: 'hidden' }}>
-                      <iframe
-                        src={embedUrl}
-                        title={l.label || 'Patient Video'}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-                      />
-                    </div>
+                    <iframe
+                      src={embedUrl}
+                      title={l.label || 'Patient Video'}
+                      width={w}
+                      height={h}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      style={{ border: 'none', display: 'block', maxWidth: '100%' }}
+                    />
                   </div>
                 )
               }
