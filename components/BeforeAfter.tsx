@@ -13,6 +13,7 @@ type DbCase = {
   images: string[]
   cover_image: string | null
   display_order: number
+  all_display_order: number | null
   instagram_videos: { url: string; label: string }[]
 }
 
@@ -25,6 +26,7 @@ type DisplayCase = {
   category: string
   href?: string
   isSkinCancer: boolean
+  allOrder: number
 }
 
 const GALLERY_TO_CATEGORY: Record<string, string> = {
@@ -88,6 +90,7 @@ export default function BeforeAfter({ cases, dbCases = [] }: { cases: BeforeAfte
         category: GALLERY_TO_CATEGORY[c.gallery] ?? 'comprehensive',
         href: isSkinCancer ? undefined : `/before-after/${c.gallery}/db-${c.id}`,
         isSkinCancer,
+        allOrder: c.all_display_order ?? 999999,
       }
     })
 
@@ -98,7 +101,7 @@ export default function BeforeAfter({ cases, dbCases = [] }: { cases: BeforeAfte
   const visible: DisplayCase[] = filter === 'skincancer'
     ? skinCancerCases.slice(0, scVisible)
     : filter === 'all'
-      ? [...nonSkinCancerCases, ...(skinCancerCases.length > 0 ? [skinCancerCases[0]] : [])]
+      ? [...nonSkinCancerCases.sort((a, b) => a.allOrder - b.allOrder), ...(skinCancerCases.length > 0 ? [skinCancerCases[0]] : [])]
       : allDisplay.filter((c) => c.category === filter)
 
   function loadMore() {
