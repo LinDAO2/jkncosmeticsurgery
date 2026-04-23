@@ -27,6 +27,18 @@ const GALLERY_META: Record<string, { title: string; subtitle?: string; backCateg
   },
 }
 
+function getYouTubeId(url: string): string | null {
+  try {
+    const u = new URL(url)
+    if (u.hostname === 'youtu.be') return u.pathname.slice(1)
+    if (u.hostname.includes('youtube.com')) {
+      if (u.pathname.startsWith('/shorts/')) return u.pathname.replace('/shorts/', '')
+      return u.searchParams.get('v')
+    }
+  } catch {}
+  return null
+}
+
 type Props = {
   gallery: string
   procedures: string[]
@@ -76,11 +88,30 @@ export default function DynamicCaseClient({ gallery, procedures, images, instagr
 
         {instagramVideos && instagramVideos.length > 0 && (
           <div className="case-detail-video-link">
-            {instagramVideos.map((l) => (
-              <a key={l.url} href={l.url} target="_blank" rel="noopener noreferrer" className="case-video-btn">
-                {l.label || 'View Patient Video'}
-              </a>
-            ))}
+            {instagramVideos.map((l) => {
+              const ytId = getYouTubeId(l.url)
+              if (ytId) {
+                return (
+                  <div key={l.url} style={{ width: '100%', maxWidth: 720 }}>
+                    {l.label && <p className="case-set-note" style={{ marginBottom: 12 }}>{l.label}</p>}
+                    <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden' }}>
+                      <iframe
+                        src={`https://www.youtube.com/embed/${ytId}`}
+                        title={l.label || 'Patient Video'}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                      />
+                    </div>
+                  </div>
+                )
+              }
+              return (
+                <a key={l.url} href={l.url} target="_blank" rel="noopener noreferrer" className="case-video-btn">
+                  {l.label || 'View Patient Video'}
+                </a>
+              )
+            })}
           </div>
         )}
 
