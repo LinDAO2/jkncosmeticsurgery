@@ -769,7 +769,7 @@ function CasesView() {
           <span className="admin-header-label">Content</span>
           <h1 className="admin-header-title">Cases</h1>
         </div>
-        {gallery !== 'skincancer' && gallery !== 'all' && (
+        {gallery !== 'all' && (
           <button
             onClick={() => { resetForm(); setShowAdd(true) }}
             style={{ ...s, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', background: '#1c1917', color: '#fff', border: 'none', padding: '10px 20px', cursor: 'pointer' }}
@@ -792,7 +792,7 @@ function CasesView() {
           ))}
         </div>
 
-        {showAdd && gallery !== 'skincancer' && (
+        {showAdd && (
           <div style={{ border: '0.5px solid #e5e5e5', padding: 24, marginBottom: 32, display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 560 }}>
             <p style={{ ...s, fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888', margin: 0 }}>New Case — {GALLERY_LABELS[gallery]}</p>
 
