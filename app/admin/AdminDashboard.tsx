@@ -830,11 +830,14 @@ function CasesView() {
           <p style={{ ...s, fontSize: 12, color: '#aaa' }}>Loading…</p>
         ) : localCases.length === 0 ? (
           <p style={{ ...s, fontSize: 12, color: '#aaa' }}>No cases yet. Add one above.</p>
-        ) : (
-          <>
-            <p style={{ ...s, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#aaa', marginBottom: 16 }}>
-              Drag to reorder · {localCases.length} case{localCases.length !== 1 ? 's' : ''}
-            </p>
+        ) : (() => {
+              const featuredCount = dbCases.filter(c => c.featured && c.gallery !== 'skincancer').length
+              const atLimit = featuredCount >= 3
+              return (
+              <>
+                <p style={{ ...s, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#aaa', marginBottom: 16 }}>
+                  Drag to reorder · {localCases.length} case{localCases.length !== 1 ? 's' : ''} · <span style={{ color: atLimit ? '#c9a96e' : '#aaa' }}>{featuredCount}/3 featured on homepage</span>
+                </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 32 }}>
               {localCases.map(c => (
                 <div key={c.id}>
@@ -871,12 +874,14 @@ function CasesView() {
                   </div>
                   <div style={{ display: 'flex', gap: 4, marginTop: 6 }}>
                     <button
+                      disabled={!c.featured && atLimit && gallery !== 'skincancer'}
                       onClick={async () => {
+                        if (!c.featured && atLimit && gallery !== 'skincancer') return
                         const next = !c.featured
                         await fetch(`/api/admin/cases/${c.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ featured: next }) })
                         await load()
                       }}
-                      style={{ ...s, fontSize: 8, letterSpacing: '0.12em', textTransform: 'uppercase', background: c.featured ? '#c9a96e' : 'none', color: c.featured ? '#fff' : '#888', border: '0.5px solid #ddd', padding: '5px 8px', cursor: 'pointer', flex: 1 }}
+                      style={{ ...s, fontSize: 8, letterSpacing: '0.12em', textTransform: 'uppercase', background: c.featured ? '#c9a96e' : 'none', color: c.featured ? '#fff' : (!c.featured && atLimit && gallery !== 'skincancer' ? '#ccc' : '#888'), border: '0.5px solid #ddd', padding: '5px 8px', cursor: (!c.featured && atLimit && gallery !== 'skincancer') ? 'not-allowed' : 'pointer', flex: 1, opacity: (!c.featured && atLimit && gallery !== 'skincancer') ? 0.5 : 1 }}
                     >
                       {c.featured ? '★ Featured' : '☆ Feature'}
                     </button>
@@ -940,8 +945,9 @@ function CasesView() {
                 </div>
               </div>
             )}
-          </>
-        )}
+              </>
+              )
+            })()}
       </div>
     </div>
   )

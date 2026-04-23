@@ -437,7 +437,7 @@ footer { background: var(--jkn-black); padding: 60px var(--grid); display: flex;
 .service-row:last-child { border-bottom: 0.5px solid var(--jkn-divider); }
 .service-row-left { padding-right: 40px; }
 .service-row-name { font-family: var(--font-display); font-weight: 400; font-style: normal; font-size: clamp(20px, 2.5vw, 28px); letter-spacing: 0.01em; color: var(--jkn-black); display: block; margin-bottom: 10px; line-height: 1.1; }
-.service-row-price { font-family: var(--font-display); font-weight: 400; font-size: clamp(13px, 1.1vw, 16px); letter-spacing: 0.01em; color: var(--jkn-black); }
+.service-row-price { font-family: var(--font-display); font-weight: 400; font-size: clamp(13px, 1.1vw, 16px); letter-spacing: 0.01em; color: var(--jkn-black); display: block; }
 .service-row-right { padding-left: 40px; border-left: 0.5px solid var(--jkn-divider); }
 .service-row-desc { font-family: var(--font-body); font-weight: 300; font-size: 14px; line-height: 1.8; color: var(--jkn-body); letter-spacing: 0.01em; }
 
