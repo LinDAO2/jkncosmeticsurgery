@@ -1473,9 +1473,7 @@ function AboutAdminView() {
   const [addingBio, setAddingBio] = useState(false)
   const [newBioDraft, setNewBioDraft] = useState('')
   const [newBioSaving, setNewBioSaving] = useState(false)
-  const [addingTag, setAddingTag] = useState(false)
-  const [newTagDraft, setNewTagDraft] = useState('')
-  const [newTagSaving, setNewTagSaving] = useState(false)
+  const [addingTagInProgress, setAddingTagInProgress] = useState(false)
 
   async function load() {
     setFetching(true)
@@ -1523,11 +1521,13 @@ function AboutAdminView() {
     await load()
   }
 
-  async function addItem(type: string, content = '') {
+  async function addItem(type: string, content = ''): Promise<AboutItem | null> {
     const typeItems = items.filter(i => i.type === type)
     const maxOrder = typeItems.length ? Math.max(...typeItems.map(i => i.display_order)) : -10
-    await fetch('/api/admin/about-items', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type, content, display_order: maxOrder + 10 }) })
+    const res = await fetch('/api/admin/about-items', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type, content, display_order: maxOrder + 10 }) })
+    const data = await res.json()
     await load()
+    return data.item ?? null
   }
 
   const byType = (type: string) => items.filter(i => i.type === type).sort((a, b) => a.display_order - b.display_order)
@@ -1778,39 +1778,19 @@ function AboutAdminView() {
                     )}
                   </div>
                 ))}
-                {addingTag ? (
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                    <input
-                      autoFocus
-                      value={newTagDraft}
-                      onChange={e => setNewTagDraft(e.target.value)}
-                      onKeyDown={async e => {
-                        if (e.key === 'Enter' && newTagDraft.trim()) {
-                          setNewTagSaving(true)
-                          await addItem('tag', newTagDraft.trim())
-                          setNewTagDraft(''); setAddingTag(false); setNewTagSaving(false)
-                        }
-                        if (e.key === 'Escape') { setAddingTag(false); setNewTagDraft('') }
-                      }}
-                      placeholder="Tag name…"
-                      className="expertise-tag"
-                      style={{ border: '0.5px solid var(--jkn-divider)', outline: 'none', background: 'transparent', width: 160 }}
-                    />
-                    <button
-                      disabled={newTagSaving || !newTagDraft.trim()}
-                      onClick={async () => {
-                        if (!newTagDraft.trim()) return
-                        setNewTagSaving(true)
-                        await addItem('tag', newTagDraft.trim())
-                        setNewTagDraft(''); setAddingTag(false); setNewTagSaving(false)
-                      }}
-                      style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', background: '#1c1917', color: '#fff', border: 'none', padding: '4px 10px', cursor: 'pointer', opacity: !newTagDraft.trim() ? 0.4 : 1 }}
-                    >{newTagSaving ? '…' : 'Save'}</button>
-                    <button onClick={() => { setAddingTag(false); setNewTagDraft('') }} style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 11, color: 'var(--jkn-light)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>×</button>
-                  </div>
-                ) : (
-                  <button onClick={() => setAddingTag(true)} className="expertise-tag" style={{ cursor: 'pointer', borderStyle: 'dashed', color: 'var(--jkn-light)' }}>+ Add tag</button>
-                )}
+                <button
+                  disabled={addingTagInProgress}
+                  onClick={async () => {
+                    setAddingTagInProgress(true)
+                    const newItem = await addItem('tag', '')
+                    if (newItem) startEditItem(newItem)
+                    setAddingTagInProgress(false)
+                  }}
+                  className="expertise-tag"
+                  style={{ cursor: addingTagInProgress ? 'wait' : 'pointer', borderStyle: 'dashed', color: 'var(--jkn-light)' }}
+                >
+                  {addingTagInProgress ? '…' : '+ Add tag'}
+                </button>
               </div>
 
               <div style={{ marginTop: 40 }}>
