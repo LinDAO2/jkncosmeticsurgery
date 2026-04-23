@@ -541,7 +541,7 @@ function CaseDetailView({ c, onBack, onUpdated }: { c: DbCase; onBack: () => voi
 
 function CasesView() {
   const s = { fontFamily: 'Montserrat, sans-serif' }
-  const [gallery, setGallery] = useState<'comprehensive' | 'eyelid' | 'midfacelift' | 'skincancer'>('midfacelift')
+  const [gallery, setGallery] = useState<'all' | 'comprehensive' | 'eyelid' | 'midfacelift' | 'skincancer'>('midfacelift')
   const [dbCases, setDbCases] = useState<DbCase[]>([])
   const [localCases, setLocalCases] = useState<DbCase[]>([])
   const [fetching, setFetching] = useState(true)
@@ -572,7 +572,11 @@ function CasesView() {
   useEffect(() => { load() }, [])
 
   useEffect(() => {
-    setLocalCases(dbCases.filter(c => c.gallery === gallery).sort((a, b) => a.display_order - b.display_order))
+    setLocalCases(
+      gallery === 'all'
+        ? [...dbCases].sort((a, b) => a.gallery.localeCompare(b.gallery) || a.display_order - b.display_order)
+        : dbCases.filter(c => c.gallery === gallery).sort((a, b) => a.display_order - b.display_order)
+    )
     setEditingLinksId(null)
     setSelectedCaseId(null)
   }, [dbCases, gallery])
@@ -706,7 +710,7 @@ function CasesView() {
           <span className="admin-header-label">Content</span>
           <h1 className="admin-header-title">Cases</h1>
         </div>
-        {gallery !== 'skincancer' && (
+        {gallery !== 'skincancer' && gallery !== 'all' && (
           <button
             onClick={() => { resetForm(); setShowAdd(true) }}
             style={{ ...s, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', background: '#1c1917', color: '#fff', border: 'none', padding: '10px 20px', cursor: 'pointer' }}
@@ -718,13 +722,13 @@ function CasesView() {
 
       <div style={{ padding: '0 40px' }}>
         <div style={{ display: 'flex', gap: 2, marginBottom: 32, flexWrap: 'wrap' }}>
-          {(['midfacelift', 'comprehensive', 'eyelid', 'skincancer'] as const).map(g => (
+          {(['all', 'midfacelift', 'comprehensive', 'eyelid', 'skincancer'] as const).map(g => (
             <button
               key={g}
               onClick={() => setGallery(g)}
               style={{ ...s, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', padding: '8px 16px', border: '0.5px solid #ddd', background: gallery === g ? '#1c1917' : '#fff', color: gallery === g ? '#fff' : '#888', cursor: 'pointer' }}
             >
-              {GALLERY_LABELS[g]}
+              {g === 'all' ? 'All' : GALLERY_LABELS[g]}
             </button>
           ))}
         </div>
@@ -836,16 +840,16 @@ function CasesView() {
               return (
               <>
                 <p style={{ ...s, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#aaa', marginBottom: 16 }}>
-                  Drag to reorder · {localCases.length} case{localCases.length !== 1 ? 's' : ''} · <span style={{ color: atLimit ? '#c9a96e' : '#aaa' }}>{featuredCount}/3 featured on homepage</span>
+                  {gallery !== 'all' ? 'Drag to reorder · ' : ''}{localCases.length} case{localCases.length !== 1 ? 's' : ''} · <span style={{ color: atLimit ? '#c9a96e' : '#aaa' }}>{featuredCount}/3 featured on homepage</span>
                 </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 32 }}>
               {localCases.map(c => (
                 <div key={c.id}>
                   <div
-                    draggable
-                    onDragStart={e => { e.stopPropagation(); setDraggedId(c.id) }}
-                    onDragOver={e => { e.preventDefault(); setDragOverId(c.id) }}
-                    onDrop={() => handleDrop(c.id)}
+                    draggable={gallery !== 'all'}
+                    onDragStart={e => { if (gallery === 'all') return; e.stopPropagation(); setDraggedId(c.id) }}
+                    onDragOver={e => { if (gallery === 'all') return; e.preventDefault(); setDragOverId(c.id) }}
+                    onDrop={() => { if (gallery !== 'all') handleDrop(c.id) }}
                     onDragEnd={() => { setDraggedId(null); setDragOverId(null) }}
                     onClick={() => { if (!draggedId) setSelectedCaseId(c.id) }}
                     style={{
@@ -868,6 +872,7 @@ function CasesView() {
                       />
                     )}
                     <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 100%)', padding: '32px 10px 10px' }}>
+                      {gallery === 'all' && <p style={{ ...s, fontSize: 7, letterSpacing: '0.14em', color: '#c9a96e', margin: '0 0 2px', textTransform: 'uppercase' }}>{GALLERY_LABELS[c.gallery] ?? c.gallery}</p>}
                       <p style={{ ...s, fontSize: 9, letterSpacing: '0.08em', color: '#fff', margin: 0, textTransform: 'uppercase' }}>{c.procedures[0]}</p>
                       {c.images.length > 1 && <p style={{ ...s, fontSize: 8, color: 'rgba(255,255,255,0.65)', margin: '2px 0 0' }}>{c.images.length} photos</p>}
                     </div>
