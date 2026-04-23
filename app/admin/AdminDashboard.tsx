@@ -840,16 +840,16 @@ function CasesView() {
               return (
               <>
                 <p style={{ ...s, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#aaa', marginBottom: 16 }}>
-                  {gallery !== 'all' ? 'Drag to reorder · ' : ''}{localCases.length} case{localCases.length !== 1 ? 's' : ''} · <span style={{ color: atLimit ? '#c9a96e' : '#aaa' }}>{featuredCount}/3 featured on homepage</span>
+                  Drag to reorder · {localCases.length} case{localCases.length !== 1 ? 's' : ''} · <span style={{ color: atLimit ? '#c9a96e' : '#aaa' }}>{featuredCount}/3 featured on homepage</span>
                 </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 32 }}>
               {localCases.map(c => (
                 <div key={c.id}>
                   <div
-                    draggable={gallery !== 'all'}
-                    onDragStart={e => { if (gallery === 'all') return; e.stopPropagation(); setDraggedId(c.id) }}
-                    onDragOver={e => { if (gallery === 'all') return; e.preventDefault(); setDragOverId(c.id) }}
-                    onDrop={() => { if (gallery !== 'all') handleDrop(c.id) }}
+                    draggable
+                    onDragStart={e => { e.stopPropagation(); setDraggedId(c.id) }}
+                    onDragOver={e => { e.preventDefault(); setDragOverId(c.id) }}
+                    onDrop={() => handleDrop(c.id)}
                     onDragEnd={() => { setDraggedId(null); setDragOverId(null) }}
                     onClick={() => { if (!draggedId) setSelectedCaseId(c.id) }}
                     style={{
