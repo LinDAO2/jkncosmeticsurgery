@@ -574,7 +574,12 @@ function CasesView() {
   useEffect(() => {
     setLocalCases(
       gallery === 'all'
-        ? [...dbCases].sort((a, b) => a.display_order - b.display_order)
+        ? [...dbCases].sort((a, b) => {
+            const aLast = a.gallery === 'skincancer' ? 1 : 0
+            const bLast = b.gallery === 'skincancer' ? 1 : 0
+            if (aLast !== bLast) return aLast - bLast
+            return (a.all_display_order ?? 999999) - (b.all_display_order ?? 999999)
+          })
         : dbCases.filter(c => c.gallery === gallery).sort((a, b) => a.display_order - b.display_order)
     )
     setEditingLinksId(null)
@@ -673,7 +678,8 @@ function CasesView() {
     if (fromIdx === -1 || toIdx === -1) return
     const [moved] = cases.splice(fromIdx, 1)
     cases.splice(toIdx, 0, moved)
-    const updated = cases.map((c, i) => ({ ...c, display_order: i * 10 }))
+    const isAll = gallery === 'all'
+    const updated = cases.map((c, i) => isAll ? { ...c, all_display_order: i * 10 } : { ...c, display_order: i * 10 })
     setLocalCases(updated)
     setDraggedId(null)
     setDragOverId(null)
@@ -681,7 +687,7 @@ function CasesView() {
       fetch(`/api/admin/cases/${c.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ display_order: c.display_order }),
+        body: JSON.stringify(isAll ? { all_display_order: c.all_display_order } : { display_order: c.display_order }),
       })
     ))
     await load()
@@ -978,6 +984,7 @@ type DbCase = {
   images: string[]
   cover_image: string | null
   display_order: number
+  all_display_order: number | null
   instagram_videos: { url: string; label: string }[]
   featured: boolean
 }
