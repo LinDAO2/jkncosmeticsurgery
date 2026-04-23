@@ -334,7 +334,57 @@ function ReviewsView() {
   )
 }
 
-function CaseDetailView({ c, onBack, onUpdated }: { c: DbCase; onBack: () => void; onUpdated: () => Promise<void> }) {
+function toTitleCase(str: string) {
+  return str.replace(/\b\w/g, c => c.toUpperCase())
+}
+
+function ProcedureRow({ value, known, onChange, onRemove, s, removable = true }: {
+  value: string
+  known: string[]
+  onChange: (v: string) => void
+  onRemove: () => void
+  s: React.CSSProperties
+  removable?: boolean
+}) {
+  const [custom, setCustom] = useState(!known.includes(value) && value !== '')
+
+  function handleSelect(selected: string) {
+    if (selected === '__other__') { setCustom(true); onChange('') }
+    else { setCustom(false); onChange(selected) }
+  }
+
+  const selectVal = custom ? '__other__' : value
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <select
+          value={selectVal}
+          onChange={e => handleSelect(e.target.value)}
+          style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 13, flex: 1, outline: 'none', color: selectVal ? '#1c1917' : '#aaa', background: '#fff', cursor: 'pointer' }}
+        >
+          <option value="">Select a procedure</option>
+          {known.map(p => <option key={p} value={p}>{p}</option>)}
+          <option value="__other__">Other</option>
+        </select>
+        {removable && (
+          <button onClick={onRemove} style={{ border: '0.5px solid #ddd', background: 'none', padding: '9px 12px', cursor: 'pointer', ...s, fontSize: 13, color: '#aaa' }}>✕</button>
+        )}
+      </div>
+      {custom && (
+        <input
+          autoFocus
+          value={value}
+          onChange={e => onChange(toTitleCase(e.target.value))}
+          placeholder="Type procedure name"
+          style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 13, outline: 'none', color: '#1c1917' }}
+        />
+      )}
+    </div>
+  )
+}
+
+function CaseDetailView({ c, onBack, onUpdated, knownProcedures }: { c: DbCase; onBack: () => void; onUpdated: () => Promise<void>; knownProcedures: string[] }) {
   const s = { fontFamily: 'Montserrat, sans-serif' }
   const [procs, setProcs] = useState(c.procedures)
   const [links, setLinks] = useState(c.instagram_videos)
@@ -436,14 +486,16 @@ function CaseDetailView({ c, onBack, onUpdated }: { c: DbCase; onBack: () => voi
 
       <div style={{ borderTop: '0.5px solid #e5e5e5', paddingTop: 28, marginBottom: 28 }}>
         <span style={{ ...s, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#aaa', display: 'block', marginBottom: 14 }}>Procedure Details</span>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxWidth: 560 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 560 }}>
           {procs.map((p, i) => (
-            <div key={i} style={{ display: 'flex', gap: 8 }}>
-              <input value={p} onChange={e => { const n = [...procs]; n[i] = e.target.value; setProcs(n) }}
-                style={{ border: '0.5px solid #ddd', padding: '9px 12px', ...s, fontSize: 13, flex: 1, outline: 'none', color: '#1c1917' }} />
-              <button onClick={() => setProcs(procs.filter((_, j) => j !== i))}
-                style={{ border: '0.5px solid #ddd', background: 'none', padding: '9px 12px', cursor: 'pointer', ...s, fontSize: 13, color: '#aaa' }}>✕</button>
-            </div>
+            <ProcedureRow
+              key={i}
+              value={p}
+              known={knownProcedures}
+              onChange={v => { const n = [...procs]; n[i] = v; setProcs(n) }}
+              onRemove={() => setProcs(procs.filter((_, j) => j !== i))}
+              s={s}
+            />
           ))}
           <button onClick={() => setProcs([...procs, ''])}
             style={{ ...s, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '7px 14px', cursor: 'pointer', color: '#888', alignSelf: 'flex-start', marginTop: 4 }}>
@@ -694,6 +746,7 @@ function CasesView() {
   }
 
   const selectedCase = localCases.find(c => c.id === selectedCaseId)
+  const knownProcedures = [...new Set(dbCases.flatMap(c => c.procedures))].sort()
 
   if (selectedCase) {
     return (
@@ -704,7 +757,7 @@ function CasesView() {
             <h1 className="admin-header-title">Cases</h1>
           </div>
         </div>
-        <CaseDetailView c={selectedCase} onBack={() => setSelectedCaseId(null)} onUpdated={load} />
+        <CaseDetailView c={selectedCase} onBack={() => setSelectedCaseId(null)} onUpdated={load} knownProcedures={knownProcedures} />
       </div>
     )
   }
@@ -746,18 +799,15 @@ function CasesView() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Procedures</label>
               {procedures.map((p, i) => (
-                <div key={i} style={{ display: 'flex', gap: 8 }}>
-                  <input
-                    value={p}
-                    onChange={e => { const next = [...procedures]; next[i] = e.target.value; setProcedures(next) }}
-                    placeholder="e.g. Deep Plane Face and Neck Lift"
-                    style={{ border: '0.5px solid #ddd', padding: '8px 12px', ...s, fontSize: 13, flex: 1, outline: 'none' }}
-                  />
-                  {procedures.length > 1 && (
-                    <button type="button" onClick={() => setProcedures(procedures.filter((_, j) => j !== i))}
-                      style={{ border: '0.5px solid #ddd', background: 'none', padding: '8px 12px', cursor: 'pointer', ...s, fontSize: 13, color: '#888' }}>✕</button>
-                  )}
-                </div>
+                <ProcedureRow
+                  key={i}
+                  value={p}
+                  known={knownProcedures}
+                  onChange={v => { const next = [...procedures]; next[i] = v; setProcedures(next) }}
+                  onRemove={() => setProcedures(procedures.filter((_, j) => j !== i))}
+                  s={s}
+                  removable={procedures.length > 1}
+                />
               ))}
               <button type="button" onClick={() => setProcedures([...procedures, ''])}
                 style={{ ...s, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', background: 'none', border: '0.5px solid #ddd', padding: '8px 16px', cursor: 'pointer', color: '#888', alignSelf: 'flex-start' }}>
