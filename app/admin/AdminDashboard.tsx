@@ -1794,7 +1794,7 @@ function AboutAdminView() {
                       }}
                       placeholder="Tag name…"
                       className="expertise-tag"
-                      style={{ border: '0.5px solid var(--jkn-divider)', outline: 'none', background: 'transparent' }}
+                      style={{ border: '0.5px solid var(--jkn-divider)', outline: 'none', background: 'transparent', width: 160 }}
                     />
                     <button
                       disabled={newTagSaving || !newTagDraft.trim()}
