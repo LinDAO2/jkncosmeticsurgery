@@ -24,9 +24,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Invalid gallery' }, { status: 400 })
   }
   const order = display_order ?? 0
+  const { data: maxRow } = await supabase
+    .from('cases')
+    .select('all_display_order')
+    .neq('gallery', 'skincancer')
+    .order('all_display_order', { ascending: false })
+    .limit(1)
+    .single()
+  const allOrder = ((maxRow?.all_display_order ?? -10) + 10)
   const { data, error } = await supabase
     .from('cases')
-    .insert({ gallery, procedures: procedures ?? [], display_order: order, all_display_order: order, instagram_videos: instagram_videos ?? [] })
+    .insert({ gallery, procedures: procedures ?? [], display_order: order, all_display_order: allOrder, instagram_videos: instagram_videos ?? [] })
     .select()
     .single()
   if (error) return NextResponse.json({ error: 'Failed to create' }, { status: 500 })
