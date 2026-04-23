@@ -574,7 +574,7 @@ function CasesView() {
   useEffect(() => {
     setLocalCases(
       gallery === 'all'
-        ? [...dbCases].sort((a, b) => a.gallery.localeCompare(b.gallery) || a.display_order - b.display_order)
+        ? [...dbCases].sort((a, b) => a.display_order - b.display_order)
         : dbCases.filter(c => c.gallery === gallery).sort((a, b) => a.display_order - b.display_order)
     )
     setEditingLinksId(null)
