@@ -1,5 +1,10 @@
 import Image from 'next/image'
 
+function toAbsoluteUrl(url: string): string {
+  if (/^https?:\/\//i.test(url)) return url
+  return `https://${url}`
+}
+
 export type AboutData = {
   name: string
   title: string
@@ -90,7 +95,7 @@ export default function About({ data, photoUrl }: { data: AboutData | null; phot
               <div key={item.id} className="recognition-item">
                 <div className="recognition-dash" />
                 {item.url ? (
-                  <a href={item.url} className="recognition-text recognition-link" target="_blank" rel="noopener noreferrer">{item.content}</a>
+                  <a href={toAbsoluteUrl(item.url)} className="recognition-text recognition-link" target="_blank" rel="noopener noreferrer">{item.content}</a>
                 ) : (
                   <span className="recognition-text">{item.content}</span>
                 )}
