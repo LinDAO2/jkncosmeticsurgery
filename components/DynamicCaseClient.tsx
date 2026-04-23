@@ -78,7 +78,7 @@ export default function DynamicCaseClient({ gallery, procedures, images, instagr
           <div className="case-detail-video-link">
             {instagramVideos.map((l) => (
               <a key={l.url} href={l.url} target="_blank" rel="noopener noreferrer" className="case-video-btn">
-                {l.label || (l.url.includes('youtube.com') || l.url.includes('youtu.be') ? 'View on YouTube' : 'View on Instagram')}
+                {l.label || 'View Patient Video'}
               </a>
             ))}
           </div>
