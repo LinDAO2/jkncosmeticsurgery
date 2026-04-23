@@ -1473,6 +1473,9 @@ function AboutAdminView() {
   const [addingBio, setAddingBio] = useState(false)
   const [newBioDraft, setNewBioDraft] = useState('')
   const [newBioSaving, setNewBioSaving] = useState(false)
+  const [addingTag, setAddingTag] = useState(false)
+  const [newTagDraft, setNewTagDraft] = useState('')
+  const [newTagSaving, setNewTagSaving] = useState(false)
 
   async function load() {
     setFetching(true)
@@ -1775,7 +1778,39 @@ function AboutAdminView() {
                     )}
                   </div>
                 ))}
-                <button onClick={() => addItem('tag', 'New Tag')} className="expertise-tag" style={{ cursor: 'pointer', borderStyle: 'dashed', color: 'var(--jkn-light)' }}>+ Add tag</button>
+                {addingTag ? (
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                    <input
+                      autoFocus
+                      value={newTagDraft}
+                      onChange={e => setNewTagDraft(e.target.value)}
+                      onKeyDown={async e => {
+                        if (e.key === 'Enter' && newTagDraft.trim()) {
+                          setNewTagSaving(true)
+                          await addItem('tag', newTagDraft.trim())
+                          setNewTagDraft(''); setAddingTag(false); setNewTagSaving(false)
+                        }
+                        if (e.key === 'Escape') { setAddingTag(false); setNewTagDraft('') }
+                      }}
+                      placeholder="Tag name…"
+                      className="expertise-tag"
+                      style={{ border: '0.5px solid var(--jkn-divider)', outline: 'none', background: 'transparent' }}
+                    />
+                    <button
+                      disabled={newTagSaving || !newTagDraft.trim()}
+                      onClick={async () => {
+                        if (!newTagDraft.trim()) return
+                        setNewTagSaving(true)
+                        await addItem('tag', newTagDraft.trim())
+                        setNewTagDraft(''); setAddingTag(false); setNewTagSaving(false)
+                      }}
+                      style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', background: '#1c1917', color: '#fff', border: 'none', padding: '4px 10px', cursor: 'pointer', opacity: !newTagDraft.trim() ? 0.4 : 1 }}
+                    >{newTagSaving ? '…' : 'Save'}</button>
+                    <button onClick={() => { setAddingTag(false); setNewTagDraft('') }} style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 11, color: 'var(--jkn-light)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>×</button>
+                  </div>
+                ) : (
+                  <button onClick={() => setAddingTag(true)} className="expertise-tag" style={{ cursor: 'pointer', borderStyle: 'dashed', color: 'var(--jkn-light)' }}>+ Add tag</button>
+                )}
               </div>
 
               <div style={{ marginTop: 40 }}>
