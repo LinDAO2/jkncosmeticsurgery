@@ -1805,11 +1805,38 @@ function AboutAdminView() {
   )
 }
 
+const VALID_VIEWS: View[] = ['inquiries', 'reviews', 'cases', 'services', 'about', 'homepage', 'email-routing']
+
 export default function AdminDashboard({ inquiries }: { inquiries: Inquiry[] }) {
   const [view, setView] = useState<View>('inquiries')
   const [selected, setSelected] = useState<Inquiry | null>(null)
   const [showChangePassword, setShowChangePassword] = useState(false)
   const router = useRouter()
+
+  // Read view from URL on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const v = params.get('view') as View | null
+    if (v && VALID_VIEWS.includes(v)) setView(v)
+  }, [])
+
+  // Sync browser back/forward
+  useEffect(() => {
+    function onPop() {
+      const params = new URLSearchParams(window.location.search)
+      const v = params.get('view') as View | null
+      setView(v && VALID_VIEWS.includes(v) ? v : 'inquiries')
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
+
+  function navigate(v: View) {
+    setView(v)
+    const url = new URL(window.location.href)
+    url.searchParams.set('view', v)
+    history.pushState({}, '', url.toString())
+  }
 
   async function handleLogout() {
     await fetch('/api/admin/logout', { method: 'POST' })
@@ -1830,13 +1857,13 @@ export default function AdminDashboard({ inquiries }: { inquiries: Inquiry[] }) 
           <span className="admin-sidebar-sub">Practice Portal</span>
         </div>
         <div className="admin-nav">
-          <span className={`admin-nav-item${view === 'inquiries' ? ' active' : ''}`} onClick={() => setView('inquiries')}>Inquiries</span>
-          <span className={`admin-nav-item${view === 'reviews' ? ' active' : ''}`} onClick={() => setView('reviews')}>Reviews</span>
-          <span className={`admin-nav-item${view === 'cases' ? ' active' : ''}`} onClick={() => setView('cases')}>Cases</span>
-          <span className={`admin-nav-item${view === 'services' ? ' active' : ''}`} onClick={() => setView('services')}>Services</span>
-          <span className={`admin-nav-item${view === 'about' ? ' active' : ''}`} onClick={() => setView('about')}>About</span>
-          <span className={`admin-nav-item${view === 'homepage' ? ' active' : ''}`} onClick={() => setView('homepage')}>Homepage</span>
-          <span className={`admin-nav-item${view === 'email-routing' ? ' active' : ''}`} onClick={() => setView('email-routing')}>Email Routing</span>
+          <span className={`admin-nav-item${view === 'inquiries' ? ' active' : ''}`} onClick={() => navigate('inquiries')}>Inquiries</span>
+          <span className={`admin-nav-item${view === 'reviews' ? ' active' : ''}`} onClick={() => navigate('reviews')}>Reviews</span>
+          <span className={`admin-nav-item${view === 'cases' ? ' active' : ''}`} onClick={() => navigate('cases')}>Cases</span>
+          <span className={`admin-nav-item${view === 'services' ? ' active' : ''}`} onClick={() => navigate('services')}>Services</span>
+          <span className={`admin-nav-item${view === 'about' ? ' active' : ''}`} onClick={() => navigate('about')}>About</span>
+          <span className={`admin-nav-item${view === 'homepage' ? ' active' : ''}`} onClick={() => navigate('homepage')}>Homepage</span>
+          <span className={`admin-nav-item${view === 'email-routing' ? ' active' : ''}`} onClick={() => navigate('email-routing')}>Email Routing</span>
         </div>
         <button className="admin-change-password-btn" onClick={() => setShowChangePassword(true)}>Change Password</button>
         <button className="admin-logout-btn" onClick={handleLogout}>Sign Out</button>
