@@ -663,7 +663,8 @@ function CasesView() {
     setSaving(true)
     setError('')
 
-    const minOrder = localCases.length ? Math.min(...localCases.map(c => c.display_order)) : 10
+    const galleryCases = dbCases.filter(c => c.gallery === gallery)
+    const minOrder = galleryCases.length ? Math.min(...galleryCases.map(c => c.display_order)) : 10
     const res = await fetch('/api/admin/cases', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

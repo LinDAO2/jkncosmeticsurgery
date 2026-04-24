@@ -25,11 +25,11 @@ export async function POST(req: Request) {
   }
   const order = display_order ?? 0
   const isCancer = gallery === 'skincancer'
-  const minQuery = isCancer
-    ? supabase.from('cases').select('all_display_order').eq('gallery', 'skincancer').order('all_display_order', { ascending: true }).limit(1).single()
-    : supabase.from('cases').select('all_display_order').neq('gallery', 'skincancer').order('all_display_order', { ascending: true }).limit(1).single()
-  const { data: minRow } = await minQuery
-  const allOrder = (minRow?.all_display_order ?? 10) - 10
+  const maxQuery = isCancer
+    ? supabase.from('cases').select('all_display_order').eq('gallery', 'skincancer').order('all_display_order', { ascending: false }).limit(1).single()
+    : supabase.from('cases').select('all_display_order').neq('gallery', 'skincancer').order('all_display_order', { ascending: false }).limit(1).single()
+  const { data: maxRow } = await maxQuery
+  const allOrder = (maxRow?.all_display_order ?? -10) + 10
   const { data, error } = await supabase
     .from('cases')
     .insert({ gallery, procedures: procedures ?? [], display_order: order, all_display_order: allOrder, instagram_videos: instagram_videos ?? [] })
