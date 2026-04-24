@@ -663,11 +663,11 @@ function CasesView() {
     setSaving(true)
     setError('')
 
-    const maxOrder = localCases.length ? Math.max(...localCases.map(c => c.display_order)) : -10
+    const minOrder = localCases.length ? Math.min(...localCases.map(c => c.display_order)) : 10
     const res = await fetch('/api/admin/cases', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ gallery, procedures: filteredProcs, display_order: maxOrder + 10, instagram_videos: links.filter(l => l.url.trim()) }),
+      body: JSON.stringify({ gallery, procedures: filteredProcs, display_order: minOrder - 10, instagram_videos: links.filter(l => l.url.trim()) }),
     })
     if (!res.ok) { setError('Failed to create case.'); setSaving(false); return }
     const { case: newCase } = await res.json()
